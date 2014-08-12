@@ -1,0 +1,36 @@
+#include "sort.h"
+
+int analyze_data(raw_event *data)
+{
+
+  if(data->h.setupHP==TrigBit)
+    return SEPARATOR_KEEP;
+
+  return SEPARATOR_DISCARD;
+}
+/*====================================================================================*/
+
+int main(int argc, char *argv[])
+{
+
+  input_names_type* name;
+  
+
+  if(argc!=4)
+    {
+      printf("\n ./separate_TrigBits sfu_input_data_file_name sfu_output_data_file_name TrigBit\n");
+      exit(-1);
+    }
+
+  printf("Program separates according to the given TrigBits \n");
+  
+  name=(input_names_type*)malloc(sizeof(input_names_type));
+  memset(name,0,sizeof(input_names_type));
+  strcpy(name->fname.inp_data,argv[1]);
+  strcpy(name->fname.out_data,argv[2]);
+  name->flag.separate=1;
+
+  TrigBit=atoi(argv[3]);
+  sort(name); 
+   
+}

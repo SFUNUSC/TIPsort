@@ -1,0 +1,247 @@
+#include "sort.h"
+
+int analyze_data(raw_event *data)
+{
+  int posTIG,colTIG,posBGO,colBGO,supBGO;
+  double tigE;
+  int tig,bgo;
+  int take;
+  
+  cev=(cal_event*)malloc(sizeof(cal_event));
+  memset(cev,0,sizeof(cal_event));
+  calibrate_TIGRESS(data,&cal_par->tg,&cev->tg);
+
+//Check Ge fold
+  //if(data->tg.h.Gefold>0)
+  if(cev->tg.h.FH>0)
+    //Run through all positions
+    for(posTIG=1;posTIG<NPOSTIGR;posTIG++)
+      //Check if the position is indicated in the hit pattern
+      //if((data->tg.h.GeHP&(1<<(posTIG-1)))!=0)
+      if((cev->tg.h.EHP&(1<<(posTIG-1)))!=0)
+	if((cev->tg.h.THP&(1<<(posTIG-1)))!=0)
+	  //Check if the position has a fold great than zero
+	  //if(data->tg.det[posTIG].h.Gefold>0)
+	  if(cev->tg.det[posTIG].hge.FE>0)
+	    if(cev->tg.det[posTIG].hge.FT>0)
+	      //Run through four cores for each position
+	      for(colTIG=0;colTIG<NCOL;colTIG++)
+		//Check if this position is indicated in the hit pattern
+		//if((data->tg.det[posTIG].h.GeHP&(1<<colTIG))!=0)
+		if((cev->tg.det[posTIG].hge.EHP&(1<<colTIG))!=0)
+		  if((cev->tg.det[posTIG].hge.THP&(1<<colTIG))!=0)
+		    //Check that this combination has a time fold great than zero
+		    //if(data->tg.det[posTIG].ge[colTIG].h.Tfold>0)
+		    if(cev->tg.det[posTIG].ge[colTIG].h.FE>0)
+		      if(cev->tg.det[posTIG].ge[colTIG].h.FT>0)
+			//Check if this combination is indicated in the time hit pattern
+			//if((data->tg.det[posTIG].ge[colTIG].h.THP&1)!=0)
+			if((cev->tg.det[posTIG].ge[colTIG].h.EHP&1)!=0)
+			  if((cev->tg.det[posTIG].ge[colTIG].h.THP&1)!=0)
+			    {
+			      tigE=cev->tg.det[posTIG].ge[colTIG].seg[0].E/cal_par->tg.contr_e;
+			      if(tigE>=tigE_low && tigE<=tigE_high) //energy gate for suppression
+
+			    //Check BGO fold
+			    if(data->tg.h.BGOfold>0)
+			      //Run through all positions
+			      for(posBGO=1;posBGO<NPOSTIGR;posBGO++)
+				//check if this position is in the hit pattern with fold > 0
+				if(((data->tg.h.BGOHP&(1<<(posBGO-1)))!=0) && (data->tg.det[posBGO].h.BGOfold>0))
+				  //run through all the colors
+				  for(colBGO=0;colBGO<NCOL;colBGO++)
+				    //check if this color is in the hit pattern with a fold > 0
+				    if(((data->tg.det[posBGO].h.BGOHP&(1<<colBGO))!=0) && (data->tg.det[posBGO].bgo[colBGO].h.Tfold>0))
+				      //run through all suppressors
+				      for(supBGO=0;supBGO<NSUP;supBGO++)
+					//check if this suppressor is in the hit pattern with fold > 0
+					if(((data->tg.det[posBGO].bgo[colBGO].h.THP&(1<<supBGO))!=0)) //&& (take==0))
+					  {
+					    //tigress from 0-63 ... pos1 from 0-3, pos2 from 4-7, etc.
+					    tig =(posTIG-1)*NCOL+colTIG;
+					    
+					    //bgo from 0-319 ... pos1 col0 from 0-4, pos1 col1 from 5-9, etc.
+					    bgo = ((posBGO-1)*NCOL+colBGO)*NSUP+supBGO; 
+					    
+					    //tigress on x-axis, bgo on y-axis
+					    h->Fill(tig,bgo);
+					    tthp[tig][bgo]++;
+					    
+					  }
+			      
+			    }
+  free(cev);
+  return SEPARATOR_DISCARD;
+}
+/*====================================================================================*/
+int main(int argc, char *argv[])
+{
+  input_names_type* name;
+  FILE *cluster;
+  char title[132],DataFile[132];
+  int i,j;
+
+  //hit pattern statistics
+  double N,sum,sum2,sq;
+  double mean,var,stdev;
+
+  //stuff for making the suppression map  
+  FILE *supMap;
+  int tigPos,tigCol,bgoPos,bgoCol,bgoSup;
+  int N_sigma;
+
+  if(argc!=5)
+    {
+      printf("TigressBGO_TTHP_Map master_file_name N_sigma tigE_low tigE_high\n");
+      exit(-1);
+    }
+
+  //suppress events with number of hits H > mean+N_sigma*stdev, N_sigma is an integer
+  N_sigma = atoi(argv[2]);
+
+  //tigE_low and tigE_high are low and high energy limits for TIGRESS gamma-rays for making the suppression map
+  tigE_low = atof(argv[3]);
+  tigE_high = atof(argv[4]);
+
+  //hit pattern histogram
+  h = new TH2D("TigressBGO TTHP Map","TigressBGO TTHP Map",NPOSTIGR*NCOL,0,NPOSTIGR*NCOL-1,NPOSTIGR*NCOL*NSUP,0,NPOSTIGR*NCOL*NSUP-1);
+  h->Reset();
+
+  //suppression map histogram
+  h2 = new TH2D("TigressBGO Suppession Map","TigressBGO Suppression Map",NPOSTIGR*NCOL,0,NPOSTIGR*NCOL-1,NPOSTIGR*NCOL*NSUP,0,NPOSTIGR*NCOL*NSUP-1);
+  h2->Reset();
+
+  printf("Program sorts 2D hit pattern for Tigress and BGO using good time hit patterns and makes a suppression map\n");
+
+  //allocate memory - make sure to include calibrations!
+  name=(input_names_type*)malloc(sizeof(input_names_type));
+  memset(name,0,sizeof(input_names_type));
+  cal_par=(calibration_parameters*)malloc(sizeof(calibration_parameters));
+  memset(cal_par,0,sizeof(calibration_parameters));
+
+  read_master(argv[1],name);
+
+  if(name->flag.cluster_file==1)
+    {
+      printf("Sorting Tigress BGO hit pattern histograms from cluster file: %s\n",name->fname.cluster_file);
+      if((cluster=fopen(name->fname.cluster_file,"r"))==NULL)
+	{
+	  printf("ERROR! I can't open input file %s\n",name->fname.cluster_file);
+	  exit(-2);
+	}
+    }
+  else
+    {
+      printf("ERROR! Cluster file not defined\n");
+      exit(-1);
+    }
+
+  if(name->flag.TIGRESS_cal_par==1)
+    {
+      printf("TIGRESS calpar read from: %s\n",name->fname.TIGRESS_cal_par);
+      initialize_TIGRESS_calibration(&cal_par->tg,name->fname.TIGRESS_cal_par);
+    }
+  else
+    {
+      printf("ERROR!!! TIGRESS calibration parameters not defined\n");
+      exit(-1);
+    }
+  
+  while(fscanf(cluster,"%s",DataFile) != EOF)
+    {
+      memset(name,0,sizeof(input_names_type));
+      strcpy(name->fname.inp_data,DataFile);
+      
+      printf("Sorting data from %s\n", name);
+      sort(name); 
+    }
+
+  //write histogram to file so you can look at it
+  sprintf(title,"TigressBGO_TTHP_Map.root");
+  TFile f(title, "recreate");
+  h->GetXaxis()->SetTitle("TIGRESS hit pattern");
+  h->GetXaxis()->CenterTitle(true);
+  h->GetYaxis()->SetTitle("BGO hit pattern");
+  h->GetYaxis()->CenterTitle(true);
+  h->GetYaxis()->SetTitleOffset(1.5);
+  h->SetOption("COLZ");
+  gStyle->SetPalette(1);
+  h->Write();
+
+  //open the file for writing the suppression map
+  supMap = fopen("TIGRESS_suppression_map.par","w");
+  fprintf(supMap,"This is a suppression map file for TIGRESS cores\n");
+  fprintf(supMap,"tigPos  tigCol  bgoPos  bgoCol  bgoSup\n");
+
+  //corrected two pass calculation for std dev
+  //plus one pass for making the map based on the result
+  for(i=0;i<NPOSTIGR*NCOL-1;i++)
+    {
+      N=0.;
+      sum=0.;
+      sum2=0.;
+      stdev=0.;
+      mean=0.;
+      sq=0.;
+      
+      //get the mean and stdev
+      for(j=0;j<NPOSTIGR*NCOL*NSUP-1;j++)
+	if(tthp[i][j] != 0)
+	  {
+	    N += 1.;
+	    sum += (double)tthp[i][j];
+	  }
+    
+      if(N==0)
+	{
+	  mean=0.;
+	  stdev=0.;
+	}
+      
+      else
+	{
+	  mean = sum/N;
+	  for(j=0;j<NPOSTIGR*NCOL*NSUP-1;j++)
+	    if(tthp[i][j] != 0)
+	      {
+		sq += ((double)tthp[i][j]-mean)*((double)tthp[i][j]-mean);
+		sum2 += (double)tthp[i][j]-mean;
+	      }
+	  stdev = sqrt((sq-(sum2*sum2)/N)/(N-1));
+	}
+      
+      //make the suppression map
+      for(j=0;j<NPOSTIGR*NCOL*NSUP-1;j++)
+	if(tthp[i][j] >= mean+N_sigma*stdev)
+	  {
+	    //reconstruct TIGRESS and BGO detectors from the hit map
+	    //% is modular arithmatic, i.e. r = a%b is the remainder
+	    //when a is divided by b.
+	    tigCol = i%NCOL;
+	    tigPos = (i-tigCol)/NCOL + 1;
+	    
+	    bgoSup = j%NSUP;
+	    bgoCol = ((j-bgoSup)/NSUP)%NCOL;
+	    bgoPos = (((j-bgoSup)/NSUP) - bgoCol)/NCOL + 1; 
+	    
+	    fprintf(supMap,"%d       %d       %d       %d       %d\n",tigPos,tigCol,bgoPos,bgoCol,bgoSup);
+
+	    //fill histogram of the suppression map
+	    h2->Fill(i,j);
+	  }
+    }
+  
+  //write the map histogram to the file
+  h2->GetXaxis()->SetTitle("TIGRESS detector");
+  h2->GetXaxis()->CenterTitle(true);
+  h2->GetYaxis()->SetTitle("BGO detector");
+  h2->GetYaxis()->CenterTitle(true);
+  h2->GetYaxis()->SetTitleOffset(1.5);
+  h2->SetOption("COLZ");
+  gStyle->SetPalette(1);
+  h2->Write();
+
+  //close the map	
+  fclose(supMap);
+}
+

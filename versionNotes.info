@@ -17,3 +17,9 @@ v7.9 New HPGe/BGO suppression scheme from HPGe/BGO hit map. A new
      with TigressBGO_TTHP_Map.
 
 v8.0 HPGe/BGO time difference implemented in calibrator for suppression scheme.
+
+v8.2 BGO detector type added. New method for calculating standard deviation for	     suppression maps. TIGRESS and BGO times are independet in calibrator. 
+     Program for creating background subtracted spectra added (preliminary
+     at this stage).
+
+v8.3 Version used for S1467 in May/June 2015.

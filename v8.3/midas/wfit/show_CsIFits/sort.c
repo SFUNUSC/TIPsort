@@ -5,37 +5,40 @@ int analyze_fragment(Tig10_event* ptr,short* waveform)
   Int_t d;
   WaveFormPar wpar;
   double ch;
-  double Rfit;
-
+  int type;
+  
   if(ptr->channel==chn)
     if((d=ptr->waveform_length)!=0)
-    {
-      fit_CsI_waveform(d,waveform,par,&wpar);
-      ch=par->chisq/par->ndf;
-
-      Rfit = 100*(1+(par->am[3]/par->am[2])); //This is in PID units
-
-      if(ch>=chmin)
-        if(ch<=chmax)
-	  if(Rfit>=Rlow)
-	    if(Rfit<=Rhigh)
-      {	
-	print_fragment_info(ptr,S16K);
-	show_CsI_Fit(d,waveform,par,&wpar,theApp);
+      {
+	fit_CsI_waveform(d,waveform,par,&wpar);
+	ch=par->chisq/par->ndf;
+	
+	type=par->type;
+	//printf("type %d\n",type);
+	//getc(stdin);
+	
+	if(ch>=chmin)
+	  if(ch<=chmax)
+	    if(type>=type_low)
+	      if(type<=type_high)
+		{	
+		  print_fragment_info(ptr,S16K);
+		  show_CsI_Fit(d,waveform,par,&wpar,theApp);
+		}
       }
-    }
-
+  
   return 0;
 }
 /*================================================================*/
 int main(int argc, char *argv[])
 {
   int ac;
-  char *av[15];
+  char *av[10];
 
  if(argc!=11)
     {
-      printf("wfit_show_CsIFits midas_input_data_file_name channel tRC tF tS tGamma chisq_min chisq_max Rlow Rhigh\n");
+      printf("wfit_show_CsIFits midas_input_data_file_name channel tRC tF tS tGamma chisq_min chisq_max type_low type_high\n");
+      printf("type 1 = 2 component, type 2 = slow component only, type 3 = PIN direct hit\n");
       exit(-1);
     }
 
@@ -49,8 +52,8 @@ int main(int argc, char *argv[])
   par->t[4]=atof(argv[6]); //set tGamma
   chmin=atof(argv[7]);
   chmax=atof(argv[8]);
-  Rlow=atof(argv[9]);
-  Rhigh=atof(argv[10]);
+  type_low=atoi(argv[9]);
+  type_high=atoi(argv[10]);
 
   theApp=new TApplication("App", &ac, av);
 

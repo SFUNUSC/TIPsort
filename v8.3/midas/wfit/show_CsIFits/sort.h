@@ -20,5 +20,5 @@ ShapePar* par;
 int  chn;
 double chmin,chmax;
 TApplication *theApp;
-double Rlow,Rhigh;
+double type_low,type_high;
 #endif

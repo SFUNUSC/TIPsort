@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 
  if(argc!=9)
     {
-      printf("wfit_show_CsIExclusionZoneAndFits midas_input_data_file_name channel tRC tF tS tGamma min max");
+      printf("wfit_show_CsIExclusionZoneAndFits midas_input_data_file_name channel tRC tF tS tGamma chisq_min chisq_max");
       exit(-1);
     }
 

@@ -764,70 +764,66 @@ void calibrate_TIGRESS(raw_event *raw_event, TIGRESS_calibration_parameters *TIG
       {
   	TIGRESS_cal_ev->det[tigPos].ge[tigCol].suppress=0;
       }
-
-  //problem using calibrated event for good TIGRESS time existence and raw event for BGO? no BGO time calibration right now.
-  //if TIGRESS fold > 0  
-  if(TIGRESS_cal_ev->h.FH>0) //H is Time + Energy
-    //for each position of Tigress
-    for(tigPos=1;tigPos<NPOSTIGR;tigPos++)
-      {
-	//check if the position is in the hit pattern
-	if((TIGRESS_cal_ev->h.HHP&(one<<(tigPos-1)))!=0)
-	  //with fold > 0
-	  if(TIGRESS_cal_ev->det[tigPos].hge.FH>0)
-	    //and in the add back hit pattern - should this be here?
-	    if((TIGRESS_cal_ev->h.AHP&(one<<(tigPos-1)))!=0)
-	      //for each color
-	      for(tigCol=0;tigCol<NCOL;tigCol++)
-		//if this combination is in the hit pattern
-		if((TIGRESS_cal_ev->det[tigPos].hge.HHP&(one<<tigCol))!=0)
-		  //Check that this combination has a energy fold great than zero
-		  if(TIGRESS_cal_ev->det[tigPos].ge[tigCol].h.FH>0)
-		    //if BGO fold > 0
-		    if(raw_event->tg.h.BGOfold>0)
-		      for(bgoPos=1;bgoPos<NPOSTIGR;bgoPos++)
-			for(bgoCol=0;bgoCol<NCOL;bgoCol++)
-			  for(bgoSup=0;bgoSup<NSUP;bgoSup++)
-			    //if BGO suppressor in the hit pattern
-			    if(((raw_event->tg.det[bgoPos].bgo[bgoCol].h.THP&(1<<bgoSup))!=0))
-			      {
-				//printf("BGO suppressor %d col %d sup %d hit\n",bgoPos,bgoCol,bgoSup);
-				//getc(stdin);
-				
-				//if BGO in the suppression map
-				if(TIGRESS_cal_par->sup_map[tigPos][tigCol][bgoPos][bgoCol][bgoSup]==1)
-				  {
-				    tbgo=raw_event->tg.det[bgoPos].bgo[bgoCol].sup[bgoSup].cfd&0x00ffffff;
-				    //printf("bgo cfd: %0.f\n",tbgo);
-				    //tbgo-=(raw_event->tg.det[bgoPos].bgo[bgoCol].sup[bgoSup].timestamp*16)&0x00ffffff;
-				    //printf("bgo cfd-timestamp: %0.f\n",tbgo);
-				    				    
-				    ttg=raw_event->tg.det[tigPos].ge[tigCol].seg[0].cfd&0x00ffffff;
-				    //printf("tigress cfd: %0.f\n",ttg);
-				    //ttg-=(raw_event->tg.det[tigPos].ge[tigCol].seg[0].timestamp*16)&0x00ffffff;
-				    //printf("tigress cfd-timestamp: %0.f\n",ttg);
-				    
-				    tdiff = ttg-tbgo;
-				    tdiff+=S16K;
-				    tdiff/=16;
-				    
-				    if(tdiff>=0 && tdiff<S32K)
-				      TIGRESS_cal_ev->det[tigPos].ge[tigCol].suppress=tdiff;
-				    
-				    //printf("events at HPGe pos %d and col %d suppressed with %f\n",tigPos,tigCol,TIGRESS_cal_ev->det[tigPos].ge[tigCol].suppress);
-				    //getc(stdin);
-				    
-				    /* if(TIGRESS_cal_ev->det[tigPos].ge[tigCol].suppress<=0 || TIGRESS_cal_ev->det[tigPos].ge[tigCol].suppress >=S32K) */
-				    /*   { */
-				    /*     printf("events at HPGe pos %d and col %d suppressed with %f\n",tigPos,tigCol,TIGRESS_cal_ev->det[tigPos].ge[tigCol].suppress); */
-				    /*     getc(stdin); */
-				    /*   } */
-				    
-				  }
-			      }
-      } 
   
-  //DEFAULT SUPPRESSION METHOD
+  //check TIGRESS hit fold
+  if(TIGRESS_cal_ev->h.FT>0)
+    //check BGO hit fold
+    if(TIGRESS_cal_ev->h.BFT>0)
+      //TIGRESS part - loop through positions, cores; check associated hit patterns
+      for(tigPos=1;tigPos<NPOSTIGR;tigPos++)
+	if((TIGRESS_cal_ev->h.THP&(1<<(tigPos-1)))!=0)
+	  if(TIGRESS_cal_ev->det[tigPos].hge.FT>0)
+	    for(tigCol=0;tigCol<NCOL;tigCol++)
+	      if((TIGRESS_cal_ev->det[tigPos].hge.THP&(1<<tigCol))!=0)
+		if(TIGRESS_cal_ev->det[tigPos].ge[tigCol].h.FT>0)
+		  if((TIGRESS_cal_ev->det[tigPos].ge[tigCol].h.THP&1)!=0)
+		    //BGO part - loop through positions, cores; check associated hit patterns
+		    for(bgoPos=1;bgoPos<NPOSTIGR;bgoPos++)
+		      if((TIGRESS_cal_ev->h.BTHP&(1<<(bgoPos-1)))!=0)
+			if(TIGRESS_cal_ev->det[bgoPos].hbgo.BFT>0)
+			  for(bgoCol=0;bgoCol<NCOL;bgoCol++)
+			    if((TIGRESS_cal_ev->det[bgoPos].hbgo.BTHP&(1<<bgoCol))!=0)
+			      if(TIGRESS_cal_ev->det[bgoPos].bgo[bgoCol].h.BFT>0)
+				for(bgoSup=0;bgoSup<NSUP;bgoSup++)
+				  if((TIGRESS_cal_ev->det[bgoPos].bgo[bgoCol].h.BTHP&(1<<bgoSup))!=0)
+				    {
+				      //printf("BGO suppressor %d col %d sup %d hit\n",bgoPos,bgoCol,bgoSup);
+				      //getc(stdin);
+				      
+				      //if BGO in the suppression map
+				      if(TIGRESS_cal_par->sup_map[tigPos][tigCol][bgoPos][bgoCol][bgoSup]==1)
+					{
+					  tbgo=TIGRESS_cal_ev->det[bgoPos].bgo[bgoCol].sup[bgoSup].T/TIGRESS_cal_par->contr_t;
+					  //printf("bgo cfd: %0.f\n",tbgo);
+					  //tbgo-=(raw_event->tg.det[bgoPos].bgo[bgoCol].sup[bgoSup].timestamp*16)&0x00ffffff;
+					  //printf("bgo cfd-timestamp: %0.f\n",tbgo);
+					  
+					  ttg=TIGRESS_cal_ev->det[tigPos].ge[tigCol].seg[0].T/TIGRESS_cal_par->contr_t;
+					  //printf("tigress cfd: %0.f\n",ttg);
+					  //ttg-=(raw_event->tg.det[tigPos].ge[tigCol].seg[0].timestamp*16)&0x00ffffff;
+					  //printf("tigress cfd-timestamp: %0.f\n",ttg);
+					  
+					  tdiff = ttg-tbgo;
+					  tdiff+=S4K;
+					  //tdiff/=16;
+					  
+					  if(tdiff>=0 && tdiff<S32K)
+					    TIGRESS_cal_ev->det[tigPos].ge[tigCol].suppress=tdiff;
+					  
+					  //printf("events at HPGe pos %d and col %d suppressed with %f\n",tigPos,tigCol,TIGRESS_cal_ev->det[tigPos].ge[tigCol].suppress);
+					  //getc(stdin);
+					  
+					  /* if(TIGRESS_cal_ev->det[tigPos].ge[tigCol].suppress<=0 || TIGRESS_cal_ev->det[tigPos].ge[tigCol].suppress >=S32K) */
+					  /*   { */
+					  /*     printf("events at HPGe pos %d and col %d suppressed with %f\n",tigPos,tigCol,TIGRESS_cal_ev->det[tigPos].ge[tigCol].suppress); */
+					  /*     getc(stdin); */
+					  /*   } */
+					  
+					}
+				    }
+  
+  
+//DEFAULT SUPPRESSION METHOD
   /* for(pos=1;pos<NPOSTIGR;pos++) */
   /*   { */
   /*     TIGRESS_cal_ev->det[pos].suppress=0; */

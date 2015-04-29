@@ -9,22 +9,22 @@
 #define SIGN2NOISE 0 //signal to noise ratio for get_sig2noise
 
 //bad chi squares for debugging
-#define BADCHISQ_NEG         1024-1 //chisq is negative
-#define BADCHISQ_SMOOTH_T0   1024-2 //smooth_t0 gives bad result
-#define BADCHISQ_PAR_T0      1024-3 //parabolic_t0 gives bad result
-#define BADCHISQ_LIN_T0      1024-4 //linear_t0 gives bad result
-#define BADCHISQ_MAT         1024-5 //matrix for fit is not invertable
-#define BADCHISQ_AMPL        1024-6 //component amplitude < 0
-#define BADCHISQ_T0          1024-7 //finding t0 fails for t0 < 0
-#define BADCHISQ_FAIL_DIRECT 1024-8 //fails direct hit
+#define BADCHISQ_NEG         -1024-1 //chisq is negative
+#define BADCHISQ_SMOOTH_T0   -1024-2 //smooth_t0 gives bad result
+#define BADCHISQ_PAR_T0      -1024-3 //parabolic_t0 gives bad result
+#define BADCHISQ_LIN_T0      -1024-4 //linear_t0 gives bad result
+#define BADCHISQ_MAT         -1024-5 //matrix for fit is not invertable
+#define BADCHISQ_AMPL        -1024-6 //component amplitude < 0
+#define BADCHISQ_T0          -1024-7 //finding t0 fails for t0 < 0
+#define BADCHISQ_FAIL_DIRECT -1024-8 //fails direct hit
 
 #define EPS        0.001
 #define MAX_VALUE 16380 //max waveform value from ADC
 
 //new definitions for Kris' changes to the waveform analyzer
 #define PIN_BASELINE_RANGE 16
-#define BAD_MAX            1024-9
-#define BAD_BASELINE_RANGE 1024-10
+#define BAD_MAX            -1024-9
+#define BAD_BASELINE_RANGE -1024-10
 #define LARGECHISQ         1E111
 #define T10LOW             50  //low limit for T10
 #define T10HIGH            300 //high linit for T10

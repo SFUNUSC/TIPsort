@@ -291,7 +291,7 @@ if(baselineMax!=NULL) delete baselineMax;
 /*================================================================*/
 int get_shape(int dim, int N, short *waveform,ShapePar* par, WaveFormPar *wpar)
 {
-  long double sum,tau;
+  long double sum,tau,tau_i,tau_j;
   int i,j,p,q,d;
   lin_eq_type e;
   memset(&e,0,sizeof(lin_eq_type));
@@ -312,26 +312,31 @@ int get_shape(int dim, int N, short *waveform,ShapePar* par, WaveFormPar *wpar)
   par->chisq=0.;
   par->ndf=-e.dim;
 
-  //linearized chi square fit is Mu = v where M is a matrix u, v are vectors
-  //u is the parameter vector (solution)
-  //note that in this formulation, chisq_min = y_i^2-sum(u_iv_i)
+  /**************************************************************************
+  linearized chi square fit is Mu = v where M is a data matrix 
+  u, v are vectors; u is the parameter vector (solution)
+  note that in this formulation, chisq_min = y_i^2-sum(u_iv_i)
+  **************************************************************************/
 
   //create matrix for linearized fit
   for(i=1;i<e.dim;i++)
     {
-      tau=par->t[i];
+      tau=get_CsI_tau(i,par);
+      tau_i=tau;
       sum=-((double)q)/tau+log(1.-exp(-((double)(d-q))/tau));
       sum-=log(1.-exp(-1./tau));
       e.matrix[i][0]=exp(sum);
       e.matrix[0][i]=exp(sum);
       
-      tau=par->t[i]/2.;
+      tau/=2.;
       sum=-((double)q)/tau+log(1.-exp(-((double)(d-q))/tau));
       sum-=log(1.-exp(-1./tau));
       e.matrix[i][i]=exp(sum);
+
       for(j=i+1;j<e.dim;j++)
   	{
-  	  tau=par->t[i]*par->t[j]/(par->t[i]+par->t[j]);
+	  tau_j=get_CsI_tau(j,par);
+  	  tau=(tau_i*tau_j)/(tau_i+tau_j);
   	  sum=-((double)q)/tau+log(1.-exp(-((double)(d-q))/tau));
   	  sum-=log(1.-exp(-1./tau));
   	  e.matrix[i][j]=exp(sum);
@@ -353,7 +358,8 @@ int get_shape(int dim, int N, short *waveform,ShapePar* par, WaveFormPar *wpar)
   
   for(i=1;i<e.dim;i++)
     {
-      tau=par->t[i];
+      //tau=par->t[i];
+      tau=get_CsI_tau(i,par);
       e.vector[i]=0;
       for(j=q;j<d;j++)
   	e.vector[i]+=waveform[j]*exp(-(double(j))/tau);
@@ -384,7 +390,7 @@ int get_shape(int dim, int N, short *waveform,ShapePar* par, WaveFormPar *wpar)
   //else try and find t0 and calculate amplitudes
   else
     {
-      //see the function comments for find t0 for details
+      //see the function comments for find_t0 for details
       par->t[0]=get_t0(N,par,wpar,e);
       
       //if t0 is less than 0, return a T0FAIL
@@ -399,7 +405,10 @@ int get_shape(int dim, int N, short *waveform,ShapePar* par, WaveFormPar *wpar)
       par->am[0]=e.solution[0];
 
       for(i=1;i<e.dim;i++)
-  	par->am[i]=e.solution[i]*exp(-par->t[0]/par->t[i]);
+	{
+	  tau=get_CsI_tau(i,par);
+	  par->am[i]=e.solution[i]*exp(-par->t[0]/tau);
+	}
       //done claculating amplitudes
  
       for(i=0;i<e.dim;i++)
@@ -428,6 +437,8 @@ int get_shape(int dim, int N, short *waveform,ShapePar* par, WaveFormPar *wpar)
 
   par->type=dim-2;
 
+  //printf("chisq from get_shape %d\n",par->chisq);
+
   return par->chisq;
 }
 
@@ -449,8 +460,8 @@ double get_t0(int N,ShapePar*par,WaveFormPar *wpar,lin_eq_type e)
   Where:
   C = C'
   alpha = (Af+As)*exp(t0/tRC)
-  beta = Af*exp(t0/tF')
-  gamma = As*exp(t0/tS')
+  beta  = -Af*exp(t0/tF')
+  gamma = -As*exp(t0/tS')
 
   Ignoring the constant, we have: 
 
@@ -464,25 +475,36 @@ double get_t0(int N,ShapePar*par,WaveFormPar *wpar,lin_eq_type e)
   double ta,tb,tc; //corresponding time (x-)axis values
   double slope; //linear interpolation slope
   double delta; //checks how close is the interpolated f(t0) is to 0
+  double tau;
   int i;
 
   //printf("In fit_t0\n");
   ta=wpar->baseline_range;
+  //ta=wpar->temin;
   fa=0.;
   
   //t0 must be between the baseline and the max
   //calculates fit value (no constant) at the end of the baseline range
   //this is the t<t0 point
   for(i=1;i<e.dim;i++)
-    fa+=e.solution[i]*exp(-ta/par->t[i]);
+    {
+      tau=get_CsI_tau(i,par);
+      //printf("i %d tau %f\n",i,tau);
+      //getc(stdin);
+      fa+=e.solution[i]*exp(-ta/tau);
+    }
   
   tb=wpar->tmax;
+  //tb=wpar->temax;
   fb=0.;
   
   //calculates fit value (no constant) at tmax
   //this is the t>t0 point
   for(i=1;i<e.dim;i++)
-    fb+=e.solution[i]*exp(-tb/par->t[i]);
+    {
+      tau=get_CsI_tau(i,par);
+      fb+=e.solution[i]*exp(-tb/tau);
+    }
 
     delta=1;
 
@@ -494,22 +516,22 @@ double get_t0(int N,ShapePar*par,WaveFormPar *wpar,lin_eq_type e)
 	  { 
 	    slope=-fa/(fb-fa); //interpolation slope for dependent variable t
 
-	      //reason for this part?
-	      //ensures that tc > tb or tc < ta?
-	      //"reasonable" interpolation slopes?
+	      //"reasonable" interpolation slopes
 	      if(slope>0.99)
 	      	slope=0.99;
 
 	      if(slope<0.01)
 	      	slope=0.01;
-	      //?
 	      //its pretty harmless computationally
 
 	      //tc is the estimate for t0
 	      tc=ta+slope*(tb-ta);
 	      fc=0.;
 	      for(i=1;i<e.dim;i++)
-	  	fc+=e.solution[i]*exp(-tc/par->t[i]);
+		{
+		  tau=get_CsI_tau(i,par);
+		  fc+=e.solution[i]*exp(-tc/tau);
+		}
 	      
 	      //really should have this, just to be safe
 	      if(fc==0)
@@ -626,7 +648,7 @@ void show_CsI_Fit(Int_t N,short* waveform,ShapePar *par,WaveFormPar *wpar, TAppl
 {
   print_WavePar(wpar);
   print_ShapePar(par);
-  get_CsI_t0_local(N,waveform,par,wpar);
+  //get_CsI_t0_local(N,waveform,par,wpar);
   display_CsI_Fit(N,waveform,par,theApp);	
  
 }
@@ -636,7 +658,7 @@ void show_CsI_Fit(Int_t N,short* waveform,ShapePar *par,WaveFormPar *wpar, TAppl
 int get_shape_with_RF(int dim, int N, short *waveform,ShapePar* par, WaveFormPar *wpar)
 {
   
-  long double tau,l;
+  long double tau,tau_i,tau_j,l;
   int i,j,p,q,d;
   lin_eq_type e;
   double s,sn,snm,s2,s2n,s2nm,c,cn,cnm,c2,c2n,c2nm,w,x,y;
@@ -647,9 +669,9 @@ int get_shape_with_RF(int dim, int N, short *waveform,ShapePar* par, WaveFormPar
     {
       printf("currently working for CsI fast+slow fit only\n");
       printf("terminating execution\n");
-      printf("or executing termination\n");
       exit(0);
     }
+
   /* q is the low limit of the signal section */
   q=wpar->temax;
  
@@ -657,26 +679,35 @@ int get_shape_with_RF(int dim, int N, short *waveform,ShapePar* par, WaveFormPar
   p=wpar->temin;
   d=N;
   e.dim=dim+4;
-  for(int i=0;i<NSHAPE;i++) par->am[i]=0.;
-  for(int i=1;i<5;i++) par->rf[i]=0.;
+
+  //initialize fit parameters
+  for(i=0;i<NSHAPE;i++) 
+    par->am[i]=0.;
+  
+  for(i=1;i<5;i++) 
+    par->rf[i]=0.;
+  
   par->chisq=0.;
   par->ndf=-e.dim;
 
+  //begin fit - see get_shape for comments
   for(i=1;i<dim;i++)
     {
-      tau=par->t[i];
+      tau=get_CsI_tau(i,par);
+      tau_i=tau;
       s=-((double)q)/tau+log(1.-exp(-((double)(d-q))/tau));
       s-=log(1.-exp(-1./tau));
       e.matrix[i][0]=exp(s);
       e.matrix[0][i]=exp(s);
       
-      tau=par->t[i]/2.;
+      tau/=2.;
       s=-((double)q)/tau+log(1.-exp(-((double)(d-q))/tau));
       s-=log(1.-exp(-1./tau));
       e.matrix[i][i]=exp(s);
       for(j=i+1;j<dim;j++)
   	{
-  	  tau=par->t[i]*par->t[j]/(par->t[i]+par->t[j]);
+	  tau_j=get_CsI_tau(j,par);
+  	  tau=(tau_i*tau_j)/(tau_i+tau_j);
   	  s=-((double)q)/tau+log(1.-exp(-((double)(d-q))/tau));
   	  s-=log(1.-exp(-1./tau));
   	  e.matrix[i][j]=exp(s);
@@ -697,7 +728,7 @@ int get_shape_with_RF(int dim, int N, short *waveform,ShapePar* par, WaveFormPar
   
   for(i=1;i<dim;i++)
     {
-      tau=par->t[i];
+      tau=get_CsI_tau(i,par);
       e.vector[i]=0;
       for(j=q;j<d;j++)
   	e.vector[i]+=waveform[j]*exp(-(double(j))/tau);
@@ -767,7 +798,8 @@ int get_shape_with_RF(int dim, int N, short *waveform,ShapePar* par, WaveFormPar
 
  for(i=1;i<dim;i++)
     {
-      l=1/par->t[i];
+      tau=get_CsI_tau(i,par);
+      l=1./tau;
       x=(exp(-l)*s+exp(-l*(N+1))*snm-exp(-l*N)*sn)/(1-2*exp(-l)*c+exp(-2.*l));
       e.matrix[i][dim]+=x;
       e.matrix[dim][i]+=x;
@@ -797,7 +829,8 @@ int get_shape_with_RF(int dim, int N, short *waveform,ShapePar* par, WaveFormPar
   
  for(i=1;i<dim;i++)
     {
-      l=1/par->t[i];
+      tau=get_CsI_tau(i,par);
+      l=1./tau;
       x=(exp(-l)*s+exp(-l*(q+1))*snm-exp(-l*q)*sn)/(1-2*exp(-l)*c+exp(-2.*l));
       e.matrix[i][dim]-=x;
       e.matrix[dim][i]-=x;
@@ -811,8 +844,6 @@ int get_shape_with_RF(int dim, int N, short *waveform,ShapePar* par, WaveFormPar
       e.vector[dim+1]+=waveform[i]*cos(w*i);
     }
   //end RF on the signal section 
-
- 
 
  //3*wRF on the baseline section
   w=3*6.283185307/par->rf[0];
@@ -878,8 +909,6 @@ int get_shape_with_RF(int dim, int N, short *waveform,ShapePar* par, WaveFormPar
   e.matrix[dim][dim+3]+=0.5*x;
   e.matrix[dim+1][dim+2]+=0.5*x;
   e.matrix[dim+1][dim+3]+=0.5*y;
-
- 
   //end 3*wRF on the baseline section 
 
  //3*wRF on the signal section
@@ -904,10 +933,10 @@ int get_shape_with_RF(int dim, int N, short *waveform,ShapePar* par, WaveFormPar
   e.matrix[dim+3][0]+=0.5*(1-c-cn+cnm)/(1-c);
   e.matrix[0][dim+3]=e.matrix[dim+3][0];
 
-
  for(i=1;i<dim;i++)
     {
-      l=1/par->t[i];
+      tau=get_CsI_tau(i,par);
+      l=1./tau;
       x=(exp(-l)*s+exp(-l*(N+1))*snm-exp(-l*N)*sn)/(1-2*exp(-l)*c+exp(-2.*l));
       e.matrix[i][dim+2]+=x;
       e.matrix[dim+2][i]+=x;
@@ -937,7 +966,8 @@ int get_shape_with_RF(int dim, int N, short *waveform,ShapePar* par, WaveFormPar
   
  for(i=1;i<dim;i++)
     {
-      l=1/par->t[i];
+      tau=get_CsI_tau(i,par);
+      l=1./tau;
       x=(exp(-l)*s+exp(-l*(q+1))*snm-exp(-l*q)*sn)/(1-2*exp(-l)*c+exp(-2.*l));
       e.matrix[i][dim+2]-=x;
       e.matrix[dim+2][i]-=x;
@@ -950,7 +980,6 @@ int get_shape_with_RF(int dim, int N, short *waveform,ShapePar* par, WaveFormPar
       e.vector[dim+2]+=waveform[i]*sin(w*i);
       e.vector[dim+3]+=waveform[i]*cos(w*i);
     }
-
 
   w=2*6.283185307/par->rf[0];
   s=sin(w);
@@ -985,7 +1014,6 @@ int get_shape_with_RF(int dim, int N, short *waveform,ShapePar* par, WaveFormPar
   e.matrix[dim][dim+3]+=0.5*x;
   e.matrix[dim+1][dim+2]+=0.5*x;
   e.matrix[dim+1][dim+3]+=0.5*y;
-
 
   w=2*6.283185307/par->rf[0];
   s=sin(w);
@@ -1028,27 +1056,28 @@ int get_shape_with_RF(int dim, int N, short *waveform,ShapePar* par, WaveFormPar
   //end 3*wRF on the signal section 
 
   if(solve_lin_eq(&e)==0)
-    	{
-	  printf("No solution of the linear equation\n");
-	  par->chisq=BADCHISQ_MAT;
-	  par->ndf=1;
-	  return BADCHISQ_MAT;
-	}
+    {
+      printf("No solution of the linear equation\n");
+      par->chisq=BADCHISQ_MAT;
+      par->ndf=1;
+      return BADCHISQ_MAT;
+    }
   else
     {
       for(i=0;i<e.dim;i++)
 	par->chisq-=(e.solution[i]*e.vector[i]);
-
-      /* if(par->chisq<0) */
-      /* 	{ */
-      /* 	  par->chisq=BADCHISQ; */
-      /* 	  par->ndf=1; */
-      /* 	  return BADCHISQ; */
-      /* 	} */
+      
+      if(par->chisq<0)
+      	{
+      	  par->chisq=BADCHISQ_NEG;
+      	  par->ndf=1;
+      	  return BADCHISQ_NEG;
+      	}
 
       e.dim=dim;
       
       par->t[0]=get_t0(N,par,wpar,e);
+
       //if t0 is less than 0, return a T0FAIL
       if(par->t[0]<=0)
 	{
@@ -1059,10 +1088,15 @@ int get_shape_with_RF(int dim, int N, short *waveform,ShapePar* par, WaveFormPar
       
       par->am[0]=e.solution[0];
       for(i=1;i<dim;i++)
-  	par->am[i]=e.solution[i]*exp(-par->t[0]/par->t[i]);
-
+	{
+	  tau=get_CsI_tau(i,par);
+	  par->am[i]=e.solution[i]*exp(-par->t[0]/tau);
+	}
+      
+      
       for(i=2;i<dim;i++)
 	par->am[i]*=-1;  
+      
       par->rf[1]=e.solution[dim];
       par->rf[2]=e.solution[dim+1];
       par->rf[3]=e.solution[dim+2];
@@ -1078,6 +1112,7 @@ int get_shape_with_RF(int dim, int N, short *waveform,ShapePar* par, WaveFormPar
   	  return BADCHISQ_AMPL;
   	}
   par->type=dim-2;
+
   return par->chisq;
 }
 
@@ -1164,12 +1199,11 @@ void show_CsI_Fit_with_RF(Int_t N,short* waveform,ShapePar *par,WaveFormPar *wpa
 }
 
 /*================================================================*/
-//this function fits the waveform with two components first and then with
-//a direct hit (tGamma = 12 samples). 
+//this function fits the CsI waveform. Need to change to select lowest chisq as "best" fit. 
 double  fit_CsI_waveform(int N, short *waveform,ShapePar* par,WaveFormPar* wpar)
 {
   ShapePar *par_directHit, *par_slowAmp; //formerly store_d, store_s
-  long double chisq_directHit, chisq_slowAmp;
+  double chisq_directHit, chisq_slowAmp;
   int dim_directHit, dim_slowAmp;
   int ndf;
   //int j;
@@ -1182,56 +1216,66 @@ double  fit_CsI_waveform(int N, short *waveform,ShapePar* par,WaveFormPar* wpar)
   if(get_shape(4,N,waveform,par,wpar)>0)
     {
       par->type=1;
-      //chi_directHit=0.;
+      chisq_directHit=0.;
       chisq_slowAmp=0.;
       ndf=-4;
-
-      //what are these next two loops doing?!?
+      
+      //what are these next two loops doing besides calculating ndf?!?
+      //why are the chisq for slow and direct in there?
       for(int i=0;i<wpar->temin;i++)
 	{
 	  ndf++;
-	  chisq_directHit=waveform[i]-CsI_FitFunction(i,par);
-	  chisq_directHit*=chisq_directHit;
-	  chisq_slowAmp+=chisq_directHit;
+	  //chisq_directHit=waveform[i]-CsI_FitFunction(i,par);
+	  //chisq_directHit*=chisq_directHit;
+	  //chisq_slowAmp+=chisq_directHit;
 	}
       for(int i=wpar->temax;i<N;i++)
 	{
 	  ndf++;
-	  chisq_directHit=waveform[i]-CsI_FitFunction(i,par);
-	  chisq_directHit*=chisq_directHit;
-	  chisq_slowAmp+=chisq_directHit;
+	  //chisq_directHit=waveform[i]-CsI_FitFunction(i,par);
+	  //chisq_directHit*=chisq_directHit;
+	  //chisq_slowAmp+=chisq_directHit;
 	}
       //to here
-
-      //printf("chi comp %10.3Lf %10.3Lf\n",par->chisq,chi_s);
+      
+      //printf("chisq two comp %10.3f\n",par->chisq);
       //printf("ndf comp %10d %10d\n",par->ndf,ndf);
       //getc(stdin);
-
+      
       return par->chisq;
     }
-
-else
+  
+  else
     {
+      //printf("\n\n trying other fit types \n\n");
       par->type=-1;
       
       // try a fit with the slow component only
       par_slowAmp=(ShapePar*)malloc(sizeof(ShapePar));
       memcpy(par_slowAmp,par,sizeof(ShapePar));
       dim_slowAmp=3;
-      //par_slowAmp->t[2]=par->t[3];
-      //par_slowAmp->t[3]=par->t[2];
-      chisq_slowAmp=get_shape(dim_slowAmp,N,waveform,par_slowAmp,wpar);
-
+      par_slowAmp->t[2]=par->t[3];
+      par_slowAmp->t[3]=par->t[2];
+      //printf("fitting slow component only...\n");
+      get_shape(dim_slowAmp,N,waveform,par_slowAmp,wpar);
+      chisq_slowAmp=par_slowAmp->chisq;
+      //for(int i=0;i<5;i++)
+      //printf("Id %1d Amp. %10.3f  T %10.3f  RF %10.3f\n",i,(double)par_slowAmp->am[i],(double)par_slowAmp->t[i],(double)par_slowAmp->rf[i]);
+      
       // try a fit of a direct hit
       par_directHit=(ShapePar*)malloc(sizeof(ShapePar));
-      memcpy(par_directHit,par,sizeof(ShapePar)); 
+      memcpy(par_directHit,par,sizeof(ShapePar));
       dim_directHit=3;
       par_directHit->t[2]=par->t[4];
       par_directHit->t[4]=par->t[2];
-      chisq_directHit=get_shape(dim_directHit,N,waveform,par_directHit,wpar);
+      //printf("fitting direct hit...\n");
+      get_shape(dim_directHit,N,waveform,par_directHit,wpar);
+      chisq_directHit=par_directHit->chisq;
+      //for(int i=0;i<5;i++)
+      //printf("Id %1d Amp. %10.3f  T %10.3f  RF %10.3f\n",i,(double)par_directHit->am[i],(double)par_directHit->t[i],(double)par_directHit->rf[i]);
      
-      /* printf("chi_s %10.3f chisq_directHit %10.3f\n",chi_s,chisq_directHit); */
-      /* getc(stdin); */
+      //printf("chisq_slowAmp %.3f chisq_directHit %.3f\n",chisq_slowAmp,chisq_directHit);
+      //getc(stdin);
 
       if( (chisq_slowAmp<=0) && (chisq_directHit<=0) )
 	return BADCHISQ_FAIL_DIRECT;
@@ -1239,10 +1283,10 @@ else
       if( (chisq_slowAmp>0) && (chisq_directHit<=0) )
 	{
 	  memcpy(par,par_slowAmp,sizeof(ShapePar));
-	  //par->t[2]=par_directHit->t[3];
-	  //par->am[2]=par_directHit->am[3];
-	  //par->t[3]=par_directHit->t[2];
-	  //par->am[3]=par_directHit->am[2]; 
+	  par->t[2]=par_directHit->t[3];
+	  par->am[2]=par_directHit->am[3];
+	  par->t[3]=par_directHit->t[2];
+	  par->am[3]=par_directHit->am[2];
 	  par->type=2;
 	  return par->chisq;
 	}
@@ -1253,7 +1297,7 @@ else
 	  par->t[2]=par_directHit->t[4];
 	  par->am[2]=par_directHit->am[4];
 	  par->t[4]=par_directHit->t[2];
-	  par->am[4]=par_directHit->am[2]; 
+	  par->am[4]=par_directHit->am[2];
 	  par->type=3; //gamma only par type = 3
 	  return par->chisq;
 	}
@@ -1266,18 +1310,18 @@ else
 	      par->t[2]=par_directHit->t[4];
 	      par->am[2]=par_directHit->am[4];
 	      par->t[4]=par_directHit->t[2];
-	      par->am[4]=par_directHit->am[2]; 
+	      par->am[4]=par_directHit->am[2];
 	      par->type=3; //gamma only par type = 3
 	      return par->chisq;
 	    }
 	  
 	  else
 	    {
-	      memcpy(par,par_slowAmp,sizeof(ShapePar)); 
-	      //par->t[2]=par_directHit->t[3];
-	      //par->am[2]=par_directHit->am[3];
-	      //par->t[3]=par_directHit->t[2];
-	      //par->am[3]=par_directHit->am[2]; 
+	      memcpy(par,par_slowAmp,sizeof(ShapePar));
+	      par->t[2]=par_directHit->t[3];
+	      par->am[2]=par_directHit->am[3];
+	      par->t[3]=par_directHit->t[2];
+	      par->am[3]=par_directHit->am[2];
 	      par->type=2;
   	      return par->chisq;
 	    }

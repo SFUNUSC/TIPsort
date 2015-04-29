@@ -8,20 +8,22 @@ int analyze_fragment(Tig10_event* ptr,short* waveform)
 
   if(ptr->channel==chn)
     if((d=ptr->waveform_length)!=0)
-    {
-      wpar.baseline_range=CSI_BASELINE_RANGE;
-      get_exclusion_zone_for_CsI(d,waveform,&wpar);
-      get_shape(4,d,waveform,par,&wpar);
-      ch=par->chisq/par->ndf;
-
-      if(ch>=chmin)
-        if(ch<=chmax)
-      {	
-	print_fragment_info(ptr,S16K);
-	show_CsI_Fit(d,waveform,par,&wpar,theApp);
-      }
+      {
+	wpar.baseline_range=CSI_BASELINE_RANGE;
+	get_exclusion_zone_for_CsI(d,waveform,&wpar);
+	get_shape(4,d,waveform,par,&wpar);
+	ch=par->chisq/par->ndf;
+	printf("here?\n");
+	getc(stdin);
+	
+	if(ch>=chmin)
+	  if(ch<=chmax)
+	    {	
+	      print_fragment_info(ptr,S16K);
+	      show_CsI_Fit(d,waveform,par,&wpar,theApp);
+	    }
     }
-
+  
   return 0;
 }
 /*================================================================*/

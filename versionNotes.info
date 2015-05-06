@@ -22,4 +22,11 @@ v8.2 BGO detector type added. New method for calculating standard deviation for	
      Program for creating background subtracted spectra added (preliminary
      at this stage).
 
-v8.3 Version used for S1467 in May/June 2015.
+v8.3 Recovery from accidental deletion of source code. Correct implementation
+     of risetimes in waveform analyzer.
+
+v8.4 Waveform analyzer changes to reflect weak sources with gamma background.
+     Used for analysis of 207Bi and 209Po sources for coincidence trigger tests.
+     Fits 2 components, fast only, slow only, gamma on PIN diode and selects 
+     lowest chi square. Previously assumed 2 component fit function based on
+     optimization and development for use with in-beam data.

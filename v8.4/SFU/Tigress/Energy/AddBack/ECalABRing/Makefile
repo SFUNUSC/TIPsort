@@ -4,7 +4,7 @@ ROOT =  $(shell $(ROOTSYS)/bin/root-config --glibs)
 INC = -I$(ROOTINC)\
       -I$(TIPsort)/current/SFU-format\
       -I$(TIPsort)/current/utils\
-     -I$(TIPsort)/current/midas/decoder\
+      -I$(TIPsort)/current/midas/decoder\
       -I$(TIPsort)/current/calibrator
 
 BIN=$(TIPsort)/bin/sfu

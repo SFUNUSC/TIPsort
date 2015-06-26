@@ -45,7 +45,6 @@ typedef struct cTIGRESS
  cCss det[NPOSTIGR];
 }cTIGRESS;
 
-
 typedef struct
 {
   int    ceflag[NPOSTIGR][NCOL];

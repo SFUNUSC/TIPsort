@@ -15,17 +15,19 @@ int analyze_data(raw_event *data)
   double tmin_ttg=10E10;
   double tmax=-10E10;
 
+  /* printf("TIG bit: %d CsI bit: %d RF bit: %d\n",data->h.setupHP&TIGRESS_BIT,data->h.setupHP&CsIArray_BIT,data->h.setupHP&RF_BIT); */
+  /* getc(stdin); */
+
   if((data->h.setupHP&TIGRESS_BIT)==0)
     return SEPARATOR_DISCARD;
 
-  //if((data->h.setupHP&RF_BIT)==0)
-  //return SEPARATOR_DISCARD;
+  if((data->h.setupHP&RF_BIT)==0)
+    return SEPARATOR_DISCARD;
 
  if((data->h.setupHP&CsIArray_BIT)==0)
     return SEPARATOR_DISCARD;
 
- 
-  cev=(cal_event*)malloc(sizeof(cal_event));
+   cev=(cal_event*)malloc(sizeof(cal_event));
   memset(cev,0,sizeof(cal_event));
   calibrate_TIGRESS(data,&cal_par->tg,&cev->tg);
   calibrate_CSIARRAY(data,&cal_par->csiarray,&cev->csiarray);
@@ -34,7 +36,8 @@ int analyze_data(raw_event *data)
   flag_ge=0;
   flag_csi=0;
 
-  //printf("tig fold %d csi fold %d\n",cev->tg.h.FT,cev->csiarray.h.FT);
+  /* printf("tig fold %d csi fold %d\n",cev->tg.h.FT,cev->csiarray.h.FT); */
+  /* getc(stdin); */
   if(cev->tg.h.FT>0)
     if(cev->csiarray.h.FT>0)
       {
@@ -51,6 +54,8 @@ int analyze_data(raw_event *data)
 	      /* if(tcsi<tmin)  */
 	      /*   tmin=tcsi; */
 	    }
+
+	//printf("tmax_csi %.2f\n",tmax);
 	
 	//After finidng tmax for CsI, find ttg_min within the CsI window
 	for(pos=1;pos<NPOSTIGR;pos++)
@@ -70,14 +75,14 @@ int analyze_data(raw_event *data)
 			
 			//if the time is within the CsI time window
 			//and less than current TIGRESS time minimum,
-			//set as TIGRESS time minimum
-			if(tdiff<=high)
-			  if(ttg<tmin_ttg)
-			    tmin_ttg=ttg;
+			//set as TIGRESS time minimum --- tdiff should be >= 0!!! does not seem good for CsI fold 1 trigger
+			//if(tdiff>0)
+			    if(tdiff<=high)
+			      if(ttg<tmin_ttg)
+				tmin_ttg=ttg;
 		      }
 	
 	//printf("tmin_ttg: %.2f\n",tmin_ttg);
-	
 	
 	//Now that ttg_tmin is set, find good TIGRESS events
 	for(pos=1;pos<NPOSTIGR;pos++)
@@ -95,7 +100,7 @@ int analyze_data(raw_event *data)
 		      //find TIGRESS time difference
 			tdiff_ttg=ttg-tmin_ttg;
 			
-			//printf("ttg: %.2f tdiff: %.2f tdiff_ttg: %.2f",ttg,tdiff,tdiff_ttg);
+			//printf("ttg: %.2f tdiff: %.2f tdiff_ttg: %.2f\n",ttg,tdiff,tdiff_ttg);
 			
 			//if the time is within the CsI time window
 			//and TIGRESS time is within the TIGRESS time window
@@ -135,7 +140,7 @@ int analyze_data(raw_event *data)
 	      
 	      tdiff=tmax-tcsi;
 	      //tdiff=tcsi-tmin;
-	      //printf(" tcsi: %.2f tdiff: %.2f \n",tcsi,tdiff);
+	      //printf("tcsi: %.2f tdiff: %.2f\n",tcsi,tdiff);
 	      
 	      //CsI is in CsI window and later than first TIGRESS
 	      if(tdiff<=high)
@@ -230,8 +235,8 @@ int analyze_data(raw_event *data)
   if((data->h.setupHP&TIGRESS_BIT)==0)
     return SEPARATOR_DISCARD;
 
-  //if((data->h.setupHP&RF_BIT)==0)
-  //return SEPARATOR_DISCARD;
+  if((data->h.setupHP&RF_BIT)==0)
+    return SEPARATOR_DISCARD;
 
  if((data->h.setupHP&CsIArray_BIT)==0)
     return SEPARATOR_DISCARD;

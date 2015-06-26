@@ -7,6 +7,12 @@ int analyze_data(raw_event *data)
   int pos;
   double e;
   
+ if((data->h.setupHP&RF_BIT)==0)
+    return SEPARATOR_DISCARD;
+
+ if((data->h.setupHP&CsIArray_BIT)==0)
+    return SEPARATOR_DISCARD;
+
   cev=(cal_event*)malloc(sizeof(cal_event));
   memset(cev,0,sizeof(cal_event));
   calibrate_CSIARRAY(data,&cal_par->csiarray,&cev->csiarray);
@@ -16,8 +22,8 @@ int analyze_data(raw_event *data)
       if((cev->csiarray.h.EHP&(one<<pos))!=0)
 	{
 	  e=cev->csiarray.csi[pos].E/cal_par->csiarray.contr_e;
-	  //printf("CsIArray ene = %f\n",e);
-	  //getc(stdin);
+	  /* printf("CsIArray pos %d ene = %f\n",pos,e); */
+	  /* getc(stdin); */
 	  if(e>=0 && e<S32K)
 	    {
 	      hist[pos][(int)rint(e)]++;
@@ -27,7 +33,8 @@ int analyze_data(raw_event *data)
 	    {
 	      hist[pos][S32K-1000]++;
 	      h->Fill(S32K-1000,pos);
-	    }}
+	    }
+	}
   free(cev);
   return SEPARATOR_DISCARD;
 }

@@ -15,6 +15,10 @@ all:
 	(cd ECalABRingSum r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Tigress_ECalABRingSum.
 
+	echo Making Tigress_EECalABSum.
+	(cd EECalABSum r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: Tigress_EECalABSum.
+
 	#echo Making Tigress_ECalABLayerSum.
 	#(cd ECalABLayerSum r && make -is clean && make && make -is clean && cd ..)
 	#echo DONE: Tigress_ECalABLayerSum.
@@ -24,5 +28,6 @@ clean:
 	(cd ECalABSum      && make -is clean && cd ..)
 	(cd ECalABRing     && make -is clean && cd ..)
 	(cd ECalABRingSum  && make -is clean && cd ..)
+	(cd EECalABSum     && make -is clean && cd ..)
 	#(cd ECalABLayerSum && make -is clean && cd ..)
 	rm -f *~	

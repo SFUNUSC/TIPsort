@@ -4,7 +4,7 @@
 #include "SFU-common.h"
 #include "sort_but_not_assemble.h"
 #include "waveform_analyzer.h"
-#include "TH1D.h"
+#include "TH2D.h"
 #include "TStyle.h"
 #include "TCanvas.h"
 #include "TFile.h"
@@ -14,9 +14,7 @@
 #include "math.h"
 
 int  chn;
-TF1 *base;
-TH1D *h;
-TCanvas *c;  
-TApplication *theApp;
+TH2D *h[S2K],*htig,*hcsi;
+int tig_low,tig_high,csi_low,csi_high;
 
 #endif

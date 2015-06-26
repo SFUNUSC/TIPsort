@@ -10,9 +10,8 @@
 #include "TFile.h"
 #include "TApplication.h"
 
-TH2D *hFITlocal,*hFITfunction,*hCFD,*hFITandCFD;
-TH1D *h_ecsi,*h_tcsiFITlocal,*h_tcsiFITfunction,*h_tcsiCFD,*h_trf,*h_tdiffFITlocal,*h_tdiffFITfunction,*h_tdiffCFD;
-
+TH2D *hFITfunction,*hCFD,*hFITandCFD;
+TH1D *h_ecsi,*h_tcsiFITfunction,*h_tcsiCFD,*h_trf,*h_tdiffFITfunction,*h_tdiffCFD;
 int  idmin,idmax;
 double chimin,chimax;
 

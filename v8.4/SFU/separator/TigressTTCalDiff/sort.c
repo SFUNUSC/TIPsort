@@ -190,12 +190,12 @@ int main(int argc, char *argv[])
   
   sort(name);
 
-  theApp=new TApplication("App", &argc, argv);
-  canvas = new TCanvas("TTCalDiff", "TTCalDiff",10,10, 500, 300);
-  gPad->SetLogz(1);
-  g->SetLineColor(2);
-  h->Draw();
-  g->Draw("same");
-  theApp->Run(kTRUE);
+  /* theApp=new TApplication("App", &argc, argv); */
+  /* canvas = new TCanvas("TTCalDiff", "TTCalDiff",10,10, 500, 300); */
+  /* gPad->SetLogz(1); */
+  /* g->SetLineColor(2); */
+  /* h->Draw(); */
+  /* g->Draw("same"); */
+  /* theApp->Run(kTRUE); */
 }
 

@@ -39,6 +39,23 @@ all:
 	(cd  ECalABRing_CsIEGate r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: ECALABRING_CSIEGATE.
 
+	echo Making ECalABRingSum_CsIEGate.
+	(cd  ECalABRingSum_CsIEGate r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: ECALABRINGSUM_CSIEGATE.
+
+	echo Making EE_Plunger.
+	(cd  EE_Plunger r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: EE_PLUNGER.
+
+	echo Making EE_PlungerSum.
+	(cd  EE_PlungerSum r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: EE_PLUNGERSUM.
+
+	echo Making EECal.
+	(cd  EECal r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: EECAL.
+
+
 clean:
 	(cd ECalAB_CsIPIDtr                    && make -is clean && cd ..)
 	(cd ECalAB_CsIPIDr                     && make -is clean && cd ..)
@@ -50,6 +67,9 @@ clean:
 	(cd ECalABSuppRingSum_deltaUcut        && make -is clean && cd ..)
 	(cd deltaU_ECalCut                     && make -is clean && cd ..)
 	(cd ECalABRing_CsIEGate                && make -is clean && cd ..)
-
+	(cd ECalABRingSum_CsIEGate             && make -is clean && cd ..)
+	(cd EE_Plunger                         && make -is clean && cd ..)
+	(cd EE_PlungerSum                      && make -is clean && cd ..)
+	(cd EECal                              && make -is clean && cd ..)
 
 	rm -f *~

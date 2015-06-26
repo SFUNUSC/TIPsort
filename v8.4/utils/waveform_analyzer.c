@@ -14,6 +14,7 @@ void print_WavePar(WaveFormPar *wpar)
   printf("tmax             : %10.2f\n",(double)wpar->tmax);
   printf("temin            : %10.2f\n",(double)wpar->temin);
   printf("temax            : %10.2f\n",(double)wpar->temax);
+  printf("t0               : %10.2f\n",(double)wpar->t0);
 }
   
 /*======================================================*/
@@ -46,15 +47,15 @@ void get_baseline(int N, short *waveform,WaveFormPar *wpar)
   
   for(int i=0;i<wpar->baseline_range;i++)
     {
-      wpar->baseline+=waveform[i]; //running sum of baseline
+      wpar->baseline+=waveform[i];
       wpar->baselineStDev+=waveform[i]*waveform[i];
     }
   
   wpar->baselineStDev/=wpar->baseline_range;
-  wpar->baseline/=wpar->baseline_range; //baseline = average value of the baseline over the range
+  wpar->baseline/=wpar->baseline_range; 
   wpar->baselineStDev-=wpar->baseline*wpar->baseline;
-  wpar->baselineStDev=sqrt(wpar->baselineStDev); //std dev of baseline baselineStDev = sqrt(<b^2> - <b>^2)
-  wpar->bflag=1; //ensures baseline is successfully established
+  wpar->baselineStDev=sqrt(wpar->baselineStDev); 
+  wpar->bflag=1; //flag after establishing baseline
 }
 
 /*======================================================*/
@@ -74,7 +75,7 @@ void get_tmax(int N, short *waveform,WaveFormPar *wpar)
       sum/=FILTER; //the value of the filtered waveform at i
       if(sum>wpar->max)
 	{
-	  //if the value of sum (filtered waveform at i) is larger than the current maximum, max=sum and tmax = i
+	  //if the value of the filtered waveform at i is larger than the current maximum, max=value and tmax = i
 	  wpar->max=sum;
 	  wpar->tmax=i;
 	}
@@ -100,26 +101,22 @@ void get_exclusion_zone_for_CsI(int N, short *waveform,WaveFormPar *wpar)
   //make sure the baseline is established prior to finding the exclusion zone
   wpar->baseline_range=CSI_BASELINE_RANGE;
   get_baseline(wpar->baseline_range,waveform,wpar);
-  /* if(wpar->bflag!=1) */
-  /*   { */
-  /*     printf("Baseline not established!\n"); */
-  /*     printf("Terminating program\n"); */
-  /*     exit(0); */
-  /*   } */
   
   //Here we determine the x position temax of the upper limit for the exclusion zone.
 
   //find tmax and define baselineMax
   get_tmax(N,waveform,wpar);
+
   //If tmax is established, continue.
   if(wpar->mflag==1)
     {
       wpar->baselineMax=wpar->baseline+NOISE_LEVEL_CSI;
+
       //printf("baseline: %.2f NOISE_LEVEL_CSI: %.2d baselineMax: %.2f\n", wpar->b,NOISE_LEVEL_CSI,baselineMax);
-  //baselineMax = wpar->b + wpar->baselineStDev;
-  //printf("baseline: %.2f baseline variance: %.2f baselineMax: %.2f\n", wpar->b,wpar->baselineStDev,baselineMax);
+      //baselineMax = wpar->b + wpar->baselineStDev;
+      //printf("baseline: %.2f baseline variance: %.2f baselineMax: %.2f\n", wpar->b,wpar->baselineStDev,baselineMax);
   
-  //Starting at tmax and working backwards along the waveform get the value of the filtered waveform at i and when the value of the filtered waveform goes below baselineMax, set the upper limit of the exclusion zone temax = i. The exclusion zone cannot be defined in the area of the waveform used to calculate the baseline.
+      //Starting at tmax and working backwards along the waveform get the value of the filtered waveform at i and when the value of the filtered waveform goes below baselineMax, set the upper limit of the exclusion zone temax = i. The exclusion zone cannot be defined in the area of the waveform used to calculate the baseline.
       for(i=wpar->tmax;i>wpar->baseline_range;i--)
 	{
 	  sum=0.;
@@ -141,7 +138,6 @@ void get_exclusion_zone_for_CsI(int N, short *waveform,WaveFormPar *wpar)
       //Here we determine the x position of the lower limit for the exclusion zone
       
       /********** Default method: Raw waveform **********/
-      
       /* //Set baselineMin */
       /* wpar->baselineMin=wpar->baseline-0.25*NOISE_LEVEL_CSI; */
       /* //printf("baseline: %.2f 0.25*NOISE_LEVEL_CSI: %.2f baselineMin: %.2f\n", wpar->b,0.25*NOISE_LEVEL_CSI,baselineMin); */
@@ -159,6 +155,7 @@ void get_exclusion_zone_for_CsI(int N, short *waveform,WaveFormPar *wpar)
 	{
 	  //Set baselineMin
 	  wpar->baselineMin=wpar->baseline-NOISE_LEVEL_CSI;
+
 	  //printf("baseline: %.2f NOISE_LEVEL_CSI: %.2f baselineMin: %.2f\n", wpar->b,NOISE_LEVEL_CSI,baselineMin);
 	  //baselineMin = wpar->b - wpar->baselineStDev;
 	  //printf("baseline: %.2f baseline variance: %.2f baselineMin: %.2f\n", wpar->b,wpar->baselineStDev,baselineMin);
@@ -372,7 +369,6 @@ int get_shape(int dim, int N, short *waveform,ShapePar* par, WaveFormPar *wpar)
   
   for(i=1;i<e.dim;i++)
     {
-      //tau=par->t[i];
       tau=get_CsI_tau(i,par);
       e.vector[i]=0;
       for(j=q;j<d;j++)
@@ -393,9 +389,6 @@ int get_shape(int dim, int N, short *waveform,ShapePar* par, WaveFormPar *wpar)
   //error if the matrix cannot be inverted
   if(solve_lin_eq(&e)==0)
     	{
-	  /* printf("No solution\n"); */
-	  /* printf("*******Press enter"); */
-	  /* getc(stdin); */
 	  par->chisq=BADCHISQ_MAT;
 	  par->ndf=1;
 	  return BADCHISQ_MAT;
@@ -406,6 +399,7 @@ int get_shape(int dim, int N, short *waveform,ShapePar* par, WaveFormPar *wpar)
     {
       //see the function comments for find_t0 for details
       par->t[0]=get_t0(N,par,wpar,e);
+      //printf("t0 from CsI fit: %Lf\n",par->t[0]);
       
       //if t0 is less than 0, return a T0FAIL
       if(par->t[0]<=0)
@@ -601,7 +595,7 @@ double get_CsI_tau(int i,ShapePar *par)
 //this function displays the CsI waveform fit on a ROOT canvas.
 void display_CsI_Fit(Int_t N,short* waveform,ShapePar *par, TApplication* theApp)
 {
-  TH1D *h=NULL,*g=NULL;
+  TH1D *h=NULL;
   TCanvas *c=NULL;
    
   if((h=(TH1D*)gROOT->FindObject("Waveform"))==NULL)	
@@ -609,10 +603,10 @@ void display_CsI_Fit(Int_t N,short* waveform,ShapePar *par, TApplication* theApp
   else
     h->Reset();
 
- if((g=(TH1D*)gROOT->FindObject("Fit"))==NULL)	
-    g=new TH1D("Fit","Fit",N,0,N);
-  else
-    g->Reset();
+ /* if((g=(TH1D*)gROOT->FindObject("Fit"))==NULL)	 */
+ /*    g=new TH1D("Fit","Fit",N,0,N); */
+ /*  else */
+ /*    g->Reset(); */
 
  c=(TCanvas*)gROOT->FindObject("WaveformFit");
  if(c==NULL) 
@@ -621,18 +615,59 @@ void display_CsI_Fit(Int_t N,short* waveform,ShapePar *par, TApplication* theApp
      c = new TCanvas("WaveformFit", "WaveformFit",10,10, 700, 500);
    }
 
+ TF1* f=new TF1("fit",CsI_FitFunction_disp,0,N,9);
+ f->SetParameter(0,par->t[0]);
+ f->SetParameter(1,par->t[1]);
+ f->SetParameter(2,par->t[2]);
+ f->SetParameter(3,par->t[3]);
+ f->SetParameter(4,par->t[4]);
+ f->SetParameter(5,par->am[0]);
+ f->SetParameter(6,par->am[2]);
+ f->SetParameter(7,par->am[3]);
+ f->SetParameter(8,par->am[4]);
+
   for(Int_t i=0;i<N;i++)
     {
       h->Fill(i,waveform[i]);
-      g->Fill(i,CsI_FitFunction(i,par));
+      /* g->Fill(i,CsI_FitFunction(i,par)); */
     }
+
   h->Draw();
-  g->SetLineColor(kRed);
-  g->Draw("same");
+  /* g->SetLineColor(kGreen); */
+  /* g->Draw("same"); */
+  f->SetLineColor(kRed);
+  f->SetLineWidth(0.5);
+  f->Draw("same");
   c->Modified();
   c->Update();
 
   theApp->Run(kTRUE);
+}
+
+/*================================================================*/
+//two component fit function for CsI without RF - compatable
+//with root TF1 user-defined function
+Double_t CsI_FitFunction_disp(Double_t *i,Double_t *p)
+{
+  Double_t x,s,e;
+
+  /* 
+     p[0]-p[4] are t0, tRC, tF, TS, TGamma
+     p[5]-p[8] are baseline, AF, AS, AGamma
+  */
+
+  x=i[0]-p[0];
+  e=exp(-x/p[1]);
+  if(x<=0) 
+    return p[5];
+  else
+    {   
+      s=p[5];
+      s+=p[6]*(1-exp(-x/p[2]))*e;
+      s+=p[7]*(1-exp(-x/p[3]))*e;
+      s+=p[8]*(1-exp(-x/p[4]))*e;
+      return s;
+    }
 }
 
 /*================================================================*/
@@ -1214,19 +1249,24 @@ void show_CsI_Fit_with_RF(Int_t N,short* waveform,ShapePar *par,WaveFormPar *wpa
 
 /*================================================================*/
 //this function fits the CsI waveform. Need to change to select lowest chisq as "best" fit. 
-double  fit_CsI_waveform(int N, short *waveform,ShapePar* par,WaveFormPar* wpar)
+double fit_CsI_waveform(int N, short *waveform,ShapePar* par,WaveFormPar* wpar)
 {
   /****************************************************************
-   Modified for fitting weak sources. Fit 2 component, fast only,
-   slow only, and gamma on PIN and select lowest (non-negative)
-   chi square value as the best fit. Should aid in pulse shape
-   analysis of 207Bi and 209Po source data. In principle this
-   would work for in beam data too, but may be very slow.
+   Modified for fitting weak sources. Fit 2 component, slow only, 
+   and gamma on PIN and select smallest non-negative chi square 
+   value as the best fit. Should aid in pulse shape analysis of 
+   207Bi and 209Po source data. In principle this would work 
+   for in beam data too, but may be very slow.
   ***************************************************************/
 
-  //ShapePar *par_twoComp, *par_fastAmp, *par_slowAmp, *par_directHit;
+  /***************************************************************
+     Two component is alpha or proton, fast only is high Z recoil
+     slow only is gamma in CsI, gamma on PIN is obvious
+  ***************************************************************/
+
   ShapePar *p[4];
-  double chisq[4],chimin; //chisq array for fit types: 1=2 comp, 2=fast, 3=slow, 4=gamma on PIN
+  WaveFormPar *wp[4];
+  double chisq[4],chimin; //chisq array for fit types: 1=2 comp, 2=slow, 3=gamma on PIN
   int ndf;
   int i,imin;
 
@@ -1266,11 +1306,13 @@ double  fit_CsI_waveform(int N, short *waveform,ShapePar* par,WaveFormPar* wpar)
     {
     chisq[i]=LARGECHISQ;
     p[i]=(ShapePar*)malloc(sizeof(ShapePar));
+    wp[i]=(WaveFormPar*)malloc(sizeof(WaveFormPar));
     memcpy(p[i],par,sizeof(ShapePar));
+    memcpy(wp[i],wpar,sizeof(WaveFormPar));
     }
 
   //two component fit 
-  get_shape(4,N,waveform,p[0],wpar);
+  get_shape(4,N,waveform,p[0],wp[0]);
   chisq[0]=p[0]->chisq/ndf;
 
   //for 3 parameter fits, ndf is one larger
@@ -1278,20 +1320,20 @@ double  fit_CsI_waveform(int N, short *waveform,ShapePar* par,WaveFormPar* wpar)
 
   //printf("ndf 3 parameters %d\n",ndf);
 
-  //fast only
-  get_shape(3,N,waveform,p[1],wpar);
+  //fast only for high Z recoils
+  get_shape(3,N,waveform,p[1],wp[1]);
   chisq[1]=p[1]->chisq/ndf;
 
-  //slow only
+  //slow only for gamma on CsI
   p[2]->t[2]=par->t[3];
   p[2]->t[3]=par->t[2];
-  get_shape(3,N,waveform,p[2],wpar);
+  get_shape(3,N,waveform,p[2],wp[2]);
   chisq[2]=p[2]->chisq/ndf;
 
   //gamma on PIN
   p[3]->t[2]=par->t[4];
   p[3]->t[4]=par->t[2];
-  get_shape(3,N,waveform,p[3],wpar);
+  get_shape(3,N,waveform,p[3],wp[3]);
   chisq[3]=p[3]->chisq/ndf;
 
   /* printf("0=two comp 1=fast 2=slow 3=gamma on PIN\n"); */
@@ -1301,31 +1343,35 @@ double  fit_CsI_waveform(int N, short *waveform,ShapePar* par,WaveFormPar* wpar)
   //find minimum chisquare
   imin=-1;
   chimin=LARGECHISQ;
-  for(i=0;i<4;i++)
+  for(i=0;i<3;i++)
     if( (chisq[i]<chimin) && (chisq[i]>0) )
       {
 	chimin=chisq[i];
 	imin=i;
       }
 
-  /* printf("minimum chisq[%d]/ndf %10.3f\n",imin,chisq[imin]); */
-  /*   getc(stdin); */
+  /* printf("minimum chisq[%d]/ndf %10.3f t0min %Lf\n",imin,chisq[imin],p[imin]->t[0]); */
+  /* getc(stdin); */
 
   if(imin==0)
     {
       memcpy(par,p[0],sizeof(ShapePar));
+      memcpy(wpar,wp[0],sizeof(WaveFormPar));
       par->type=1; //two component type
       return par->chisq;
     }
   if(imin==1)
     {
       memcpy(par,p[1],sizeof(ShapePar));
+      memcpy(wpar,wp[1],sizeof(WaveFormPar));
+
       par->type=2; //fast only type
       return par->chisq;
     }
-  if(imin==2)
+  if(imin==1)
     {
       memcpy(par,p[2],sizeof(ShapePar));
+      memcpy(wpar,wp[2],sizeof(WaveFormPar));
       par->t[2]=p[2]->t[3];
       par->am[2]=p[2]->am[3];
       par->t[3]=p[2]->t[2];
@@ -1333,9 +1379,10 @@ double  fit_CsI_waveform(int N, short *waveform,ShapePar* par,WaveFormPar* wpar)
       par->type=3; //slow only type
       return par->chisq;
     }
-  if(imin==3)
+  if(imin==2)
     {
       memcpy(par,p[3],sizeof(ShapePar));
+      memcpy(wpar,wp[3],sizeof(WaveFormPar));
       par->t[2]=p[3]->t[4];
       par->am[2]=p[3]->am[4];
       par->t[4]=p[3]->t[2];
@@ -1633,6 +1680,9 @@ double  get_linear_T0(int N, short* waveform, WaveFormPar* wpar)
 	}
     }	// end of the loop over k
   
+  /* printf("k %d terms: const %.2f lin %.2f linear s0 %.2Lf s1 %.2Lf s2 %.2Lf\n",k,lpl.intercept,lpl.slope,wpar->s0,wpar->s1,wpar->s2); */
+  /* getc(stdin); */
+
   b=wpar->s1-wpar->b1;
   c=wpar->s0-wpar->b0;
   t=-c/b;
@@ -1644,8 +1694,8 @@ double  get_linear_T0(int N, short* waveform, WaveFormPar* wpar)
     if(t<N)
       {
 	wpar->t0=t;
-	wpar->temin=wpar->t0-2;
-	wpar->temax=wpar->t0+2;
+	wpar->temin=(int)rint(wpar->t0)-2;
+	wpar->temax=(int)rint(wpar->t0)+2;
 	return (double)(chitmin/(wpar->thigh-5));
       }
   
@@ -1689,7 +1739,7 @@ double  get_smooth_T0(int N, short* waveform, WaveFormPar* wpar)
 	  chitmin=chit;
 	  c=t;
 	}
-    }	// end of the corse search loop over k
+    }	// end of the fine search loop over k
  
 
   memcpy(&pp,&ppmin,sizeof(ParPar));
@@ -1697,6 +1747,10 @@ double  get_smooth_T0(int N, short* waveform, WaveFormPar* wpar)
   wpar->s0=pp.constant+pp.quadratic*t*t;
   wpar->s1=-2.*pp.quadratic*t;
   wpar->s2=pp.quadratic;
+
+  /* printf("t %f terms: const %.2f lin %.2f quad %.2f smooth quadratic s0 %.2Lf s1 %.2Lf s2 %.2Lf\n",t,pp.constant,pp.linear,pp.quadratic,wpar->s0,wpar->s1,wpar->s2); */
+  /* getc(stdin); */
+
   wpar->b0=pp.constant;
   wpar->b1=0.;
 
@@ -1707,8 +1761,8 @@ double  get_smooth_T0(int N, short* waveform, WaveFormPar* wpar)
     if(t<N)
       {
 	wpar->t0=t;
-	wpar->temin=(int)rint(wpar->t0);
-	wpar->temax=(int)rint(wpar->t0);
+	wpar->temin=(int)rint(wpar->t0)-2;
+	wpar->temax=(int)rint(wpar->t0)+2;
 	return (double)(chitmin/(wpar->thigh-2));
       } 
   return BADCHISQ_SMOOTH_T0;
@@ -1747,13 +1801,15 @@ double  get_parabolic_T0(int N, short* waveform, WaveFormPar* wpar)
 	  kmin=k;
 	}
     }//end loop through k
+
+  /* printf("k %d terms: const %.2f lin %.2f quad %.2f quadratic s0 %.2Lf s1 %.2Lf s2 %.2Lf\n",k,pp.constant,pp.linear,pp.quadratic,wpar->s0,wpar->s1,wpar->s2); */
+  /* getc(stdin); */
   
   a=wpar->s2;
   b=wpar->s1-wpar->b1;
   c=wpar->s0-wpar->b0;
   d=b*b-4*a*c;
   
-
   t=-1.;
   if(a==0.)
     t=-c/b;
@@ -1782,8 +1838,8 @@ double  get_parabolic_T0(int N, short* waveform, WaveFormPar* wpar)
     if(t<N)
       {
 	wpar->t0=t;
-	wpar->temin=wpar->t0-2;
-	wpar->temax=wpar->t0+2;
+	wpar->temin=(int)rint(wpar->t0)-2;
+	wpar->temax=(int)rint(wpar->t0)+2;
 	return (double)(chitmin/(wpar->thigh-5));
       } 
   return BADCHISQ_PAR_T0;
@@ -1803,6 +1859,7 @@ double  fit_newT0(int N, short* waveform, WaveFormPar* wpar)
   get_baseline(wpar->baseline_range,waveform,wpar);
   get_tmax(N,waveform,wpar);
  
+  //dont return a bad max; can still get t0
   //if(wpar->max>=16380)
   //  return BAD_MAX;
 
@@ -1838,13 +1895,16 @@ double  fit_newT0(int N, short* waveform, WaveFormPar* wpar)
   /*   { */
   /*     printf("i %2d chisq %10.3f t0 %10.3f\n",i,chisq[i],w[i].t0); */
   /*   } */
-  /*     printf("-----> imin %2d chisq[%d] t0 %10.3f\n",imin,imin,w[imin].t0); */
+  /* printf("-----> imin %2d chisq[%d] %10.3f t0 %10.3f\n",imin,imin,chisq[imin],w[imin].t0); */
+  /* printf("-----> s0 %.2Lf s1 %.2Lf s2 %.2Lf\n",w[imin].s0,w[imin].s1,w[imin].s2); */
 
 
   memcpy(wpar,&w[imin],swp);
 
-  //printf("min i %2d %10.2f b0 %10.2f\n",imin,chisq[imin],wpar->b0); 
-  //getc(stdin);
+  //printf("t0 from waveform analyzer: %f\n",wpar->t0);
+
+  /* printf("min i %2d %10.2f b0 %10.2f\n",imin,chisq[imin],wpar->b0);  */
+  /* getc(stdin); */
  
   return chisq[imin];
  
@@ -1862,20 +1922,19 @@ void  display_newT0_fit(int N, short* waveform, WaveFormPar* wpar,TApplication* 
   c = new TCanvas("WaveformFit", "WaveformFit",10,10, 700, 500);
   
   h->Draw();
-  
-  
-  TH1D* g=new TH1D("FitB","FitB",N,0,N-1);
-  
-  for(Int_t i=0;i<wpar->temax;i++)
-    g->Fill(i,wpar->b0+wpar->b1*i);
-  
-  TH1D *f=new TH1D("FitR","FitR",N,0,N-1);
-  
-  for(Int_t i=wpar->temin;i<wpar->thigh;i++)
-    f->Fill(i,wpar->s0+wpar->s1*i+wpar->s2*i*i);
-  
+
+  TF1* g=new TF1("fit","[0]+[1]*x",0,wpar->temax);
+  TF1* f=new TF1("fit","[0]+[1]*x+[2]*x*x",wpar->temin,wpar->thigh);
+ 
+  g->SetParameter(0,wpar->b0);
+  g->SetParameter(1,wpar->b1);
   g->SetLineColor(kRed);
   g->Draw("same");
+
+  f->SetParameter(0,wpar->s0);
+  f->SetParameter(1,wpar->s1);
+  f->SetParameter(2,wpar->s2);
+  //f->SetLineWidth(2);
   f->SetLineColor(8);
   f->Draw("same");
   
@@ -2215,7 +2274,6 @@ void  get_CsI_t0_local(int N, short *waveform,ShapePar* par,WaveFormPar* wpar)
       wpar->b1=e.solution[1];
     }
 
-
   // if parabola fails try a line
   //  if(d<0)
     {
@@ -2322,3 +2380,141 @@ void get_sig2noise(int N, short *waveform,WaveFormPar *wpar)
   wpar->sig2noise=(wpar->max-wpar->baseline)/wpar->baselineStDev;
  
 }
+
+/***************************************************************************
+   Old CsI fit function which assumes two component fit and only tries
+   other fit types if that fails
+***************************************************************************/
+
+/* /\*================================================================*\/ */
+/* //this function fits the CsI waveform. Need to change to select lowest chisq as "best" fit.  */
+/* double  fit_CsI_waveform(int N, short *waveform,ShapePar* par,WaveFormPar* wpar) */
+/* { */
+/*   ShapePar *par_directHit, *par_slowAmp; //formerly store_d, store_s */
+/*   double chisq_directHit, chisq_slowAmp; */
+/*   int dim_directHit, dim_slowAmp; */
+/*   int ndf; */
+/*   //int j; */
+
+/*   wpar->baseline_range=CSI_BASELINE_RANGE; */
+
+/*   get_exclusion_zone_for_CsI(N,waveform,wpar); */
+
+/*   //this loop should function as a normal fit. */
+/*   if(get_shape(4,N,waveform,par,wpar)>0) */
+/*     { */
+/*       par->type=1; */
+/*       chisq_directHit=0.; */
+/*       chisq_slowAmp=0.; */
+/*       ndf=-4; */
+      
+/*       //what are these next two loops doing besides calculating ndf?!? */
+/*       //why are the chisq for slow and direct in there? */
+/*       for(int i=0;i<wpar->temin;i++) */
+/* 	{ */
+/* 	  ndf++; */
+/* 	  //chisq_directHit=waveform[i]-CsI_FitFunction(i,par); */
+/* 	  //chisq_directHit*=chisq_directHit; */
+/* 	  //chisq_slowAmp+=chisq_directHit; */
+/* 	} */
+/*       for(int i=wpar->temax;i<N;i++) */
+/* 	{ */
+/* 	  ndf++; */
+/* 	  //chisq_directHit=waveform[i]-CsI_FitFunction(i,par); */
+/* 	  //chisq_directHit*=chisq_directHit; */
+/* 	  //chisq_slowAmp+=chisq_directHit; */
+/* 	} */
+/*       //to here */
+      
+/*       //printf("chisq two comp %10.3f\n",par->chisq); */
+/*       //printf("ndf comp %10d %10d\n",par->ndf,ndf); */
+/*       //getc(stdin); */
+      
+/*       return par->chisq; */
+/*     } */
+  
+/*   else */
+/*     { */
+/*       //printf("\n\n trying other fit types \n\n"); */
+/*       par->type=-1; */
+      
+/*       // try a fit with the slow component only */
+/*       par_slowAmp=(ShapePar*)malloc(sizeof(ShapePar)); */
+/*       memcpy(par_slowAmp,par,sizeof(ShapePar)); */
+/*       dim_slowAmp=3; */
+/*       par_slowAmp->t[2]=par->t[3]; */
+/*       par_slowAmp->t[3]=par->t[2]; */
+/*       //printf("fitting slow component only...\n"); */
+/*       get_shape(dim_slowAmp,N,waveform,par_slowAmp,wpar); */
+/*       chisq_slowAmp=par_slowAmp->chisq; */
+/*       //for(int i=0;i<5;i++) */
+/*       //printf("Id %1d Amp. %10.3f  T %10.3f  RF %10.3f\n",i,(double)par_slowAmp->am[i],(double)par_slowAmp->t[i],(double)par_slowAmp->rf[i]); */
+      
+/*       // try a fit of a direct hit */
+/*       par_directHit=(ShapePar*)malloc(sizeof(ShapePar)); */
+/*       memcpy(par_directHit,par,sizeof(ShapePar)); */
+/*       dim_directHit=3; */
+/*       par_directHit->t[2]=par->t[4]; */
+/*       par_directHit->t[4]=par->t[2]; */
+/*       //printf("fitting direct hit...\n"); */
+/*       get_shape(dim_directHit,N,waveform,par_directHit,wpar); */
+/*       chisq_directHit=par_directHit->chisq; */
+/*       //for(int i=0;i<5;i++) */
+/*       //printf("Id %1d Amp. %10.3f  T %10.3f  RF %10.3f\n",i,(double)par_directHit->am[i],(double)par_directHit->t[i],(double)par_directHit->rf[i]); */
+     
+/*       //printf("chisq_slowAmp %.3f chisq_directHit %.3f\n",chisq_slowAmp,chisq_directHit); */
+/*       //getc(stdin); */
+
+/*       if( (chisq_slowAmp<=0) && (chisq_directHit<=0) ) */
+/* 	return BADCHISQ_FAIL_DIRECT; */
+      
+/*       if( (chisq_slowAmp>0) && (chisq_directHit<=0) ) */
+/* 	{ */
+/* 	  memcpy(par,par_slowAmp,sizeof(ShapePar)); */
+/* 	  par->t[2]=par_slowAmp->t[3]; */
+/* 	  par->am[2]=par_slowAmp->am[3]; */
+/* 	  par->t[3]=par_slowAmp->t[2]; */
+/* 	  par->am[3]=par_slowAmp->am[2]; */
+/* 	  par->type=2; */
+/* 	  return par->chisq; */
+/* 	} */
+   
+/*       if( (chisq_slowAmp<=0) && (chisq_directHit>0) ) */
+/* 	{ */
+/* 	  memcpy(par,par_directHit,sizeof(ShapePar)); */
+/* 	  par->t[2]=par_directHit->t[4]; */
+/* 	  par->am[2]=par_directHit->am[4]; */
+/* 	  par->t[4]=par_directHit->t[2]; */
+/* 	  par->am[4]=par_directHit->am[2]; */
+/* 	  par->type=3; //gamma only par type = 3 */
+/* 	  return par->chisq; */
+/* 	} */
+
+/*       if( (chisq_slowAmp>0) && (chisq_directHit>0) ) */
+/* 	{ */
+/* 	  if(chisq_directHit<chisq_slowAmp) */
+/* 	    { */
+/* 	      memcpy(par,par_directHit,sizeof(ShapePar)); */
+/* 	      par->t[2]=par_directHit->t[4]; */
+/* 	      par->am[2]=par_directHit->am[4]; */
+/* 	      par->t[4]=par_directHit->t[2]; */
+/* 	      par->am[4]=par_directHit->am[2]; */
+/* 	      par->type=3; //gamma only par type = 3 */
+/* 	      return par->chisq; */
+/* 	    } */
+	  
+/* 	  else */
+/* 	    { */
+/* 	      memcpy(par,par_slowAmp,sizeof(ShapePar)); */
+/* 	      par->t[2]=par_slowAmp->t[3]; */
+/* 	      par->am[2]=par_slowAmp->am[3]; */
+/* 	      par->t[3]=par_slowAmp->t[2]; */
+/* 	      par->am[3]=par_slowAmp->am[2]; */
+/* 	      par->type=2; */
+/*   	      return par->chisq; */
+/* 	    } */
+/* 	} */
+/*     } */
+  
+/*   return BADCHISQ_FAIL_DIRECT; */
+/* } */

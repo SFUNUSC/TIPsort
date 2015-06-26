@@ -3,7 +3,7 @@
 
 #define NSHAPE     5  //number of trial functions for waveform fit
 
-#define CSI_BASELINE_RANGE 100 //baseline range in channels
+#define CSI_BASELINE_RANGE 50 //baseline range in channels
 #define FILTER 8 //integration region for noise reduction (in samples)
 #define NOISE_LEVEL_CSI 100 //noise level for CsI
 #define SIGN2NOISE 0 //signal to noise ratio for get_sig2noise
@@ -122,6 +122,7 @@ double    get_t0(int,ShapePar*,WaveFormPar*,lin_eq_type);
 double    get_CsI_tau(int,ShapePar*);
 void      display_CsI_Fit(int, short*,ShapePar*,TApplication*);
 Double_t  CsI_FitFunction(Int_t,ShapePar*);
+Double_t  CsI_FitFunction_disp(Double_t*,Double_t*);
 Double_t  CsI_FitFunction_localt0(Int_t,ShapePar*,WaveFormPar*);
 void      show_CsI_Fit(int, short*,ShapePar*,WaveFormPar*,TApplication*);
 int       get_shape_with_RF(int,int, short*,ShapePar*,WaveFormPar*);

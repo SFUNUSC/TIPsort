@@ -213,7 +213,7 @@ void sort_and_assemble(char* inp_name,char* map_name)
     }
  
   /*initialize the sort */
-    dp=(data_pointers*)malloc(sizeof(data_pointers));
+  dp=(data_pointers*)malloc(sizeof(data_pointers));
   dp->first=0;
   dp->last=dp->first+DEPTH;
   dp->proc=0;
@@ -265,5 +265,107 @@ void sort_and_assemble(char* inp_name,char* map_name)
       break;
     }
   }
+}
+  
+/*================================================================*/
+void sort_and_assemble_list(char* inp_name,char* map_name)
+{
+  FILE* midas_list;
+  FILE* input;
+  char name[132];
+  int state=END_OF_RECORD;
+  int stop=0;
+  static tmap    map;
+  data_pointers* dp=NULL;
+  node*          list;
+  int i;
  
+  /* open the list of midas files */
+  if((midas_list=fopen(inp_name,"r"))==NULL)
+    {
+      printf("ERROR!!! I can't open the midas file list!\n");
+      exit(-2);
+    }
+
+  /* read name of first input file */
+  fscanf(midas_list,"%s",name);
+
+ /* open the first input file*/
+  if((input=fopen(name,"r"))==NULL)
+    {
+      printf("\nI can't open input file %s\n",name);
+      exit(-2);
+    }
+ 
+  /*initialize the sort */
+  dp=(data_pointers*)malloc(sizeof(data_pointers));
+  dp->first=0;
+  dp->last=dp->first+DEPTH;
+  dp->proc=0;
+  dp->turn=0;
+  dp->turn_enable=0;
+  dp->turn_in_progress=0;
+  dp->shift=SHIFT;
+  dp->son=sizeof(node);
+  dp->sot=sizeof(Tig10_event);
+  dp->sos=sizeof(short);
+
+  list=(node*) malloc(DEPTH*dp->son);
+
+  for(i=0;i<DEPTH;i++)
+    {
+      list[i].next=NULL;
+      list[i].eptr=NULL;
+      list[i].wptr=NULL;
+    }
+ /* get the map */
+  read_map(map_name,&map);
+ 
+  while(stop==0){
+    switch(state){
+    case END_OF_RECORD:
+      if( next_record(input) <= 0 ){ state = END_OF_FILE;}
+      else {state = NEXT_EVENT;}
+      break;
+    case NEXT_EVENT:
+      if( next_event() < 0 ){ state = END_OF_RECORD; }
+      else { state = GET_FRAGMENTS; }
+      break;
+    case GET_FRAGMENTS:
+      if( get_and_assemble_fragments(list,dp,&map) < 0 ){ state = NEXT_EVENT;}
+      else { state = GET_FRAGMENTS;  }
+      break;
+    case END_OF_FILE:
+      fclose(input);
+      printf("\n Number of analyzed fragments is %8ld\n",dp->proc);
+      printf("\n");
+      /* read the name of the next input file */
+      if(fscanf(midas_list,"%s",name)==EOF){ state = END_OF_SORT; }
+      else
+	{
+	  /* open the next file */
+	  if((input=fopen(name,"r"))==NULL)
+	    {
+	      printf("\nI can't open input file %s\n",name);
+	      exit(-2);
+	    }
+	  /* sort next file */
+	  state = END_OF_RECORD;
+	}
+      break;
+    case END_OF_SORT:
+      /* close the midas list */
+      fclose(midas_list);
+      /* analyze the last data assembly buffer */
+      for(int i=0;i<dp->trig-dp->first;i++)
+	assemble_event(i,list,dp,&map);
+      stop=1;
+      break;
+    default:
+      printf("Unknown case\n");
+      exit(0);
+      break;
+    }
+  }
+
 }

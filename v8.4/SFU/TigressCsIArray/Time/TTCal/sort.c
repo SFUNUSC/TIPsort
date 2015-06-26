@@ -6,6 +6,19 @@ int analyze_data(raw_event *data)
   unsigned long long int one=1;
   int pos,col,csi;
   double ttg,tcsi,tdiff;
+  double etg;
+  int type;
+  double chisq;
+  int ndf;
+
+  if((data->h.setupHP&TIGRESS_BIT)==0)
+    return SEPARATOR_DISCARD;
+
+  if((data->h.setupHP&RF_BIT)==0)
+    return SEPARATOR_DISCARD;
+
+ if((data->h.setupHP&CsIArray_BIT)==0)
+    return SEPARATOR_DISCARD;
   
   cev=(cal_event*)malloc(sizeof(cal_event));
   memset(cev,0,sizeof(cal_event));
@@ -23,22 +36,31 @@ int analyze_data(raw_event *data)
 		  if((cev->tg.det[pos].ge[col].h.THP&1)!=0)
 		    {
 		      ttg=cev->tg.det[pos].ge[col].seg[0].T/cal_par->tg.contr_t;
-		    
+		      
 		      for(csi=1;csi<NCSI;csi++)
 			if((cev->csiarray.h.THP&(one<<csi))!=0)
 			  {
-			    tcsi=cev->csiarray.csi[csi].T/cal_par->csiarray.contr_t;
-			    //printf("tcsi %10.3f\n",tcsi);
-			    //getc(stdin);
-
-			    tdiff=ttg-tcsi;
-			    //tdiff+=S4K;
-			    h_tcsi->Fill(tcsi);
-			    h_ttg->Fill(ttg);
-			    h_tdiff->Fill(tdiff);
-			    h->Fill(ttg,tcsi);
+			    type=cev->csiarray.type[csi];
+			    chisq=cev->csiarray.chisq[csi];
+			    ndf=cev->csiarray.ndf[csi];
+			    chisq/=ndf;
+			    if(type==1 || type==2) /* two component or fast only */
+			      if(chisq>0 && chisq<10000)
+				{
+				  tcsi=cev->csiarray.csi[csi].T/cal_par->csiarray.contr_t;
+				  //printf("tcsi %10.3f\n",tcsi);
+				  //getc(stdin);
+				  
+				  tdiff=ttg-tcsi;
+				  //tdiff+=S4K;
+				  h_tcsi->Fill(tcsi);
+				  h_ttg->Fill(ttg);
+				  h_tdiff->Fill(tdiff);
+				  h->Fill(ttg,tcsi);
+				}
 			  }
 		    }
+  
   free(cev);
   return SEPARATOR_DISCARD;
 }

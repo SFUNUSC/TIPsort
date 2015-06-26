@@ -26,6 +26,15 @@ all:
 	echo Making check_TimeStamps.
 	(cd TimeStamps r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: CHECK_TIMESTAMPS.
+
+	echo Making check_TimeStampDifference.
+	(cd TimeStampDifference r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: CHECK_TIMESTAMPDIFFERENCE.
+
+	echo Making check_TimeGatedTrigger.
+	(cd TimeGatedTrigger r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: CHECK_TIMEGATEDTRIGGER.
+
 clean:
 	(cd EventTimeDifference && make -is clean && cd ..)
 	(cd Rate                && make -is clean && cd ..)
@@ -34,4 +43,7 @@ clean:
 	(cd TrigBits            && make -is clean && cd ..)
 	(cd Fold                && make -is clean && cd ..)
 	(cd FoldSum             && make -is clean && cd ..)
+	(cd TimeStampDifference && make -is clean && cd ..)
+	(cd TimeGatedTrigger    && make -is clean && cd ..)
+
 	rm -f *~

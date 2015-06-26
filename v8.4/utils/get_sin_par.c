@@ -9,7 +9,6 @@ int get_sin_par(double T,int N, short *wave,StructSinPar *par)
 
   w=TWOPI/T;
 
-
   s=sin(w);
   sn=sin(N*w);
   snm=sin((N-1)*w);
@@ -24,7 +23,6 @@ int get_sin_par(double T,int N, short *wave,StructSinPar *par)
   c2n=cos(2*N*w);
   c2nm=cos(2*(N-1)*w);
  
-
   e.matrix[0][0]=0.5*N-0.25*(1-c2-c2n+c2nm)/(1-c2);
   e.matrix[0][1]=0.25*(s2+s2nm-s2n)/(1-c2);
   e.matrix[1][0]=e.matrix[0][1];
@@ -34,8 +32,6 @@ int get_sin_par(double T,int N, short *wave,StructSinPar *par)
   e.matrix[1][2]=0.5*(1-c-cn+cnm)/(1-c);
   e.matrix[2][1]=e.matrix[1][2];
   e.matrix[2][2]=N;
-
-
 
   for(i=0;i<e.dim;i++)
     e.vector[i]=0;

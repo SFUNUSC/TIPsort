@@ -56,8 +56,8 @@ int verify_ts_PINBD(PINBD*d,unsigned long long int *min, unsigned long long int 
 {
   unsigned long long int ts;
   
-  ts=(d->pin.timestamp_up&0x00ffffff)<<24;
-  ts|=(d->pin.timestamp&0x00ffffff);
+  ts=((unsigned long long)d->pin.timestamp_up&0x00ffffff)<<24;
+  ts|=((unsigned long long)d->pin.timestamp&0x00ffffff);
   *min=ts;
   *max=ts;
   return (int)(*max-*min);
@@ -67,8 +67,8 @@ int verify_ts_RF(RF*d,unsigned long long int *min, unsigned long long int *max )
 {
   unsigned long long int ts;
 
-  ts=(d->ch.timestamp_up&0x00ffffff)<<24;
-  ts|=(d->ch.timestamp&0x00ffffff);
+  ts=((unsigned long long)d->ch.timestamp_up&0x00ffffff)<<24;
+  ts|=((unsigned long long)d->ch.timestamp&0x00ffffff);
   *min=ts;
   *max=ts;
   return (int)(*max-*min);
@@ -85,8 +85,8 @@ int verify_ts_pinarray(PINArray*d,unsigned long long int *min, unsigned long lon
     for(int pos=1;pos<NPIN;pos++)
       if((d->h.TSHP&(one<<pos))!=0)
 	{
-	  ts=(d->pin[pos].timestamp_up&0x00ffffff)<<24;
-	  ts|=(d->pin[pos].timestamp&0x00ffffff);
+	  ts=((unsigned long long)d->pin[pos].timestamp_up&0x00ffffff)<<24;
+	  ts|=((unsigned long long)d->pin[pos].timestamp&0x00ffffff);
 	  if(ts>*max) *max=ts;
 	  if(ts<*min) *min=ts;
 	 }
@@ -105,8 +105,8 @@ int verify_ts_csiarray(CsIArray*d,unsigned long long int *min, unsigned long lon
     for(int pos=1;pos<NCSI;pos++)
       if((d->h.TSHP&(one<<pos))!=0)
 	{
-	  ts=(d->csi[pos].timestamp_up&0x00ffffff)<<24;
-	  ts|=(d->csi[pos].timestamp&0x00ffffff);
+	  ts=((unsigned long long)d->csi[pos].timestamp_up&0x00ffffff)<<24;
+	  ts|=((unsigned long long)d->csi[pos].timestamp&0x00ffffff);
 	  if(ts>*max) *max=ts;
 	  if(ts<*min) *min=ts;
 	 }
@@ -125,8 +125,8 @@ int verify_ts_S3(S3*d,unsigned long long int *min, unsigned long long int *max )
     for(int pos=1;pos<NS3SEC;pos++)
       if((d->sh.TSHP&(one<<pos))!=0)
 	{
-	  ts=(d->sec[pos].timestamp_up&0x00ffffff)<<24;
-	  ts|=(d->sec[pos].timestamp&0x00ffffff);
+	  ts=((unsigned long long)d->sec[pos].timestamp_up&0x00ffffff)<<24;
+	  ts|=((unsigned long long)d->sec[pos].timestamp&0x00ffffff);
 	  if(ts>*max) *max=ts;
 	  if(ts<*min) *min=ts;
 	 }
@@ -135,8 +135,8 @@ int verify_ts_S3(S3*d,unsigned long long int *min, unsigned long long int *max )
     for(int pos=1;pos<NS3RING;pos++)
       if((d->rh.TSHP&(one<<pos))!=0)
 	{
-	  ts=(d->ring[pos].timestamp_up&0x00ffffff)<<24;
-	  ts|=(d->ring[pos].timestamp&0x00ffffff);
+	  ts=((unsigned long long)d->ring[pos].timestamp_up&0x00ffffff)<<24;
+	  ts|=((unsigned long long)d->ring[pos].timestamp&0x00ffffff);
 	  if(ts>*max) *max=ts;
 	  if(ts<*min) *min=ts;
 	 }
@@ -164,8 +164,8 @@ int verify_ts_Tigress(Tigress *d,unsigned long long int *min, unsigned long long
 		  for(seg=0;seg<NSEGTIGR;seg++)
 		    if((d->det[pos].ge[col].h.TSHP&(1<<seg))!=0)
 		      {
-			ts=(d->det[pos].ge[col].seg[seg].timestamp_up&0x00ffffff)<<24;
-			ts|=(d->det[pos].ge[col].seg[seg].timestamp&0x00ffffff);
+			ts=((unsigned long long)d->det[pos].ge[col].seg[seg].timestamp_up&0x00ffffff)<<24;
+			ts|=((unsigned long long)d->det[pos].ge[col].seg[seg].timestamp&0x00ffffff);
 			if(ts>*max) *max=ts;
 			if(ts<*min) *min=ts;
 		      }
@@ -177,8 +177,8 @@ int verify_ts_Tigress(Tigress *d,unsigned long long int *min, unsigned long long
 		  for(sup=0;sup<NSUP;sup++)
 		    if((d->det[pos].bgo[col].h.TSHP&(1<<sup))!=0)
 		      {
-			ts=(d->det[pos].bgo[col].sup[sup].timestamp_up&0x00ffffff)<<24;
-			ts|=(d->det[pos].bgo[col].sup[sup].timestamp&0x00ffffff);
+			ts=((unsigned long long)d->det[pos].bgo[col].sup[sup].timestamp_up&0x00ffffff)<<24;
+			ts|=((unsigned long long)d->det[pos].bgo[col].sup[sup].timestamp&0x00ffffff);
 			if(ts>*max) *max=ts;
 			if(ts<*min) *min=ts;
 		      }
@@ -208,8 +208,8 @@ int verify_ts_Griffin(Griffin *d,unsigned long long int *min, unsigned long long
 		  for(seg=0;seg<NSEGGRIF;seg++)
 		    if((d->det[pos].ge[col].h.TSHP&(1<<seg))!=0)
 		      {
-			ts=(d->det[pos].ge[col].seg[seg].timestamp_up&0x00ffffff)<<24;
-			ts|=(d->det[pos].ge[col].seg[seg].timestamp&0x00ffffff);
+			ts=((unsigned long long)d->det[pos].ge[col].seg[seg].timestamp_up&0x00ffffff)<<24;
+			ts|=((unsigned long long)d->det[pos].ge[col].seg[seg].timestamp&0x00ffffff);
 			if(ts>*max) *max=ts;
 			if(ts<*min) *min=ts;
 		      }

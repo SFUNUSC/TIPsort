@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
  if(argc!=11)
     {
       printf("wfit_show_CsIFits midas_input_data_file_name channel tRC tF tS tGamma chisq_min chisq_max type_low type_high\n");
-      printf("type 1 = 2 component, type 2 = fast only, type 3 = slow only 4=PIN hit\n");
+      printf("type 1 = 2 component, type 2 = slow only 3=PIN hit\n");
       exit(-1);
     }
 

@@ -38,24 +38,24 @@ int analyze_data(raw_event *data)
 			
 			g->Fill(trf);
 			
-			func=(1.00*trf)-(RFphase+offset);
-			a=fmod(t+shift,RFphase);
+			/* func=(1.00*trf)-(RFphase+offset); */
+			/* a=fmod(t+shift,RFphase); */
 			
-			if(func<a) 
-			  trf+=RFphase;
+			/* if(func<a)  */
+			/*   trf+=RFphase; */
 			
-			//Histograms after unwrapping RF.
-			h->Fill(trf,t);
+			/* //Histograms after unwrapping RF. */
+			/* h->Fill(trf,t); */
 
-			if(trf<0 || trf>S4K) 
-			  trf=S4K-100;
+			/* if(trf<0 || trf>S4K)  */
+			/*   trf=S4K-100; */
 			
 			histRF[pos][col][(int)rint(trf)]++;
 		      }
 		    else 
 		      trf=0.;
 		    
-		    t-=rint(trf);
+		    t-=trf;
 		    t+=S16K;
 		    
 		    tt=(int)rint(t);
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
 	}
       
       for(col=0;col<NCOL;col++)
-	fwrite(hist[pos][col],S4K*sizeof(int),1,output);
+	fwrite(histRF[pos][col],S4K*sizeof(int),1,output);
       
       fclose(output);
     }

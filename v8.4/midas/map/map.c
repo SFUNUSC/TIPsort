@@ -90,13 +90,8 @@ void read_map(char* name,tmap* map)
   else
     printf("TDAQ map read from file %s\n",name);
 
-  map->csiarray_fit=0;
-  map->pinarray_fit=0;
-  map->tigr_ge_fit=0;
-  map->tigr_bgo_fit=0;
-  map->grif_fit=0;
-
-  memset(map->csiarray_map,0,NCSIMAP*sizeof(int));
+  //initialize map to -1 to avoid mis-labeling channels
+  memset(map,-1,sizeof(tmap));
 
   while(fscanf(inp,"%s %s",str1,str2)!=EOF)
     {
@@ -440,11 +435,9 @@ void map_event(Tig10_event *ptr, short* waveform, raw_event *data,tmap* map,int 
   if(data->h.timestamp_max==0)
     data->h.timestamp_max=ptr->timestamp;
   if(ptr->timestamp>data->h.timestamp_max)
-    data->h.timestamp_max=ptr->timestamp;
+    data->h.timestamp_max=ptr->timestamp; 
 
- 
-
-      /***************************** Start TIGRESS ***********************/
+  /***************************** Start TIGRESS ***********************/
   if(ptr->channel>=map->tigr_css_min)
     if(ptr->channel<=map->tigr_css_max)
       {
@@ -516,14 +509,15 @@ void map_event(Tig10_event *ptr, short* waveform, raw_event *data,tmap* map,int 
 		      }
 
 		  if(waveform!=NULL)
-		    if(map->tigr_ge_fit==1)
-		      {
-			fit_newT0(ptr->waveform_length,waveform,&wpar);
-		       	data->tg.det[pos].ge[col].t0[d]=wpar.t0;
-			//printf("TIGRESS pos: %d col: %d d: %d t0: %f\n",pos,col,d,wpar.t0);
-			//getc(stdin);
-			take|=1;
-		      }
+		    if(d==0) /* only cores */	
+		      if(map->tigr_ge_fit==1)
+			{
+			  fit_newT0(ptr->waveform_length,waveform,&wpar);
+			  data->tg.det[pos].ge[col].t0[d]=wpar.t0;
+			  /* printf("TIGRESS pos: %d col: %d d: %d t0: %f\n",pos,col,d,wpar.t0); */
+			  /* getc(stdin); */
+			  take|=1;
+			}
 		  
 		  if(take==1)
 		    {
@@ -641,11 +635,9 @@ void map_event(Tig10_event *ptr, short* waveform, raw_event *data,tmap* map,int 
 		}
 	    }
       }
-      
-   
-    /******************************stop TIGRESS*************************/
+  /******************************stop TIGRESS*************************/
 
-      /***************************** Start GRIFFIN ***********************/
+  /***************************** Start GRIFFIN ***********************/
   if(ptr->channel>=map->grif_css_min)
     if(ptr->channel<=map->grif_css_max)
       {
@@ -770,8 +762,6 @@ void map_event(Tig10_event *ptr, short* waveform, raw_event *data,tmap* map,int 
 
 	    }
       }
-      
-   
     /******************************stop GRIFFIN*************************/
 
     /*********************** start  PIN diode array ************************/
@@ -822,8 +812,9 @@ void map_event(Tig10_event *ptr, short* waveform, raw_event *data,tmap* map,int 
 		}
 	    }
       }
-   /*********************** stop PIN diode array ************************/
-    /*********************** start  CSI array ************************/
+  /*********************** stop PIN diode array ************************/
+
+  /*********************** start  CSI array ************************/
   if(ptr->channel>=map->csiarray_min)
     if(ptr->channel<=map->csiarray_max)
       {
@@ -838,6 +829,7 @@ void map_event(Tig10_event *ptr, short* waveform, raw_event *data,tmap* map,int 
 		  {
 		    data->csiarray.csi[pos].charge=
 		      (ptr->charge/(map->csiarray_css_kpar/map->csiarray_css_disp));
+		    //printf("charge for CsI array pos %d: %f\n",pos,data->csiarray.csi[pos].charge);
 		    //data->csiarray.csi[pos].charge=ptr->charge;
 		    data->csiarray.h.Efold++;
 		    data->csiarray.h.EHP|=(one<<pos);
@@ -851,7 +843,7 @@ void map_event(Tig10_event *ptr, short* waveform, raw_event *data,tmap* map,int 
 		    data->csiarray.h.THP|=(one<<pos);
 		    take|=1;
 		  }
-	      
+	      //printf("pos %d take %d\n",pos,take);
 	      if(take==1)
 		{
 		  data->csiarray.csi[pos].timestamp=ptr->timestamp;
@@ -868,22 +860,21 @@ void map_event(Tig10_event *ptr, short* waveform, raw_event *data,tmap* map,int 
 		  if(waveform!=NULL)
 		    if(map->csiarray_fit==1)
 		      {
-			//this changed to reflect current fitting
+			/* t0 same way as for TIGRESS for CsI fit_t0.
+			   Implemented for S1467 analysis of high energy CsI signals */
+			fit_newT0(ptr->waveform_length,waveform,&wpar);
+			data->csiarray.t0[pos]=wpar.t0;
+
+			/* t0 reset during waveform fit for t0 from fit_function */
 			fit_CsI_waveform(ptr->waveform_length,waveform,&data->csiarray.wfit[pos],&wpar);
-
-			//unnecessary, set wpar.t0 when fitting
-			get_CsI_t0_local(ptr->waveform_length,waveform,&data->csiarray.wfit[pos],&wpar);
-
-			//could call the function here instead
-			data->csiarray.t0[pos]=wpar.t0_local;
 		      }
 		}
 	    }
       }
-   /*********************** stop CSI array ************************/
-    /****************start  Beam Dump PIN diode ************************/
-
-  if(ptr->channel==map->pinbd)
+  /*********************** stop CSI array ************************/
+  
+  /****************start  Beam Dump PIN diode ************************/
+    if(ptr->channel==map->pinbd)
     {
       take=0;
       if(ptr->charge_flag==1)
@@ -911,10 +902,9 @@ void map_event(Tig10_event *ptr, short* waveform, raw_event *data,tmap* map,int 
 	  data->h.setupHP|=BDPIN_BIT;
        }
     }
-    /****************stop  Beam Dump PIN diode ************************/
+  /****************stop  Beam Dump PIN diode ************************/
 
-  
-    /****************start RF ************************/
+  /****************start RF ************************/
   if(ptr->channel==map->rf)
     {
       if(waveform!=NULL)
@@ -935,8 +925,7 @@ void map_event(Tig10_event *ptr, short* waveform, raw_event *data,tmap* map,int 
       //      else
       //	printf("NULL pointer to the RF waveform in event %d\n",data->h.trig_num);
     }
-  
-    /****************stop RF ************************/
+  /****************stop RF ************************/
 
   /***************************** Start S3 ***********************/
   if(ptr->channel>=map->s3_min)

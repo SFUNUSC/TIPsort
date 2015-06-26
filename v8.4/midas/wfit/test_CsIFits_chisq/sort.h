@@ -17,6 +17,8 @@ TH1D *h;
 TCanvas *c;  
 TApplication *theApp;
 ShapePar* par;
-int  chn;
+int  chn_low,chn_high;
+int counter;
+int type_low,type_high;
 
 #endif

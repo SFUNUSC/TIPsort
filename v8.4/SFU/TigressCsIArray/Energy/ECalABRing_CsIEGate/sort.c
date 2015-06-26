@@ -3,35 +3,52 @@
 int analyze_data(raw_event *data)
 {
   cal_event* cev;
-  double eAddBack;
+  unsigned long long int one=1;
+  int pos,col,ring,csi;
+  double etig,ecsi;
   
   cev=(cal_event*)malloc(sizeof(cal_event));
   memset(cev,0,sizeof(cal_event));
   calibrate_CSIARRAY(data,&cal_par->csiarray,&cev->csiarray);
   calibrate_TIGRESS(data,&cal_par->tg,&cev->tg);
 
-  printf("event has CsI fold %d TIGRESS fold %d\n",cev->csiarray.h.FE,cev->tg.h.FE);
-  getc(stdin);
+ if((data->h.setupHP&TIGRESS_BIT)==0)
+    return SEPARATOR_DISCARD;
 
-  if(cev->tg.h.FH>0)
+  if((data->h.setupHP&RF_BIT)==0)
+    return SEPARATOR_DISCARD;
+
+ if((data->h.setupHP&CsIArray_BIT)==0)
+    return SEPARATOR_DISCARD;
+
+if(cev->tg.h.FH>0)
     if(cev->csiarray.h.FH>0)
-    for(posTig=1;posTig<NPOSTIGR;posTig++)
-      if(((cev->tg.h.HHP&(1<<(posTig-1)))!=0) && (cev->tg.det[posTig].hge.FE>0))
-        if((cev->tg.h.AHP&(1<<(posTig-1)))!=0)
-	  {	
-	    eAddBack = cev->tg.det[posTig].addback.E/cal_par->tg.contr_e;
-	    col = cev->tg.det[posTig].addbackC;
-	    ring=cev->tg.det[posTig].addbackR;
-	    //printf("Position %d, Core %d, and Ring %d....\n",posTig,col,ring);
-	    
-	    if((eAddBack>=0) && (eAddBack<S32K))
-	      {
-		if((ring>0) && (ring<NRING)) hist[ring][(int)rint(eAddBack)]++;
-	      }
-	    else hist[ring][S32K-1000]++;
-	  }
-  free(cev);
-  return SEPARATOR_DISCARD;
+      for(pos=1;pos<NPOSTIGR;pos++)
+	if(((cev->tg.h.HHP&(1<<(pos-1)))!=0) && (cev->tg.det[pos].hge.FE>0))
+	  if((cev->tg.h.AHP&(1<<(pos-1)))!=0)
+	    {	
+	      etig = cev->tg.det[pos].addback.E; /* TIGRESS energy in keV */
+	      col = cev->tg.det[pos].addbackC;
+	      ring=cev->tg.det[pos].addbackR;
+
+	      if(cev->csiarray.h.FH>0)
+		for(csi=1;csi<NCSI;csi++)
+		  if((cev->csiarray.h.HHP&(one<<csi))!=0)
+		    {
+		      ecsi=cev->csiarray.csi[csi].E/1000.; /* CsI energy in MeV */
+
+		      if(ecsi>=eLow && ecsi<=eHigh)
+			{
+			  if(etig<0 || etig>S32K-10) 
+			    etig=S32K-10;
+
+			  hist[ring][(int)rint(etig)]++;
+			}
+		    }
+	    }
+ 
+ free(cev);
+ return SEPARATOR_DISCARD;
 }
 /*=============================================================================*/
 int main(int argc, char *argv[])
@@ -41,7 +58,7 @@ int main(int argc, char *argv[])
  
   if(argc!=4)
     {
-      printf("Tigress_ECalABRing_CsIEGate master_file_name Elow Ehigh\n");
+      printf("Tigress_ECalABRing_CsIEGate master_file_name Elow [MeV] Ehigh [MeV] \n");
       exit(-1);
     }
 

@@ -462,6 +462,7 @@ void calibrate_TIGRESS(raw_event *raw_event, TIGRESS_calibration_parameters *TIG
 		    if(raw_event->tg.det[pos].ge[col].h.Tfold>0)
 		      if((raw_event->tg.det[pos].ge[col].h.THP&1)!=0)
 			{
+			  /* t = tcfd-ts */
 			  t=raw_event->tg.det[pos].ge[col].seg[0].cfd&0x00ffffff;
 			  t-=(raw_event->tg.det[pos].ge[col].seg[0].timestamp*16)&0x00ffffff;
 			  
@@ -480,8 +481,15 @@ void calibrate_TIGRESS(raw_event *raw_event, TIGRESS_calibration_parameters *TIG
 			  else
 			    trf=0.;
 			  
+			  /* overwrite rf time for test defined by CP */
+			  //trf=0.;
+			  
+			  /* t = tcfd-ts-trf+offset */
 			  t-=trf;
 			  t+=S16K;
+
+			  /* printf("traw: %d ts: %d trf: %f t-ts-trf+16K: %f\n",raw_event->tg.det[pos].ge[col].seg[0].cfd&0x00ffffff,(raw_event->tg.det[pos].ge[col].seg[0].timestamp*16)&0x00ffffff,trf,t); */
+			  /* getc(stdin); */
 			  
 			  ran=(double)rand()/(double)RAND_MAX-0.5;
 			  ren=t+ran;
@@ -512,14 +520,14 @@ void calibrate_TIGRESS(raw_event *raw_event, TIGRESS_calibration_parameters *TIG
 	      if(TIGRESS_cal_par->ctflag[pos][col]==1)
 		if(((raw_event->tg.det[pos].h.GeHP)&(one<<col))!=0)
 		  {
+		    /* t=tfit*16 (in ADC units) */
 		    t=raw_event->tg.det[pos].ge[col].t0[0]*16; 
+		    //t=raw_event->tg.det[pos].ge[col].t0[0]; 
 		    
 		    //set RF time only if RF is in the hit pattern
 		    if((raw_event->h.setupHP&RF_BIT)!=0)
 		      {
 			trf=raw_event->rf.sin.t0;
-			//printf("trf %f\n",trf);
-			//getc(stdin);
 			
 			if(TIGRESS_cal_par->DoRFUnwrapping==1)
 			  {
@@ -532,17 +540,20 @@ void calibrate_TIGRESS(raw_event *raw_event, TIGRESS_calibration_parameters *TIG
 		    else
 		      trf=0.;
 		    
+		    /* t=tfit-trf+offset */
 		    t-=trf;
-		    //printf("t %f trf %f\n",t,trf);
-		    t+=S16K;		   
-		    //printf("t+S16K %f\n",t);   
+		    t+=S16K;
+
+		    /* printf("trigger %d\n",raw_event->h.trig_num&0x7fffffff); */
+		    /* printf("tfit: %f traw: %f trf: %f t-trf+16K: %f\n",raw_event->tg.det[pos].ge[col].t0[0],raw_event->tg.det[pos].ge[col].t0[0]*16,trf,t); */
+		    /* getc(stdin); */
 		    
 		    ran=(double)rand()/(double)RAND_MAX-0.5;
 		    ren=t+ran;
-		    //printf("ran %f ren %f\n",ran,ren);
+		    /* printf("ran %f ren %f\n",ran,ren); */
 		    t=TIGRESS_cal_par->ct[pos][col][0]+TIGRESS_cal_par->ct[pos][col][1]*ren;
-		    //printf("cal t %f\n",t);
-		    //getc(stdin);		    
+		    /* printf("cal t %f\n",t); */
+		    /* getc(stdin); */		    
 
 		    if(t>0)
 		      if(t<S65K)

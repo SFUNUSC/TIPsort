@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
   par->t[4]=atof(argv[7]); //set tGamma
 
   f=new TF1("wfit",myfunction,0,MAX_SAMPLES,7);
-  g=new TH2D("TS/chisq","TS/chisq",S16K,0,S16K-1,1000,0,1);
+  g=new TH2D("TS/chisq","TS/chisq",S1K,0,S1K-1,1000,0,1);
 
   theApp=new TApplication("App", &ac, av);
   printf("Program fits slow component on waveforms for selected channel\n");
@@ -118,9 +118,9 @@ int main(int argc, char *argv[])
 
   g->Write();
 
-  if(c!=NULL) delete c;
-  c = new TCanvas("Waveform", "Waveform",10,10, 700, 500);
-  g->Draw();
-  theApp->Run(kTRUE);
+  /* if(c!=NULL) delete c; */
+  /* c = new TCanvas("Waveform", "Waveform",10,10, 700, 500); */
+  /* g->Draw(); */
+  /* theApp->Run(kTRUE); */
  
 }

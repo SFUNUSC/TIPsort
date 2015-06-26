@@ -29,4 +29,5 @@ v8.4 Waveform analyzer changes to reflect weak sources with gamma background.
      Used for analysis of 207Bi and 209Po sources for coincidence trigger tests.
      Fits 2 components, fast only, slow only, gamma on PIN diode and selects 
      lowest chi square. Previously assumed 2 component fit function based on
-     optimization and development for use with in-beam data.
+     optimization and development for use with in-beam data. Includes CsI ring calibration from S1467 experiment at TRIUMF.
+

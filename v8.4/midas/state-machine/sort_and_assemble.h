@@ -9,6 +9,7 @@
 #define END_OF_RECORD     2
 #define END_OF_FILE       3
 #define ANALYZE_DATA      4
+#define END_OF_SORT       5
 
 #include "tig-format.h"
 #include "midas-format.h"
@@ -43,6 +44,7 @@ void remove_event(int,node*);
 void assemble_event(int,node*, data_pointers*,tmap*);
 void add_tig10_event(Tig10_event*,short*,node*,data_pointers*,tmap*);
 void sort_and_assemble(char*,char*);
+void sort_and_assemble_list(char*,char*);
 int  get_and_assemble_fragments(node*,data_pointers*,tmap*);
 
 #endif

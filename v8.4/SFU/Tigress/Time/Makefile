@@ -27,6 +27,10 @@ all:
 	(cd TRaw r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Tigress_TRaw.
 
+	echo making Tigress_TRaw_v_TCal.
+	(cd TRaw_v_TCal r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: Tigress_TRaw_v_TCal.
+
 clean:
 	(cd TvsRFPhase && make -is clean && cd ..)
 	(cd TCal && make -is clean && cd ..)
@@ -36,6 +40,7 @@ clean:
 	(cd TCalDiffABSuppSum && make -is clean && cd ..)
 	(cd TCalDiffABSupp && make -is clean && cd ..)
 	(cd TRaw && make -is clean && cd ..)
+	(cd TRaw_v_TCal && make -is clean && cd ..)
 
 
 	rm -f *~

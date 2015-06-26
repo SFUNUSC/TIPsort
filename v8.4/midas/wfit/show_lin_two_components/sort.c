@@ -13,8 +13,8 @@ int analyze_fragment(Tig10_event* ptr,short* waveform)
 	get_exclusion_zone_for_CsI(d,waveform,&wpar);
 	get_shape(4,d,waveform,par,&wpar);
 	ch=par->chisq/par->ndf;
-	printf("here?\n");
-	getc(stdin);
+	//printf("here?\n");
+	//getc(stdin);
 	
 	if(ch>=chmin)
 	  if(ch<=chmax)

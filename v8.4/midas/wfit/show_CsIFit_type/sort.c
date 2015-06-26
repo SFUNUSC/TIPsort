@@ -7,8 +7,7 @@ int analyze_fragment(Tig10_event* ptr,short* waveform)
   double ch;
   int type;
   
-  //manually disable channel 1043... somehow triggers with thresh=1000!!!
-  if( (ptr->channel>=chn_low) && (ptr->channel<=chn_high) && (ptr->channel!=1043) )
+  if( (ptr->channel>=chn_low) && (ptr->channel<=chn_high) )
     {
       //printf("channel number %d\n",ptr->channel);
       if((d=ptr->waveform_length)!=0)
@@ -33,8 +32,7 @@ int analyze_fragment(Tig10_event* ptr,short* waveform)
 /*================================================================*/
 int main(int argc, char *argv[])
 {
-  int ac;
-  char *av[10];
+  char title[132];
 
  if(argc!=10)
     {
@@ -45,7 +43,7 @@ int main(int argc, char *argv[])
   par=(ShapePar*)malloc(sizeof(ShapePar));
   memset(par,0,sizeof(ShapePar));
 
-  h=new TH1D("CsI fit type","CsI fit type",512,-256,255);
+  h=new TH1D("CsI fit type","CsI fit type",16,-8,8);
   h->Reset();
 
   chn_low=atoi(argv[2]);
@@ -60,12 +58,18 @@ int main(int argc, char *argv[])
 /* do sorting */
   sort_but_not_assemble(argv[1]);
 
- /* display results */
-  theApp=new TApplication("App", &ac, av);
-  c = new TCanvas("CsI fit type", "CsI fit type",10,10,700,500);
-  gPad->SetLogy();
-  h->GetXaxis()->SetTitle("Fit type");
-  h->GetYaxis()->SetTitle("Counts");
-  h->Draw();
-  theApp->Run(kTRUE);
+  sprintf(title,"type.root");
+  TFile f(title, "recreate");
+
+ /* save results */
+  if(h->GetEntries())
+    {
+      h->GetXaxis()->SetTitle("Fit type");
+      h->GetXaxis()->CenterTitle(true);
+      h->GetYaxis()->SetTitle("Counts");
+      h->GetYaxis()->CenterTitle(true);
+      h->GetYaxis()->SetTitleOffset(1.5);
+      h->SetOption("COLZ");
+      h->Write();
+    }
 }

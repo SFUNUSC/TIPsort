@@ -93,9 +93,9 @@ int main(int argc, char *argv[])
     
   sprintf(title,"CsIArray_TTCal.root");
   TFile f(title, "recreate");
-  h->GetXaxis()->SetTitle("CsI TCal1 [ns]");
+  h->GetXaxis()->SetTitle("CsI TCal 1 [ns]");
   h->GetXaxis()->CenterTitle(true);
-  h->GetYaxis()->SetTitle("CsI TCal2 [ns]");
+  h->GetYaxis()->SetTitle("CsI TCal 2 [ns]");
   h->GetYaxis()->CenterTitle(true);
   h->GetYaxis()->SetTitleOffset(1.5);
   h->SetOption("COLZ");

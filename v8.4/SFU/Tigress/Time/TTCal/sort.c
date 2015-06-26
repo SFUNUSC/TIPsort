@@ -11,6 +11,7 @@ int analyze_data(raw_event *data)
   memset(cev,0,sizeof(cal_event));
   calibrate_TIGRESS(data,&cal_par->tg,&cev->tg);
   
+  /* printf("FT: %d\n",cev->tg.h.FT); */
   if(cev->tg.h.FT>0)
     for(pos1=1;pos1<NPOSTIGR;pos1++)
       if((cev->tg.h.THP&(1<<(pos1-1)))!=0)
@@ -32,13 +33,16 @@ int analyze_data(raw_event *data)
 				    t2=cev->tg.det[pos2].ge[col2].seg[0].T/cal_par->tg.contr_t;
 				    
 				    tdiff=t1-t2;
+				    /* printf("t1: %f t2: %f tdiff: %f\n",t1,t2,tdiff);
+				    getc(stdin); */
 				    h_t1->Fill(t2);
 				    h_t2->Fill(t1);
 				    h_tdiff->Fill(tdiff);
 				    //Symmetrized
 				    h->Fill(t2,t1);
 				    h->Fill(t1,t2);
-				  }}
+				  }
+		  }
   free(cev);
   return SEPARATOR_DISCARD;
 }
@@ -92,9 +96,9 @@ int main(int argc, char *argv[])
   
   sprintf(title,"Tigress_TTCal.root");
   TFile f(title, "recreate");
-  h->GetXaxis()->SetTitle("Tigress TCal [ns]");
+  h->GetXaxis()->SetTitle("Tigress TCal 1 [ns]");
   h->GetXaxis()->CenterTitle(true);
-  h->GetYaxis()->SetTitle("CsI TCal [ns]");
+  h->GetYaxis()->SetTitle("TIGRESS TCal 2 TCal [ns]");
   h->GetYaxis()->CenterTitle(true);
   h->GetYaxis()->SetTitleOffset(1.5);
   h->SetOption("COLZ");

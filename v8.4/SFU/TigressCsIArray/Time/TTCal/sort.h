@@ -1,7 +1,6 @@
 #ifndef SORT_H
 #define SORT_H
 
-
 #include "SFU-common.h"
 #include "SFU-format.h"
 #include "SFU-decoder.h"
@@ -17,4 +16,5 @@ TH2D *h;
 TH1D *h_tcsi, *h_ttg, *h_tdiff;
 
 calibration_parameters* cal_par;
+
 #endif

@@ -31,7 +31,6 @@ int analyze_data(raw_event *data)
 			t-=(data->tg.det[pos].ge[col].seg[0].timestamp*16)&0x00ffffff;
 			tt=t;
 			if((data->h.setupHP&RF_BIT)!=0)
-			  //if((data->h.setupHP&RF_BIT)!=0)
 			  {
 			    ttt=data->rf.sin.t0;
 			    ttt*=0.625;

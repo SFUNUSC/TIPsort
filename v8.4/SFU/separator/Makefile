@@ -23,13 +23,17 @@ all:
 	(cd CsIPIDER r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Separator_CsIPIDER.
 
+	echo Making Separator_RF.
+	(cd RF r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: Separator_RF.
 
 clean:
 	(cd TrigBits            && make -is clean && cd ..)
 	(cd TigressCsITTCalDiff && make -is clean && cd ..)
 	(cd TigressTTCalDiff    && make -is clean && cd ..)
 	(cd CsITTCalDiff        && make -is clean && cd ..)
-	(cd CsIPIDER        && make -is clean && cd ..)
+	(cd CsIPIDER            && make -is clean && cd ..)
+	(cd RF                  && make -is clean && cd ..)
 	#(cd TigressCsITTCalDiff_firstEvent	&& make -is clean && cd ..)
 
 	rm -f *~

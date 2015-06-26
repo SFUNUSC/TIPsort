@@ -9,9 +9,10 @@ int analyze_fragment(Tig10_event* ptr, short* waveform)
     {
       get_sin_par(T,ptr->waveform_length,waveform,&spar);
       
-      /* printf("A  %f\n",spar.A); */
-      /* printf("t0 %f\n",spar.t0); */
-      /* printf("C  %f\n",spar.C); */
+      printf("A  %f\n",spar.A);
+      printf("t0 %f  --> t0 in samples %f\n",spar.t0,spar.t0*16);
+      printf("C  %f\n",spar.C);
+      getc(stdin);
       h->Reset();
       f->SetParameter(0,spar.A);
       f->SetParameter(1,spar.t0);
@@ -44,7 +45,7 @@ int main(int argc, char *argv[])
 {
   if(argc!=4)
     {
-      printf("RF_fitFrequency midas_input_data_file_name channel max_chisq\n");
+      printf("RF_fitPeriod midas_input_data_file_name channel max_chisq\n");
       exit(-1);
     }
 

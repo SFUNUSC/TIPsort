@@ -8,6 +8,7 @@ int analyze_data(raw_event *data)
   long int a;
 
   if((data->h.setupHP&RF_BIT)!=0)
+
     if(data->tg.h.Gefold>0)
       for(pos=1;pos<NPOSTIGR;pos++)
 	if((data->tg.h.GeHP&(1<<(pos-1)))!=0)
@@ -20,11 +21,11 @@ int analyze_data(raw_event *data)
 		      tCFD=data->tg.det[pos].ge[col].seg[0].cfd&0x00ffffff;
 		      tCFD-=(data->tg.det[pos].ge[col].seg[0].timestamp*16)&0x00ffffff;
 		      
-		      //chi=data->tg.det[pos].ge[col].t0[0].chisq;
-		      //chi/=data->tg.det[pos].ge[col].t0[0].ndf;
+		      /* chi=data->tg.det[pos].ge[col].t0[0].chisq; */
+		      /* chi/=data->tg.det[pos].ge[col].t0[0].ndf; */
 		      
-		      //if(chi>=chimin && chi<=chimax)
-		      //{
+		      /* if(chi>=chimin && chi<=chimax) */
+		      /* { */
 			  //In ns, fit local
 			  tFITlocal=data->tg.det[pos].ge[col].t0[0]*10;
 			  
@@ -47,8 +48,8 @@ int analyze_data(raw_event *data)
 			  trf*=0.625;
 			  
 			  //Subtract RF and convert to ns
-			  //tFITlocal*=0.625;
-			  //tdiffFITlocal=tFITlocal-trf;
+			  tFITlocal*=0.625;
+			  tdiffFITlocal=tFITlocal-trf;
 			  
 			  //Subtract RF and convert to ns
 			  tCFD*=0.625;
@@ -62,7 +63,8 @@ int analyze_data(raw_event *data)
 			  h_tdiffCFD->Fill(tdiffCFD);
 			  hFITlocal->Fill(trf,tFITlocal);
 			  hCFD->Fill(trf,tCFD);
-		    }//}
+		    }
+/* } */
   
   return SEPARATOR_DISCARD;
 }
@@ -72,15 +74,15 @@ int main(int argc, char *argv[])
   input_names_type* name;
   char title[132];
   
-  if(argc!=6)
+  if(argc!=4)
     {
-      printf("Tigress_TvsRFPhase sfu_input_data chimin chimax offset shift\n");
+      printf("Tigress_TvsRFPhase sfu_input_data offset shift\n");
       exit(-1);
     }
-  chimin=atof(argv[2]);
-  chimax=atof(argv[3]);
-  offset=atof(argv[4]);
-  shift=atof(argv[5]);
+  //chimin=atof(argv[2]);
+  //chimax=atof(argv[3]);
+  offset=atof(argv[2]);
+  shift=atof(argv[3]);
   
   printf("Program sorts TvsRFPhase histograms for Tigress.\n");
   

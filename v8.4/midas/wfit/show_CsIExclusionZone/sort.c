@@ -9,6 +9,7 @@ int analyze_fragment(Tig10_event* ptr,short* waveform)
   if(ptr->channel==chn)
     if((d=ptr->waveform_length)!=0)
     {
+      print_fragment_info(ptr,S16K);
       get_exclusion_zone_for_CsI(d,waveform,&wpar); 
       show_CsI_exclusion_zone(d,waveform,&wpar,theApp);
     }

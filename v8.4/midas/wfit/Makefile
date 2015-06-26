@@ -3,6 +3,10 @@ all:
 	(cd test_CsIBaseline r && make -is clean && make  && make -is clean && cd ..) 
 	echo DONE: WFIT_TEST_CSIBASELINE.
 
+	echo Making wfit_amplitude.
+	(cd amplitude r && make -is clean && make  && make -is clean && cd ..) 
+	echo DONE: WFIT_AMPLITUDE.
+
 	echo Making wfit_show_CsIBaseline.
 	(cd show_CsIBaseline r && make -is clean && make  && make -is clean && cd ..) 
 	echo DONE: WFIT_SHOW_CSIBASELINE.
@@ -67,6 +71,10 @@ all:
 	(cd fit_slow_component && make -is clean && make  && make -is clean && cd ..) 
 	echo DONE: WFIT_FIT_SLOW_COMPONENT
 
+	echo Making wfit_fit_two_component.
+	(cd fit_two_component && make -is clean && make  && make -is clean && cd ..) 
+	echo DONE: WFIT_FIT_TWO_COMPONENT
+
 	echo Making wfit_show_chi_T0.
 	(cd show_chi_T0 && make -is clean && make  && make -is clean && cd ..) 
 	echo DONE: WFIT_SHOW_CHI_T0
@@ -88,12 +96,13 @@ all:
 	echo DONE: WFIT_SHOW_NEWT0FIT
 
 	echo Making wfit_show_T0dist.
-	(cd show_show_T0dist && make -is clean && make  && make -is clean && cd ..) 
+	(cd show_T0dist && make -is clean && make  && make -is clean && cd ..) 
 	echo DONE: WFIT_SHOW_T0DIST
 
 clean:
 
 	(cd test_CsIBaseline				&& make -is clean && cd ..)
+	(cd amplitude					&& make -is clean && cd ..)
 	(cd show_CsIBaseline				&& make -is clean && cd ..)
 	(cd show_bad_baseline				&& make -is clean && cd ..)
 	(cd test_CsIExclusionZone			&& make -is clean && cd ..)
@@ -110,6 +119,7 @@ clean:
 	(cd RC						&& make -is clean && cd ..)
 	(cd fit_fast_component				&& make -is clean && cd ..)
 	(cd fit_slow_component				&& make -is clean && cd ..)
+	(cd fit_two_component				&& make -is clean && cd ..)
 	(cd show_chi_T0					&& make -is clean && cd ..)
 	#(cd show_newT0Fit				&& make -is clean && cd ..)
 	(cd chi_T0					&& make -is clean && cd ..)

@@ -7,6 +7,10 @@ all:
 	(cd ECal r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: ECAL.
 
+	echo Making ECalRing.
+	(cd ECalRing r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: ECALRING.
+
 	echo Making ECal_CsIPIDr.
 	(cd ECal_CsIPIDr r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: ECAL_CSIPIDR.
@@ -37,14 +41,15 @@ all:
 
 
 clean:
-	(cd ERaw && make -is clean && cd ..)
-	(cd ECal && make -is clean && cd ..)
-	(cd ECal_CsIPIDr && make -is clean && cd ..)
-	(cd ECalSum_CsIPIDr && make -is clean && cd ..)
-	(cd ECalPosSum_CsIPIDr && make -is clean && cd ..)
-	(cd ECalParticleSumRunSum_CsIPIDr && make -is clean && cd ..)
-	(cd EECalSum && make -is clean && cd ..)
-	(cd DeltaU && make -is clean && cd ..)
-	(cd DeltaUSum && make -is clean && cd ..)
+	(cd ERaw 				&& make -is clean && cd ..)
+	(cd ECal 				&& make -is clean && cd ..)
+	(cd ECalRing 				&& make -is clean && cd ..)
+	(cd ECal_CsIPIDr 			&& make -is clean && cd ..)
+	(cd ECalSum_CsIPIDr 			&& make -is clean && cd ..)
+	(cd ECalPosSum_CsIPIDr 			&& make -is clean && cd ..)
+	(cd ECalParticleSumRunSum_CsIPIDr	&& make -is clean && cd ..)
+	(cd EECalSum 				&& make -is clean && cd ..)
+	(cd DeltaU 				&& make -is clean && cd ..)
+	(cd DeltaUSum 				&& make -is clean && cd ..)
 
 	rm -f *~

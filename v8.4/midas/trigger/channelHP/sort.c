@@ -3,13 +3,21 @@
 /*================================================================*/
 int analyze_fragment(Tig10_event* ptr, short* waveform)
 {
-  if((ptr->channel<0) || (ptr->channel>S2K)) 
+  /* if((ptr->channel<0) || (ptr->channel>S2K)) */
+  /*   { */
+  /*     printf("Bad channel values present! Investigate!!!\n"); */
+  /*     printf("Offending channel is %d\n",ptr->channel); */
+  /*     exit(EXIT_FAILURE); */
+  /*   } */
+  /* else */
+  /*   {   */
+  /*     hist[ptr->channel]++; */
+  /*     h->Fill(ptr->channel); */
+  /*   } */
+
+  //ignoring bad channels!
+  if((ptr->channel>=0) && (ptr->channel<=S2K))
     {
-      printf("Bad channel values present! Investigate!!!\n");
-      exit(EXIT_FAILURE);
-    }
-  else
-    {  
       hist[ptr->channel]++;
       h->Fill(ptr->channel);
     }

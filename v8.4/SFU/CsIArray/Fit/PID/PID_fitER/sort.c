@@ -6,39 +6,45 @@ int analyze_data(raw_event *data)
   int pos,type;
   double chi,s,f,r,e;
   
-  //if((data->h.setupHP&RF_BIT)==0) return SEPARATOR_DISCARD;
-  if((data->h.setupHP&CsIArray_BIT)==0) return SEPARATOR_DISCARD;
-  
-  for(pos=1;pos<NCSI;pos++)
-    if((data->csiarray.h.THP&(one<<pos))!=0)
-      {
-	type=data->csiarray.wfit[pos].type;
-	chi=data->csiarray.wfit[pos].chisq;
-	chi/=data->csiarray.wfit[pos].ndf;
-	if(type>=idmin && type<=idmax)
-	  if(chi>=chimin && chi<=chimax)
-	    {
-	      e=data->csiarray.wfit[pos].am[1];
-	      s=data->csiarray.wfit[pos].am[3];
-	      f=data->csiarray.wfit[pos].am[2];
-	      if(f==0)
-		r=s*100;
-	      else
-		r=s/f*100;
-	      r+=100;
+  if((data->h.setupHP&RF_BIT)==0) 
+    return SEPARATOR_DISCARD;
 
-	      //printf("amp %10.3f slow %10.3f fast %10.3f pid %10.3f\n",e,s,f,r);
-	      //getc(stdin);
-	      
-	      if(r>S32K-4) r=S32K-4;
-	   
-	      h[pos]->Fill(e,r);
-	      h_e[pos]->Fill(e);
-	      
-	      //hist1[(int)rint(r)]++;
-	      //hist2[(int)rint(e)]++;
-	    }
-      }
+  if((data->h.setupHP&CsIArray_BIT)==0) 
+    return SEPARATOR_DISCARD;
+  
+  if(data->csiarray.h.Tfold>0) /* Require good CsI time*/
+    if(data->csiarray.h.Efold>0) /* Require good CsI energy */
+      for(pos=1;pos<NCSI;pos++)
+	if((data->csiarray.h.THP&(one<<pos))!=0)
+	  {
+	    type=data->csiarray.wfit[pos].type;
+	    chi=data->csiarray.wfit[pos].chisq;
+	    chi/=data->csiarray.wfit[pos].ndf;
+	    if(type>=idmin && type<=idmax)
+	      if(chi>=chimin && chi<=chimax)
+		{
+		  e=data->csiarray.wfit[pos].am[1];
+		  s=data->csiarray.wfit[pos].am[3];
+		  f=data->csiarray.wfit[pos].am[2];
+		  if(f==0)
+		    r=s*100;
+		  else
+		    r=s/f*100;
+		  
+		  r+=100;
+		  
+		  //printf("amp %10.3f slow %10.3f fast %10.3f pid %10.3f\n",e,s,f,r);
+		  //getc(stdin);
+		  
+		  if(r>S32K-4) r=S32K-4;
+		  
+		  h[pos]->Fill(e,r);
+		  h_e[pos]->Fill(e);
+		  
+		  //hist1[(int)rint(r)]++;
+		  //hist2[(int)rint(e)]++;
+		}
+	  }
   return SEPARATOR_DISCARD;
 }
 /*================================================================*/
@@ -116,6 +122,11 @@ int main(int argc, char *argv[])
       sprintf(HistName1, "PID_ER_%02d", pos);
       sprintf(HistName2, "PID_E_%02d", pos);
       h[pos]->Draw("COLZ");
+      h[pos]->GetXaxis()->SetTitle("Amplitude [arb.]");
+      //h[pos]->GetXaxis()->CenterTitle(true);
+      h[pos]->GetYaxis()->SetTitle("PID value [100*(1+A_{S}/A_{F})]");
+      //h[pos]->GetYaxis()->CenterTitle(true);
+      h[pos]->GetYaxis()->SetTitleOffset(1.3);
       h[pos]->Write(HistName1);
       h_e[pos]->Draw("");
       h_e[pos]->Write(HistName2);

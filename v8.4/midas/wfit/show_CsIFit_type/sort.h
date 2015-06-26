@@ -15,9 +15,7 @@
 #include "math.h"
 
 TH1D *h;
-TCanvas *c;
 ShapePar* par;
 int  chn_low,chn_high;
 double chisq_min,chisq_max;
-TApplication *theApp;
 #endif

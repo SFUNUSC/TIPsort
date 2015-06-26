@@ -7,9 +7,13 @@ all:
 	(cd channel r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: VIEW_CHANNEL.
 
+	echo Making view_eventFragments.
+	(cd eventFragments r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: VIEW_EVENTFRAGMENTS.
 
 clean:
-	(cd fragment       && make -is clean && cd ..)
-	(cd channel        && make -is clean && cd ..)
+	(cd fragment             && make -is clean && cd ..)
+	(cd channel              && make -is clean && cd ..)
+	(cd eventFragments       && make -is clean && cd ..)
 
 	rm -f *~

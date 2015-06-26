@@ -6,7 +6,7 @@ int analyze_data(raw_event *data)
   if(verify_ts(data,&min,&max)>delta)
     {
       printf("Inconsistent time stamps \n");
-      printf("max %12.12x min %12.12x diff %8.8x\n",max,min,max-min);
+      printf("max %16.16llx min %16.16llx diff %16.16llx\n",max,min,max-min);
       display_raw_event(data);
       getc(stdin);
     }

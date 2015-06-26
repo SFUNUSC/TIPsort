@@ -13,7 +13,11 @@ typedef struct cCSIARRAY
 {
   lheader h;
   hit     csi[NCSI];
-  double  U;
+  int     ring[NCSI];
+  double  U; /* center of mass energy change */
+  int     type[NCSI]; /* waveform fit type (two component, fast, slow, gamma on PIN) */
+  double  chisq[NCSI];
+  int     ndf[NCSI];
 }cCSIARRAY;
 
 
@@ -22,9 +26,12 @@ typedef struct
   int    ceflag[NCSI];
   int    ctflag[NCSI];
   int    cposflag[NCSI];
-  float  ce[NCSI][3]; //calibration parameters for CsI energy [# detectors][# parameters/detector]
-  double cpos[NCSI][3]; //CsI detector positions [# detectors][# parameters/detector (R,theta,phi)]
+  /* float  ce[NCSI][3]; //exponential calibration parameters for CsI energy [# detectors][# parameters/detector] */
+  float  ce[NCSI][2];    //gain and offset calibration parameters for CsI energy [# detectors][# parameters/detector]
+  double cpos[NCSI][3];  //CsI detector positions [# detectors][# parameters/detector (R,theta,phi)]
   float  ct[NCSI][2];
+  int    ringflag[NCSI];
+  int    ring_map[NCSI];
   float  contr_e;
   float  contr_t;
   int    offset;
@@ -46,6 +53,7 @@ void read_CSIARRAY_energy_limits(CSIARRAY_calibration_parameters *, char *);
 void read_CSIARRAY_time_limits(CSIARRAY_calibration_parameters *, char *);
 void read_CSIARRAY_detector_positions(CSIARRAY_calibration_parameters *, char *);
 void read_CSIARRAY_deltaU_parameters(CSIARRAY_calibration_parameters *, char *);
+void read_CSIARRAY_ring_map(CSIARRAY_calibration_parameters *, char *);
 void summarize_CSIARRAY_calibration(CSIARRAY_calibration_parameters *, char *);
 void calibrate_CSIARRAY(raw_event*, CSIARRAY_calibration_parameters *, cCSIARRAY*);
 

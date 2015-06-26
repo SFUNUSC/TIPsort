@@ -43,7 +43,7 @@ int analyze_data(raw_event *data)
 		  if((cev->tg.det[pos].ge[col].h.THP&1)!=0)
 		    {
 		      ttg=cev->tg.det[pos].ge[col].seg[0].T/cal_par->tg.contr_t;
-		      //printf("ttg %.4f\n",ttg);
+		      printf("ttg %.4f\n",ttg);
 		      if(ttg<tmin) tmin=ttg;
 		    }
 
@@ -52,7 +52,7 @@ int analyze_data(raw_event *data)
     if((cev->csiarray.h.THP&(one<<csi))!=0)
       {
 	tcsi=cev->csiarray.csi[csi].T/cal_par->csiarray.contr_t;
-	//printf("tcsi %.4f\n",tcsi);
+	printf("tcsi %.4f\n",tcsi);
 	if(tcsi<tmin) tmin=tcsi;
       }
 
@@ -70,7 +70,7 @@ int analyze_data(raw_event *data)
 		    {
 		      ttg=cev->tg.det[pos].ge[col].seg[0].T/cal_par->tg.contr_t;	    
 		      tdiff=ttg-tmin;
-		      //printf("tdiff_ttg %.4f\n",tdiff);
+		      printf("tdiff_ttg %.4f\n",tdiff);
 		      if(tdiff<=low)
 			{
 			  id=pos-1;
@@ -84,13 +84,13 @@ int analyze_data(raw_event *data)
      {
        tcsi=cev->csiarray.csi[csi].T/cal_par->csiarray.contr_t;
        tdiff=tcsi-tmin;
-       //printf("tdiff_csi %.4f\n",tdiff);
+       printf("tdiff_csi %.4f\n",tdiff);
        if(tdiff<=high)
 	 {
 	  flag_csi|=(one<<csi);
 	 }
      }
- //getc(stdin);
+ getc(stdin);
 
   free(cev);
 

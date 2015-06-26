@@ -17,8 +17,8 @@ int analyze_data(raw_event *data)
   if((data->h.setupHP&TIGRESS_BIT)==0)
     return SEPARATOR_DISCARD;
 
-  //if((data->h.setupHP&RF_BIT)==0)
-  //  return SEPARATOR_DISCARD;
+  if((data->h.setupHP&RF_BIT)==0)
+    return SEPARATOR_DISCARD;
 
  if((data->h.setupHP&CsIArray_BIT)==0)
     return SEPARATOR_DISCARD;
@@ -104,97 +104,6 @@ int analyze_data(raw_event *data)
   //if(cev->tg.h.FT>=1 && cev->csiarray.h.FT>=1)
   //getc(stdin);
 
-
-  //We dont need to drop data or encode, so this all this is commented... can probably remove
-
-  /* //drop TIGRESS data out of the time limits */
- /*   for(pos=1;pos<NPOSTIGR;pos++) */
- /*     { */
- /*       id=pos-1; */
- /*       for(col=0;col<NCOL;col++) */
- /* 	 {	 */
- /* 	   id_ge=id*NCOL+col; */
- /* 	   drop=(one<<id_ge); */
- /* 	   drop&=data->tg.g.GeHP; */
- /* 	   if(drop!=0) */
- /* 	     { */
- /* 	       drop&=flag_ge; */
- /* 	       if(drop==0) */
- /* 		 { */
- /* 		   //drop this crystal */
- /* 		   memset(&data->tg.det[pos].ge[col],0,sizeof(SegTIGR)); */
- /* 		   kill=none-(one<<col); */
- /* 		   data->tg.det[pos].h.GeHP&=kill; */
- /* 		   data->tg.det[pos].h.Gefold--; */
- /* 		   kill=none-(one<<id_ge); */
- /* 		   data->tg.g.GeHP&=kill; */
- /* 		   data->tg.g.Gefold--; */
- /* 		   data->tg.g.THP&=kill; */
- /* 		   data->tg.g.Tfold--; */
- /* 		 } */
- /* 	     } */
- /* 	 } */
- /*     } */
-
- /*   for(pos=1;pos<NPOSTIGR;pos++) */
- /*     { */
- /*       id=pos-1; */
- /*       if((data->tg.h.GeHP&(1<<id))!=0) */
- /* 	 if(data->tg.det[pos].h.Gefold<=0) */
- /* 	   { */
- /* 	     //drop this position */
- /* 	     memset(&data->tg.det[pos],0,sizeof(CssTIGR)); */
- /* 	     kill=none-(one<<id); */
- /* 	     data->tg.h.GeHP&=kill; */
- /* 	     data->tg.h.Gefold--; */
- /* 	     data->tg.g.PosHP&=kill; */
- /* 	     data->tg.g.Posfold--; */
- /* 	   } */
- /*     } */
-   
- 
- /*   if(data->tg.h.Gefold<=0) */
- /*     { */
- /*       memset(&data->tg,0,sizeof(Tigress)); */
- /*       kill=none-TIGRESS_BIT; */
- /*       data->h.setupHP&=kill; */
- /*     } */
-
- /*  //drop csi out of the time limits */
- /*  for(csi=1;csi<NCSI;csi++) */
- /*    if((data->csiarray.h.TSHP&(one<<csi))!=0) */
- /*      if((flag_csi&(one<<csi))==0) */
- /* 	{ */
- /* 	  memset(&data->csiarray.csi[csi],0,sizeof(channel)); */
- /* 	  memset(&data->csiarray.wfit[csi],0,sizeof(ShapePar)); */
- /* 	  memset(&data->csiarray.t0[csi],0,sizeof(double)); */
- /* 	  data->csiarray.h.Efold--; */
- /* 	  data->csiarray.h.Tfold--;	   */
- /* 	  data->csiarray.h.TSfold--; */
- /* 	  kill=none-(one<<csi); */
- /* 	  data->csiarray.h.TSHP&=kill; */
- /* 	  data->csiarray.h.EHP&=kill; */
- /* 	  data->csiarray.h.THP&=kill; */
- /* 	} */
-  
- /*  if(data->csiarray.h.TSfold<=0) */
- /*    { */
- /*      kill=none-CsIArray_BIT;  */
- /*      data->h.setupHP&=kill; */
- /*      memset(&data->csiarray,0,sizeof(CsIArray)); */
- /*    }  */
-
- /*  if((data->h.setupHP&TIGRESS_BIT)==0) */
- /*    return SEPARATOR_DISCARD; */
-
- /*  if((data->h.setupHP&RF_BIT)==0) */
- /*    return SEPARATOR_DISCARD; */
-
- /* if((data->h.setupHP&CsIArray_BIT)==0) */
- /*    return SEPARATOR_DISCARD; */
-
- /* encode(data,output,enb); */
-
   return SEPARATOR_DISCARD;
 }
 /*====================================================================================*/
@@ -279,10 +188,10 @@ read_master(argv[1],name);
 
   sprintf(title,"TigressCsIArray_TDiff.root");
   TFile f(title, "recreate");
-  h_csiTDiff->GetXaxis()->SetTitle("CsI TDiff [10ns]");
+  h_csiTDiff->GetXaxis()->SetTitle("CsI TDiff [ns]");
   h_csiTDiff->GetXaxis()->CenterTitle(true);
 
-  h_tigTDiff->GetXaxis()->SetTitle("Tigress TDiff [10ns]");
+  h_tigTDiff->GetXaxis()->SetTitle("Tigress TDiff [ns]");
   h_tigTDiff->GetXaxis()->CenterTitle(true);
 
   h_csiTDiff->Write();

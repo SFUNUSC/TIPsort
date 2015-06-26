@@ -67,11 +67,11 @@ int analyze_data(raw_event *data)
 				  //printf("bgo cfd-timestamp: %0.f\n",tbgo);
 				  tbgo*=0.625;
 				  
-				  //if((data->h.setupHP&RF_BIT)!=0)
-				  //{
+				  if((data->h.setupHP&RF_BIT)!=0)
+				  {
 				  //subtract RF phase from bgo time and tigress time
-				  //tbgo-=(int)data->rf.sin.t0;
-				  //ttg-=(int)data->rf.sin.t0;
+				  tbgo-=(int)data->rf.sin.t0;
+				  ttg-=(int)data->rf.sin.t0;
 				  
 				  //printf("rf phase: %d\n",(int)data->rf.sin.t0);
 				  //printf("bgo cfd-timestamp-RF: %0.f\n",tbgo);
@@ -90,8 +90,7 @@ int analyze_data(raw_event *data)
 				  h_ttg->Fill(ttg);
 				  h_tdiff->Fill(tdiff);
 				  h->Fill(ttg,tbgo);
-				  //}
-				  
+				  }
 				}
   free(cev);
   return SEPARATOR_DISCARD;

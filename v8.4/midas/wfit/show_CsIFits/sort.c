@@ -32,8 +32,12 @@ int analyze_fragment(Tig10_event* ptr,short* waveform)
 /*================================================================*/
 int main(int argc, char *argv[])
 {
-  int ac;
-  char *av[10];
+
+// int ac;
+// char *av[10];
+
+  char name[128];
+
 
  if(argc!=11)
     {
@@ -45,6 +49,7 @@ int main(int argc, char *argv[])
   par=(ShapePar*)malloc(sizeof(ShapePar));
   memset(par,0,sizeof(ShapePar));
 
+  strcpy(name,argv[1]);
   chn=atoi(argv[2]);
   par->t[1]=atof(argv[3]); //set tRC
   par->t[2]=atof(argv[4]); //set tF
@@ -55,9 +60,9 @@ int main(int argc, char *argv[])
   type_low=atoi(argv[9]);
   type_high=atoi(argv[10]);
 
-  theApp=new TApplication("App", &ac, av);
+  theApp=new TApplication("App", &argc, argv);
 
 /* do sorting */
-  sort_but_not_assemble(argv[1]);
+  sort_but_not_assemble(name);
  /* display results */
 }

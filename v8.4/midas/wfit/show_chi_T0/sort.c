@@ -28,8 +28,10 @@ int analyze_fragment(Tig10_event* ptr,short* waveform)
 int main(int argc, char *argv[])
 {
 
-  int ac;
-  char *av[10];
+// int ac;
+// char *av[10];
+
+  char name[128];
 
  if(argc!=5)
     {
@@ -37,14 +39,15 @@ int main(int argc, char *argv[])
       exit(-1);
     }
 
+  strcpy(name,argv[1]);
   chn=atoi(argv[2]);
   min=atof(argv[3]);
   max=atof(argv[4]);
-  theApp=new TApplication("App", &ac, av);
+  theApp=new TApplication("App", &argc, argv);
   printf("Program fits fast risetime waveforms for selected channel\n");
 
 /* do sorting */
-  sort_but_not_assemble(argv[1]);
+  sort_but_not_assemble(name);
  /* display results */
 
  

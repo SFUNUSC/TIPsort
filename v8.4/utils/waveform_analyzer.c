@@ -417,7 +417,7 @@ int get_shape(int dim, int N, short *waveform,ShapePar* par, WaveFormPar *wpar)
 	  tau=get_CsI_tau(i,par);
 	  par->am[i]=e.solution[i]*exp(-par->t[0]/tau);
 	}
-      //done claculating amplitudes
+      //done calculating amplitudes
  
       for(i=0;i<e.dim;i++)
   	par->chisq-=e.solution[i]*e.vector[i];
@@ -1343,7 +1343,7 @@ double fit_CsI_waveform(int N, short *waveform,ShapePar* par,WaveFormPar* wpar)
   //find minimum chisquare
   imin=-1;
   chimin=LARGECHISQ;
-  for(i=0;i<3;i++)
+  for(i=0;i<4;i++)
     if( (chisq[i]<chimin) && (chisq[i]>0) )
       {
 	chimin=chisq[i];
@@ -1368,7 +1368,7 @@ double fit_CsI_waveform(int N, short *waveform,ShapePar* par,WaveFormPar* wpar)
       par->type=2; //fast only type
       return par->chisq;
     }
-  if(imin==1)
+  if(imin==2)
     {
       memcpy(par,p[2],sizeof(ShapePar));
       memcpy(wpar,wp[2],sizeof(WaveFormPar));
@@ -1379,7 +1379,7 @@ double fit_CsI_waveform(int N, short *waveform,ShapePar* par,WaveFormPar* wpar)
       par->type=3; //slow only type
       return par->chisq;
     }
-  if(imin==2)
+  if(imin==3)
     {
       memcpy(par,p[3],sizeof(ShapePar));
       memcpy(wpar,wp[3],sizeof(WaveFormPar));

@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
   if(argc!=4)
     {
       printf("midas2sfu input SFU_output_file map\n");
-      printf("input is list (ext .lst) or single file (ext .mid)\n");
+      printf("Input is list (ext .list) or single file (ext .mid)\n");
       exit(-1);
     }
 
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
   /* sort from a list of midas files */
   if(strcmp(ext,".list")==0)
     {
-      printf ("Sorting from a list: found extention %s\n", ext);
+      printf ("Sorting from a list: found extension %s\n", ext);
       sort_and_assemble_list(argv[1],argv[3]);
       printf("SUCCESS: assembled events from list %s into sfu file %s\n",argv[1],argv[2]);
       return 0;
@@ -44,14 +44,15 @@ int main(int argc, char *argv[])
   /* sort from a single midas file */
   else if(strcmp(ext,".mid")==0)
     {
-      printf ("Sorting from a midas file: found extention %s\n", ext);
+      printf ("Sorting from a midas file: found extension %s\n", ext);
       sort_and_assemble(argv[1],argv[3]);
       printf("SUCCESS: assembled events from midas file %s into sfu file %s\n",argv[1],argv[2]);
       return 0;
     }
   else
     {
-      printf ("ERROR!!! Imporoper midas file source extention.\n");
+      printf ("ERROR!!! Imporoper midas file source extension.\n");
+      printf("Input is list (ext .list) or single file (ext .mid)\n");
       exit(-2);
     }
 }

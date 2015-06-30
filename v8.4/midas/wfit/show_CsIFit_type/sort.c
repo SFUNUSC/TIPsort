@@ -33,6 +33,11 @@ int analyze_fragment(Tig10_event* ptr,short* waveform)
 int main(int argc, char *argv[])
 {
   char title[132];
+  TCanvas *c;
+  TApplication *theApp;
+  // int ac;
+  // char *av[10];
+  char name[128];
 
  if(argc!=10)
     {
@@ -46,6 +51,7 @@ int main(int argc, char *argv[])
   h=new TH1D("CsI fit type","CsI fit type",16,-8,8);
   h->Reset();
 
+  strcpy(name,argv[1]);
   chn_low=atoi(argv[2]);
   chn_high=atoi(argv[3]);
   par->t[1]=atof(argv[4]); //set tRC
@@ -55,13 +61,15 @@ int main(int argc, char *argv[])
   chisq_min=atof(argv[8]);
   chisq_max=atof(argv[9]);
 
+  theApp=new TApplication("App", &argc, argv);
+
 /* do sorting */
-  sort_but_not_assemble(argv[1]);
+  sort_but_not_assemble(name);
 
   sprintf(title,"type.root");
   TFile f(title, "recreate");
 
- /* save results */
+  /* //save results 
   if(h->GetEntries())
     {
       h->GetXaxis()->SetTitle("Fit type");
@@ -72,4 +80,14 @@ int main(int argc, char *argv[])
       h->SetOption("COLZ");
       h->Write();
     }
+  h->Write();
+*/
+
+  /*show results*/
+  c = new TCanvas("Fold", "Fold",10,10, 700, 500);
+  gPad->SetLogy();
+  h->GetXaxis()->SetTitle("Fit type");
+  h->GetYaxis()->SetTitle("Counts");
+  h->Draw();
+  theApp->Run(kTRUE);
 }

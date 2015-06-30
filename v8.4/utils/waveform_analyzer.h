@@ -3,6 +3,7 @@
 
 #define NSHAPE     5  //number of trial functions for waveform fit
 
+#define WAVEFORM_SAMPLES 800 //total number of samples per waveform (added by Jonathan: is this info provided somewhere else?) 
 #define CSI_BASELINE_RANGE 50 //baseline range in channels
 #define FILTER 8 //integration region for noise reduction (in samples)
 #define NOISE_LEVEL_CSI 100 //noise level for CsI
@@ -18,6 +19,7 @@
 #define BADCHISQ_T0          -1024-7 //finding t0 fails for t0 < 0
 #define BADCHISQ_FAIL_DIRECT -1024-8 //fails direct hit
 #define BAD_EXCLUSION_ZONE   -1024-9 //fails finding exclusion zone
+#define PILEUP_DETECTED      -1024-12 //pileup detected in waveform
 
 #define EPS        0.001
 #define MAX_VALUE 16380 //max waveform value from ADC
@@ -86,6 +88,9 @@ typedef struct
   double afit,bfit; //parameters for the line which fits risetime above temax
   int    mflag; //flag for tmax found
   int    teflag; //flag for exclusion zone determined
+
+  //parameters for pileup rejection
+  int    pileupflag; //flag of whether pileup exists or not
   
   double t0; //required for compilation of map.c - check that it works
   double t0_local;
@@ -116,6 +121,7 @@ void      print_ShapePar(ShapePar*);
 void      get_baseline(int, short*, WaveFormPar*);
 void      get_tmax(int, short*, WaveFormPar*);
 void      get_exclusion_zone_for_CsI(int,short*, WaveFormPar*);
+void      check_for_pileup(short*,WaveFormPar*); //pileup rejection function, added by Jonathan
 void      show_CsI_exclusion_zone(int,short*,WaveFormPar*, TApplication*);
 int       get_shape(int,int, short*,ShapePar*,WaveFormPar*);
 double    get_t0(int,ShapePar*,WaveFormPar*,lin_eq_type);

@@ -82,7 +82,68 @@ void get_tmax(int N, short *waveform,WaveFormPar *wpar)
     }
   wpar->mflag=1; //flag after finding tmax
 }
+/*======================================================*/
+void check_for_pileup(short *waveform,WaveFormPar *wpar)
+{
+  //use a trapezoidal filter method to evaluate whether the signal has more than one hit
+  //if the trapezoid value falls 'fall_amount' below the maximum and then subsequently reaches a 
+  //value 'rise_amount' within the maximum, a double peak in the trapezoid is observed and the 
+  //waveform is considered a pileup event.
 
+  int i,j;
+  double sum_low,sum_high;
+  double tf_max=0; //maximum value of the trapezoid
+  int fallen=0; //flag: has the trapezoid value fallen from the max?
+  int max_sample;
+
+  //filter parameters, should test different values
+  int filter_dist = 100; //distance (in waveform samples) between summing regions in the filter
+  int fall_amount = 2*NOISE_LEVEL_CSI;
+  int rise_amount = NOISE_LEVEL_CSI;
+  int averaging_samples = 20; //number of samples in each summing region
+
+  //set the maximum sample value to which the filter may scan without going off the edge of the waveform
+  if (wpar->tmax < WAVEFORM_SAMPLES-averaging_samples-filter_dist)
+    max_sample = wpar->tmax;
+  else
+    max_sample = WAVEFORM_SAMPLES-averaging_samples-filter_dist;
+    
+  wpar->pileupflag=0;//start by assuming waveform has no pileup
+  for(i=0;i<max_sample;i++)
+    {
+      sum_low=0.;
+      sum_high=0.;
+      //get the average in the low region
+      for(j=i;j<=(i+averaging_samples);j++)
+	{
+	  sum_low+=waveform[j];
+	}
+      sum_low/=averaging_samples;
+      //get the average in the high region
+      for(j=i+filter_dist;j<=(i+filter_dist+averaging_samples);j++)
+	{
+	  sum_high+=waveform[j];
+	}
+      sum_high/=averaging_samples;
+
+      double tf_value=sum_high-sum_low;
+      if (tf_value > tf_max)
+	tf_max = tf_value;
+
+      if (((tf_max-tf_value) > fall_amount)&&(fallen==0))
+	{
+	  fallen = 1; //trapezoid has fallen from its maximum value
+	}
+      if (((tf_max-tf_value) < rise_amount)&&(fallen==1))
+	{
+	  wpar->pileupflag=1;//trapezoid has risen again, waveform has pileup
+	  break;
+	}
+    }
+
+ 
+  
+}
 /*======================================================*/
 /* function name follows Phil's convention but Kris' definition */
 void get_exclusion_zone_for_CsI(int N, short *waveform,WaveFormPar *wpar)
@@ -1270,6 +1331,14 @@ double fit_CsI_waveform(int N, short *waveform,ShapePar* par,WaveFormPar* wpar)
   int ndf;
   int i,imin;
 
+  check_for_pileup(waveform,wpar);
+
+  if(wpar->pileupflag==1)
+    {
+      par->type=-3; //type for pileup detection
+      return PILEUP_DETECTED;
+    }
+
   get_exclusion_zone_for_CsI(N,waveform,wpar);
 
   if(wpar->bflag==0)
@@ -1360,7 +1429,7 @@ double fit_CsI_waveform(int N, short *waveform,ShapePar* par,WaveFormPar* wpar)
       par->type=1; //two component type
       return par->chisq;
     }
-  if(imin==1)
+  else if(imin==1)
     {
       memcpy(par,p[1],sizeof(ShapePar));
       memcpy(wpar,wp[1],sizeof(WaveFormPar));
@@ -1368,7 +1437,7 @@ double fit_CsI_waveform(int N, short *waveform,ShapePar* par,WaveFormPar* wpar)
       par->type=2; //fast only type
       return par->chisq;
     }
-  if(imin==2)
+  else if(imin==2)
     {
       memcpy(par,p[2],sizeof(ShapePar));
       memcpy(wpar,wp[2],sizeof(WaveFormPar));
@@ -1379,7 +1448,7 @@ double fit_CsI_waveform(int N, short *waveform,ShapePar* par,WaveFormPar* wpar)
       par->type=3; //slow only type
       return par->chisq;
     }
-  if(imin==3)
+  else if(imin==3)
     {
       memcpy(par,p[3],sizeof(ShapePar));
       memcpy(wpar,wp[3],sizeof(WaveFormPar));
@@ -1651,12 +1720,13 @@ double  get_linear_T0(int N, short* waveform, WaveFormPar* wpar)
 {
 
   LinePar lp,lpl;
-  int k,kmin;
+  int k;
+  //int kmin;
   double chit,chitmin;
   double b,c,t;
   
   chitmin=LARGECHISQ;
-  kmin=0;
+  //kmin=0;
   for(k=T0RANGE/2;k<wpar->thigh-T0RANGE/2;k++)
     {
       //fit line to the baseline
@@ -1676,7 +1746,7 @@ double  get_linear_T0(int N, short* waveform, WaveFormPar* wpar)
 	  wpar->s0=lpl.intercept;
 	  wpar->s1=lpl.slope;
 	  wpar->s2=0.;
-	  kmin=k;
+	  //kmin=k;
 	}
     }	// end of the loop over k
   
@@ -1774,12 +1844,13 @@ double  get_parabolic_T0(int N, short* waveform, WaveFormPar* wpar)
 
   LinePar lp;
   ParPar pp;
-  int k,kmin;
+  int k;
+  //int kmin;
   double chit,chitmin;
   double a,b,c,d,t;
  
   chitmin=LARGECHISQ;
-  kmin=0;
+  //kmin=0;
   for(k=T0RANGE/2;k<wpar->thigh-T0RANGE/2;k++)
     {
       //fit line to the baseline
@@ -1798,7 +1869,7 @@ double  get_parabolic_T0(int N, short* waveform, WaveFormPar* wpar)
 	  wpar->s0=pp.constant;
 	  wpar->s1=pp.linear;
 	  wpar->s2=pp.quadratic;
-	  kmin=k;
+	  //kmin=k;
 	}
     }//end loop through k
 

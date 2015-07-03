@@ -3,7 +3,6 @@
 
 #define NSHAPE     5  //number of trial functions for waveform fit
 
-#define WAVEFORM_SAMPLES 800 //total number of samples per waveform (added by Jonathan: is this info provided somewhere else?) 
 #define CSI_BASELINE_RANGE 50 //baseline range in channels
 #define FILTER 8 //integration region for noise reduction (in samples)
 #define NOISE_LEVEL_CSI 100 //noise level for CsI
@@ -67,6 +66,12 @@ typedef struct
   long double chisq_f;
   int    ndf_ex;
   int    ndf_f;
+
+  //constants for the pileup rejection (trapezoidal filter) algorithm
+  int    filter_dist; //how far between summing regions in the filter
+  int    averaging_samples; //how many samples are in each summing region
+  int    fall_amount; //how much the filter output should fall below the maximum before rising again
+  int    rise_amount; //how much the filter output should rise to within the old maximum before triggering the pileup flag
   
 }ShapePar;
 
@@ -90,7 +95,7 @@ typedef struct
   int    teflag; //flag for exclusion zone determined
 
   //parameters for pileup rejection
-  int    pileupflag; //flag of whether pileup exists or not
+  int    pileupflag; //flag of whether pileup exists or not in the given waveform
   
   double t0; //required for compilation of map.c - check that it works
   double t0_local;
@@ -121,7 +126,8 @@ void      print_ShapePar(ShapePar*);
 void      get_baseline(int, short*, WaveFormPar*);
 void      get_tmax(int, short*, WaveFormPar*);
 void      get_exclusion_zone_for_CsI(int,short*, WaveFormPar*);
-void      check_for_pileup(short*,WaveFormPar*); //pileup rejection function, added by Jonathan
+void      check_for_pileup(Int_t,short*,ShapePar*,WaveFormPar*); //pileup rejection function, added by Jonathan
+void      display_CsI_and_TF(Int_t,short*,ShapePar*,WaveFormPar*,TApplication*);
 void      show_CsI_exclusion_zone(int,short*,WaveFormPar*, TApplication*);
 int       get_shape(int,int, short*,ShapePar*,WaveFormPar*);
 double    get_t0(int,ShapePar*,WaveFormPar*,lin_eq_type);

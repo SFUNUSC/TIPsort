@@ -83,7 +83,7 @@ void get_tmax(int N, short *waveform,WaveFormPar *wpar)
   wpar->mflag=1; //flag after finding tmax
 }
 /*======================================================*/
-void check_for_pileup(short *waveform,WaveFormPar *wpar)
+void check_for_pileup(Int_t N,short *waveform,ShapePar* par,WaveFormPar *wpar)
 {
   //use a trapezoidal filter method to evaluate whether the signal has more than one hit
   //if the trapezoid value falls 'fall_amount' below the maximum and then subsequently reaches a 
@@ -95,18 +95,13 @@ void check_for_pileup(short *waveform,WaveFormPar *wpar)
   double tf_max=0; //maximum value of the trapezoid
   int fallen=0; //flag: has the trapezoid value fallen from the max?
   int max_sample;
-
-  //filter parameters, should test different values
-  int filter_dist = 100; //distance (in waveform samples) between summing regions in the filter
-  int fall_amount = 2*NOISE_LEVEL_CSI;
-  int rise_amount = NOISE_LEVEL_CSI;
-  int averaging_samples = 20; //number of samples in each summing region
+  double tf_value;
 
   //set the maximum sample value to which the filter may scan without going off the edge of the waveform
-  if (wpar->tmax < WAVEFORM_SAMPLES-averaging_samples-filter_dist)
+  if (wpar->tmax < N-par->averaging_samples-par->filter_dist)
     max_sample = wpar->tmax;
   else
-    max_sample = WAVEFORM_SAMPLES-averaging_samples-filter_dist;
+    max_sample = N-par->averaging_samples-par->filter_dist;
     
   wpar->pileupflag=0;//start by assuming waveform has no pileup
   for(i=0;i<max_sample;i++)
@@ -114,35 +109,110 @@ void check_for_pileup(short *waveform,WaveFormPar *wpar)
       sum_low=0.;
       sum_high=0.;
       //get the average in the low region
-      for(j=i;j<=(i+averaging_samples);j++)
+      for(j=i;j<=(i+par->averaging_samples);j++)
 	{
 	  sum_low+=waveform[j];
 	}
-      sum_low/=averaging_samples;
       //get the average in the high region
-      for(j=i+filter_dist;j<=(i+filter_dist+averaging_samples);j++)
+      for(j=i+par->filter_dist;j<=(i+par->filter_dist+par->averaging_samples);j++)
 	{
 	  sum_high+=waveform[j];
 	}
-      sum_high/=averaging_samples;
 
-      double tf_value=sum_high-sum_low;
+      tf_value=sum_high-sum_low;
       if (tf_value > tf_max)
 	tf_max = tf_value;
 
-      if (((tf_max-tf_value) > fall_amount)&&(fallen==0))
+      if (((tf_max-tf_value) > par->fall_amount)&&(fallen==0))
 	{
 	  fallen = 1; //trapezoid has fallen from its maximum value
 	}
-      if (((tf_max-tf_value) < rise_amount)&&(fallen==1))
+      if (((tf_max-tf_value) < par->rise_amount)&&(fallen==1))
 	{
 	  wpar->pileupflag=1;//trapezoid has risen again, waveform has pileup
 	  break;
 	}
+    }  
+}
+
+/*================================================================*/
+//this function displays the specific CsI waveform and its accompanying trapezoidal filter output on a ROOT canvas.
+void display_CsI_and_TF(Int_t N,short* waveform,ShapePar* par,WaveFormPar *wpar,TApplication* theApp)
+{
+
+  int i,j;
+  double sum_low,sum_high;
+  int max_sample;
+  double tf_value[N];
+
+  //set the maximum sample value to which the filter may scan without going off the edge of the waveform
+  if (wpar->tmax < N-par->averaging_samples-par->filter_dist)
+    max_sample = wpar->tmax;
+  else
+    max_sample = N-par->averaging_samples-par->filter_dist;
+
+  for(i=0;i<N;i++)
+    {
+      sum_low=0.;
+      sum_high=0.;
+      //get the average in the low region
+      for(j=i;j<=(i+par->averaging_samples);j++)
+	{
+	  sum_low+=waveform[j];
+	}
+      //get the average in the high region
+      for(j=i+par->filter_dist;j<=(i+par->filter_dist+par->averaging_samples);j++)
+	{
+	  sum_high+=waveform[j];
+	}
+
+      if (i<max_sample)
+        tf_value[i]=sum_high-sum_low;
+      else
+        tf_value[i]=0;
+
+    }  
+
+  TH1D *h=NULL;
+  TH1D *f=NULL;
+  TCanvas *c=NULL;
+   
+  if((h=(TH1D*)gROOT->FindObject("Waveform"))==NULL)	
+    h=new TH1D("Waveform","Waveform",N,0,N);
+  else
+    h->Reset();
+
+  if((f=(TH1D*)gROOT->FindObject("Trapezoidal Filter Output"))==NULL)	
+    f=new TH1D("Trapezoidal Filter Output","Trapezoidal Filter Output",N,0,N);
+  else
+    f->Reset();
+
+ c=(TCanvas*)gROOT->FindObject("TFFit");
+ if(c==NULL) 
+   {
+     //delete c;
+     c = new TCanvas("TFFit", "TFFit",10,10, 700, 900);
+     c->Divide(0,2,0,0);
+   }
+
+  for(Int_t i=0;i<N;i++)
+    {
+      h->Fill(i,waveform[i]);
+      f->Fill(i,tf_value[i]);
     }
 
- 
-  
+  gStyle->SetOptStat(0);
+  c->cd(1);
+  h->Draw();//draw the waveform
+  c->cd(2);
+  f->SetLineColor(kRed);
+  f->SetLineWidth(0.5);
+  f->Draw();//draw the trapezoidal filter output
+
+  c->Modified();
+  c->Update();
+
+  theApp->Run(kTRUE);
 }
 /*======================================================*/
 /* function name follows Phil's convention but Kris' definition */
@@ -762,7 +832,6 @@ void show_CsI_Fit(Int_t N,short* waveform,ShapePar *par,WaveFormPar *wpar, TAppl
   display_CsI_Fit(N,waveform,par,theApp);	
  
 }
-
 /*================================================================*/
 //fit waveforms with the RF included
 int get_shape_with_RF(int dim, int N, short *waveform,ShapePar* par, WaveFormPar *wpar)
@@ -1331,7 +1400,8 @@ double fit_CsI_waveform(int N, short *waveform,ShapePar* par,WaveFormPar* wpar)
   int ndf;
   int i,imin;
 
-  check_for_pileup(waveform,wpar);
+  //Put this in once pileup parameters are readable from the map file
+  //check_for_pileup(N,waveform,par,wpar);
 
   if(wpar->pileupflag==1)
     {

@@ -51,6 +51,10 @@ all:
 	(cd show_CsIFits && make -is clean && make  && make -is clean && cd ..) 
 	echo DONE: WFIT_SHOW_CSIFITS.
 
+	echo Making wfit_show_CsITF.
+	(cd show_CsITF && make -is clean && make  && make -is clean && cd ..) 
+	echo DONE: WFIT_SHOW_CSITF.
+
 	echo Making wfit_show_CsIExclusionZoneAndFits.
 	(cd show_CsIExclusionZoneAndFits && make -is clean && make  && make -is clean && cd ..) 
 	echo DONE: WFIT_SHOW_CSIEXCLUSIONZONEANDFITS.
@@ -114,6 +118,7 @@ clean:
 	(cd show_lin_two_components_with_RF		&& make -is clean && cd ..)
 	(cd test_lin_two_components_with_RF_chisq	&& make -is clean && cd ..)
 	(cd show_CsIFits				&& make -is clean && cd ..)
+	(cd show_CsITF					&& make -is clean && cd ..)
 	(cd show_CsIExclusionZoneAndFits		&& make -is clean && cd ..)
 	(cd test_CsIFits_chisq				&& make -is clean && cd ..)
 	(cd RC						&& make -is clean && cd ..)

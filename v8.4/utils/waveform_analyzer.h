@@ -18,6 +18,8 @@
 #define BADCHISQ_T0          -1024-7 //finding t0 fails for t0 < 0
 #define BADCHISQ_FAIL_DIRECT -1024-8 //fails direct hit
 #define BAD_EXCLUSION_ZONE   -1024-9 //fails finding exclusion zone
+#define BAD_MAX              -1024-10
+#define BAD_BASELINE_RANGE   -1024-11
 #define PILEUP_DETECTED      -1024-12 //pileup detected in waveform
 
 #define EPS        0.001
@@ -25,8 +27,6 @@
 
 //new definitions for Kris' changes to the waveform analyzer
 #define PIN_BASELINE_RANGE 16
-#define BAD_MAX            -1024-10
-#define BAD_BASELINE_RANGE -1024-11
 #define LARGECHISQ         1E111
 #define T10LOW             50  //low limit for T10
 #define T10HIGH            300 //high linit for T10
@@ -68,6 +68,7 @@ typedef struct
   int    ndf_f;
 
   //constants for the pileup rejection (trapezoidal filter) algorithm
+  int    pileup_rej; //flag for whether or not pileup rejectino is enabled
   int    filter_dist; //how far between summing regions in the filter
   int    averaging_samples; //how many samples are in each summing region
   int    fall_amount; //how much the filter output should fall below the maximum before rising again
@@ -127,7 +128,7 @@ void      get_baseline(int, short*, WaveFormPar*);
 void      get_tmax(int, short*, WaveFormPar*);
 void      get_exclusion_zone_for_CsI(int,short*, WaveFormPar*);
 void      check_for_pileup(Int_t,short*,ShapePar*,WaveFormPar*); //pileup rejection function, added by Jonathan
-void      display_CsI_and_TF(Int_t,short*,ShapePar*,WaveFormPar*,TApplication*);
+void      display_CsI_and_TF(Int_t,short*,ShapePar*,WaveFormPar*,TApplication*); //display TF function from pileup rejectino algorithm, added by Jonathan
 void      show_CsI_exclusion_zone(int,short*,WaveFormPar*, TApplication*);
 int       get_shape(int,int, short*,ShapePar*,WaveFormPar*);
 double    get_t0(int,ShapePar*,WaveFormPar*,lin_eq_type);

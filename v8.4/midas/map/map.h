@@ -39,6 +39,13 @@ double csiarray_trc;
 double csiarray_tf;
 double csiarray_ts;
 double csiarray_tr;
+//pileup rejection algorithm parameters
+int csiarray_pileup_rej; //flag as to whether pileup is rejected or not
+int csiarray_filter_dist;
+int csiarray_averaging_samples;
+int csiarray_fall_amount;
+int csiarray_rise_amount;
+//end pileup rejection algorithm parameters
 int s3_min;
 int s3_max;
 int s3_css_kpar;

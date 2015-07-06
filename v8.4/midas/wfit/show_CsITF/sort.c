@@ -10,10 +10,8 @@ int analyze_fragment(Tig10_event* ptr,short* waveform)
   if(ptr->channel==chn)
     if((d=ptr->waveform_length)!=0)
       {
-        get_tmax(d,waveform,&wpar); //tmax of waveform needed prior to checking for pileup
         check_for_pileup(d,waveform,par,&wpar);
-        //fit_CsI_waveform(d,waveform,par,&wpar);
-        if ((e=wpar.pileupflag) == pileup_flag)
+        if ((e=wpar.pileupflag) == pileup_flag) //check whether the user specified pileup condition and the one returned from the waveform analyzer agree 
           {
             print_fragment_info(ptr,S16K);
             display_CsI_and_TF(d,waveform,par,&wpar,theApp);

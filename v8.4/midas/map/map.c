@@ -283,6 +283,22 @@ void read_map(char* name,tmap* map)
 	    if(fscanf(inp,"%s %s",str1,str2)!=EOF)
 	      if(strcmp(str1,"DISP")==0)
 		map->csiarray_css_disp=atof(str2);
+	    if(fscanf(inp,"%s %s",str1,str2)!=EOF)
+	      if(strcmp(str1,"PILEUP_REJ")==0)
+                if(strcmp(str2,"YES")==0)
+		  map->csiarray_pileup_rej=1;
+	    if(fscanf(inp,"%s %s",str1,str2)!=EOF)
+	      if(strcmp(str1,"DIST")==0)
+		map->csiarray_filter_dist=atoi(str2);
+	    if(fscanf(inp,"%s %s",str1,str2)!=EOF)
+	      if(strcmp(str1,"SAMPLES")==0)
+		map->csiarray_averaging_samples=atoi(str2);
+	    if(fscanf(inp,"%s %s",str1,str2)!=EOF)
+	      if(strcmp(str1,"FAMOUNT")==0)
+		map->csiarray_fall_amount=atoi(str2);
+	    if(fscanf(inp,"%s %s",str1,str2)!=EOF)
+	      if(strcmp(str1,"RAMOUNT")==0)
+		map->csiarray_rise_amount=atoi(str2);
 	  }
 
      take=1;
@@ -857,6 +873,11 @@ void map_event(Tig10_event *ptr, short* waveform, raw_event *data,tmap* map,int 
 		  data->csiarray.wfit[pos].t[3]=map->csiarray_ts;
 		  data->csiarray.wfit[pos].t[4]=map->csiarray_tr;
 		  data->csiarray.wfit[pos].rf[0]=map->rf_period;
+                  data->csiarray.wfit[pos].pileup_rej=map->csiarray_pileup_rej;
+                  data->csiarray.wfit[pos].filter_dist=map->csiarray_filter_dist;
+                  data->csiarray.wfit[pos].averaging_samples=map->csiarray_averaging_samples;
+                  data->csiarray.wfit[pos].fall_amount=map->csiarray_fall_amount;
+                  data->csiarray.wfit[pos].rise_amount=map->csiarray_rise_amount;
 		  if(waveform!=NULL)
 		    if(map->csiarray_fit==1)
 		      {

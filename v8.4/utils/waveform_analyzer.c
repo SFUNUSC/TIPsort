@@ -97,6 +97,9 @@ void check_for_pileup(Int_t N,short *waveform,ShapePar* par,WaveFormPar *wpar)
   int max_sample;
   double tf_value;
 
+  //find tmax
+  get_tmax(N,waveform,wpar);
+
   //set the maximum sample value to which the filter may scan without going off the edge of the waveform
   if (wpar->tmax < N-par->averaging_samples-par->filter_dist)
     max_sample = wpar->tmax;
@@ -144,6 +147,9 @@ void display_CsI_and_TF(Int_t N,short* waveform,ShapePar* par,WaveFormPar *wpar,
   double sum_low,sum_high;
   int max_sample;
   double tf_value[N];
+
+  //find tmax
+  get_tmax(N,waveform,wpar);
 
   //set the maximum sample value to which the filter may scan without going off the edge of the waveform
   if (wpar->tmax < N-par->averaging_samples-par->filter_dist)
@@ -1400,14 +1406,17 @@ double fit_CsI_waveform(int N, short *waveform,ShapePar* par,WaveFormPar* wpar)
   int ndf;
   int i,imin;
 
-  //Put this in once pileup parameters are readable from the map file
-  //check_for_pileup(N,waveform,par,wpar);
-
-  if(wpar->pileupflag==1)
+  //Do pileup rejection, if requested
+  if(par->pileup_rej==1)
     {
-      par->type=-3; //type for pileup detection
-      return PILEUP_DETECTED;
+      check_for_pileup(N,waveform,par,wpar);
+      if(wpar->pileupflag==1)
+        {
+          par->type=-3; //type for pileup detection
+          return PILEUP_DETECTED;
+        }
     }
+
 
   get_exclusion_zone_for_CsI(N,waveform,wpar);
 

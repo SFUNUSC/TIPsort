@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
   h = new TH2D("CsI TCal","CsI TCal",S32K,0,S32K-1,NCSI+1,0,NCSI);
   h->Reset();
   
-  printf("Program sorts TCal histograms for the CSIARRAY.\n");
+  printf("Program sorts calibrated time histograms for the CSIARRAY.\n");
   
   name=(input_names_type*)malloc(sizeof(input_names_type));
   memset(name,0,sizeof(input_names_type));

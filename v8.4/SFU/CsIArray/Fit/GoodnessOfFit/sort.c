@@ -7,7 +7,7 @@ int analyze_data(raw_event *data)
   double chi;
   
   pos=5;
-  //for(pos=1;pos<NCSI;pos++)
+  for(pos=1;pos<NCSI;pos++)
   if((data->csiarray.h.THP&(one<<pos))!=0)
     {
       type=data->csiarray.wfit[pos].type;
@@ -15,14 +15,15 @@ int analyze_data(raw_event *data)
       chi/=data->csiarray.wfit[pos].ndf;
 	
       //h->Fill(chi,type);
-      if(type=2)
-	//if(type>=0 && type<=4)
+      //if(type=2)
+      if(type>=0 && type<=4)
 	//if(chi>=0 && chi<S32K)		
 	if(chi>=0 && chi<10000)		
 	  {
 	    hist[type][(int)rint(chi)]++;
 	    h->Fill(chi,type);
 	  }
+
     }
   return SEPARATOR_DISCARD;
 }

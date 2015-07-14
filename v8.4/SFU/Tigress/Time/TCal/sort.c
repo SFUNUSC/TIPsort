@@ -37,6 +37,7 @@ int analyze_data(raw_event *data)
 		      tt=S32K-2000;
 
 		    hist[pos][col][tt]++;
+                    h->Fill(tt,pos); //doesn't show colors for now, would need a 3D histogram for that
 		  }
 
   free(cev);
@@ -48,6 +49,8 @@ int main(int argc, char *argv[])
 {
   FILE * output;
   input_names_type* name;
+  TCanvas *canvas;
+  TApplication *theApp;
   int stop,pos,col;
   char n[132];
   
@@ -56,6 +59,8 @@ int main(int argc, char *argv[])
       printf("TIGRESS_TCal master_file_name\n");
       exit(-1);
     }
+  h = new TH2D("Tigress TCal","Tigress TCal",S32K,0,S32K-1,NPOSTIGR+1,0,NPOSTIGR);
+  h->Reset();
   
   printf("Program sorts calibrated time histogram for TIGRESS cores.\n");
   name=(input_names_type*)malloc(sizeof(input_names_type));
@@ -106,4 +111,13 @@ int main(int argc, char *argv[])
 	  fclose(output);
 	}
     }
+
+  theApp=new TApplication("App", &argc, argv);
+  canvas = new TCanvas("Tigress_TCal", "Tigress_TCal",10,10, 500, 300);
+  gPad->SetLogz(1);
+  gStyle->SetPalette(1);
+  h->Draw("COLZ");
+  
+  theApp->Run(kTRUE);
+
 }

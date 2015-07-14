@@ -315,7 +315,7 @@ int encode(raw_event* data, FILE* encoded_output,int* enb)
       else
 	{
 	  printf("Event dropped due to the length restriction\n");
-	  printf("Event lenthg is 0x%8.8x\n",e[1]);
+	  printf("Event length is 0x%8.8x\n",e[1]);
 	}
     }
   return 0;

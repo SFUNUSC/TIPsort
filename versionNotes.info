@@ -31,3 +31,10 @@ v8.4 Waveform analyzer changes to reflect weak sources with gamma background.
      lowest chi square. Previously assumed 2 component fit function based on
      optimization and development for use with in-beam data. Includes CsI ring calibration from S1467 experiment at TRIUMF.
 
+v8.6 Various changes by Jonathan for analysis of 28Mg.
+     -Pileup rejection implemented in waveform analyzer.  Switch for this 
+      functionality is implemented in the map file.
+     -TTCal separator codes (Tigress, CsIArray, TigressCsIArray) modified 
+      to only keep hits which fall within a time gate after the initial 
+      hit.  Gate length is specified in the Tigress and CsIArray calibration 
+      parameter files linked to in the master file.

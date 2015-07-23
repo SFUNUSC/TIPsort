@@ -75,13 +75,14 @@ int analyze_data(raw_event *data)
 int main(int argc, char *argv[])
 {
   input_names_type* name;
-  FILE *gateNameFile;
+  FILE *cluster,*gateNameFile;
   TFile* f;
-  char aGateName[132],pGateName[132],det[132];
+  char aGateName[132],pGateName[132],det[132],DataFile[132];
 
   if(argc!=4)
     {
-      printf("\n ./separate_CsIArray_PID_ER master_file_name np na\n");
+      printf("\n ./separate_CsIArray_PID_ER_Sum master_file_name np na\n");
+      printf("\n Master file should specify a cluster file containing .sfu filenames to sort, a gate file, and a gate names file.\n");
       exit(-1);
     }
  
@@ -94,13 +95,13 @@ int main(int argc, char *argv[])
   gate_np=atoi(argv[2]);
   gate_na=atoi(argv[3]);
 
-  if(name->flag.inp_data!=1)
+  if(name->flag.cluster_file!=1)
     {
-      printf("\nInput data file not defined\n");
+      printf("\nInput cluster file not defined\n");
       exit(EXIT_FAILURE);
     }
   
-  if(name->flag.out_data!=1)
+ if(name->flag.out_data!=1)
     {
       printf("\nOutput data file not defined\n");
       exit(EXIT_FAILURE);
@@ -190,7 +191,18 @@ int main(int argc, char *argv[])
   enb[1]++;
   enb[1]++;
 
-  sort(name);
+  if((cluster=fopen(name->fname.cluster_file,"r"))==NULL)
+    {
+      printf("ERROR!!! I cannot open the cluster file!\n");
+      exit(-2);
+    }
+  
+  while(fscanf(cluster,"%s",DataFile)!=EOF)
+    {
+      printf("Reading data from file %s.\n",DataFile);
+      strcpy(name->fname.inp_data,DataFile);
+      sort(name);
+    }
  
 }
 

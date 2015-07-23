@@ -25,7 +25,7 @@ int analyze_data(raw_event *data)
 
   flag_ge=0;
 
-  //Given any number if TIGRESS detector hits during the event, find the time at which 
+  //Given any number of TIGRESS detector hits during the event, find the time at which 
   //the first and second hits occur.
   if(cev->tg.h.FT>0)
     for(pos1=1;pos1<NPOSTIGR;pos1++)
@@ -142,8 +142,8 @@ int main(int argc, char *argv[])
 
   if(argc!=2)
     {
-      printf("separate_Tigress_TTCalDiff master_file_name gate_length\n");
-      printf("\n Separates out gamma-gamma coincidences where the subsequent gammas arrive within (calibrated) time gate of gate_length.  Discards any gamma hits which arrive outside of the time gate (with respect to the first hit).\n");
+      printf("separate_Tigress_TTCalDiff master_file_name\n");
+      printf("\n Separates out gamma-gamma coincidences where the subsequent gammas arrive within (calibrated) time gate of gate_length.  Discards any gamma hits which arrive outside of the time gate (with respect to the first hit).\nThe time gate length is specified in the Tigress array calibration parameters file (under 'TIGRESS_TTCal_gate_length').\n");
       exit(-1);
     }
   

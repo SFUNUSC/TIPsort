@@ -23,7 +23,7 @@ int analyze_data(raw_event *data)
   
   flag_csi=0;
 
-  //Given any number if CsI detector hits during the event, find the time at which 
+  //Given any number of CsI detector hits during the event, find the time at which 
   //the first and second hits occur.
   if(cev->csiarray.h.FT>0)
     for(pos1=1;pos1<NCSI;pos1++) //look at each CsI position

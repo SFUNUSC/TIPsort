@@ -6,19 +6,6 @@ int analyze_data(raw_event *data)
   unsigned long long int one=1;
   int pos,col,csi;
   double ttg,tcsi,tdiff;
-  //double etg;
-  int type;
-  double chisq;
-  int ndf;
-
-  if((data->h.setupHP&TIGRESS_BIT)==0)
-    return SEPARATOR_DISCARD;
-
-  if((data->h.setupHP&RF_BIT)==0)
-    return SEPARATOR_DISCARD;
-
- if((data->h.setupHP&CsIArray_BIT)==0)
-    return SEPARATOR_DISCARD;
   
   cev=(cal_event*)malloc(sizeof(cal_event));
   memset(cev,0,sizeof(cal_event));
@@ -36,31 +23,21 @@ int analyze_data(raw_event *data)
 		  if((cev->tg.det[pos].ge[col].h.THP&1)!=0)
 		    {
 		      ttg=cev->tg.det[pos].ge[col].seg[0].T/cal_par->tg.contr_t;
-		      
+		      //In ns
+		      ttg*=0.625;
 		      for(csi=1;csi<NCSI;csi++)
 			if((cev->csiarray.h.THP&(one<<csi))!=0)
 			  {
-			    type=cev->csiarray.type[csi];
-			    chisq=cev->csiarray.chisq[csi];
-			    ndf=cev->csiarray.ndf[csi];
-			    chisq/=ndf;
-			    if(type==1 || type==2) /* two component or fast only */
-			      if(chisq>0 && chisq<10000)
-				{
-				  tcsi=cev->csiarray.csi[csi].T/cal_par->csiarray.contr_t;
-				  //printf("tcsi %10.3f\n",tcsi);
-				  //getc(stdin);
-				  
-				  tdiff=ttg-tcsi;
-				  //tdiff+=S4K;
-				  h_tcsi->Fill(tcsi);
-				  h_ttg->Fill(ttg);
-				  h_tdiff->Fill(tdiff);
-				  h->Fill(ttg,tcsi);
-				}
-			  }
-		    }
-  
+			    tcsi=cev->csiarray.csi[csi].T/cal_par->csiarray.contr_t;
+			    //In ns
+			    tcsi*=0.625;
+			    
+			    tdiff=tcsi-ttg;
+			    h_tcsi->Fill(tcsi);
+			    h_ttg->Fill(ttg);
+			    h_tdiff->Fill(tdiff);
+			    h->Fill(ttg,tcsi);
+			  }}
   free(cev);
   return SEPARATOR_DISCARD;
 }
@@ -68,7 +45,8 @@ int analyze_data(raw_event *data)
 int main(int argc, char *argv[])
 {
   input_names_type* name;
-  char title[132];
+  TCanvas *canvas;
+  TApplication *theApp;
 
   if(argc!=2)
     {
@@ -78,11 +56,11 @@ int main(int argc, char *argv[])
   
   h = new TH2D("TigressCsIArray TCal","TigressCsIArray TCal",S4K,0,S16K,S4K,0,S16K);
   h->Reset();
-  h_tcsi = new TH1D("CsI TCal","CsI TCal",S32K,0,S32K-1);
+  h_tcsi = new TH1D("CsI TCal","CsI TCal",S8K,0,S32K-1);
   h_tcsi->Reset();
-  h_ttg = new TH1D("Tigress TCal","Tigress TCal",S32K,0,S32K-1);
+  h_ttg = new TH1D("Tigress TCal","Tigress TCal",S8K,0,S32K-1);
   h_ttg->Reset();
-  h_tdiff = new TH1D("TDiff","TDiff",S16K,-S8K,S8K-1);
+  h_tdiff = new TH1D("TDiff","TDiff",S8K,0,S32K-1);
   h_tdiff->Reset();
 
   printf("Program sorts calibrated 2D histogram for TIGRESS/CSIARRAY timing \n");
@@ -124,20 +102,12 @@ int main(int argc, char *argv[])
         }
 
   sort(name);
-  sprintf(title,name->fname.root_output_file);
-  //sprintf(title,"TigressCsIArray_TTCal.root");
-  TFile f(title, "recreate");
-  h->GetXaxis()->SetTitle("T_{TIGRESS}-#phi_{RF} [ns]");
-  h->GetXaxis()->CenterTitle(true);
-  h->GetYaxis()->SetTitle("T_{CsI}-#phi_{RF} [ns]");
-  h->GetYaxis()->CenterTitle(true);
-  h->GetYaxis()->SetTitleOffset(1.5);
-  h->SetOption("COLZ");
+  theApp=new TApplication("App", &argc, argv);
+  canvas = new TCanvas("TTCal", "TTCal",10,10, 500, 300);
+  gPad->SetLogz(1);
   gStyle->SetPalette(1);
-  
-  h->Write();
-  h_ttg->Write();
-  h_tcsi->Write();
-  h_tdiff->Write();
+  h->Draw("COLZ");
+
+  theApp->Run(kTRUE);
 }
 

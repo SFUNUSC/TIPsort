@@ -90,8 +90,8 @@ int main(int argc, char *argv[])
     }
   
   sort(name);
-    
-  sprintf(title,"CsIArray_TTCal.root");
+  sprintf(title,name->fname.root_output_file);
+  //sprintf(title,"CsIArray_TTCal.root");
   TFile f(title, "recreate");
   h->GetXaxis()->SetTitle("CsI TCal 1 [ns]");
   h->GetXaxis()->CenterTitle(true);

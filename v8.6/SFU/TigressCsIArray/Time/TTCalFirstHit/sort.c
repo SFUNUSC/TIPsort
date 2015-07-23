@@ -6,10 +6,12 @@ int analyze_data(raw_event *data)
   unsigned long long int one=1;
   int pos,col,csi;
   double ttg,tcsi,tdiff;
+  double ttg1,tcsi1,thit;
   //double etg;
   int type;
   double chisq;
   int ndf;
+  bool first_hit;
 
   if((data->h.setupHP&TIGRESS_BIT)==0)
     return SEPARATOR_DISCARD;
@@ -25,6 +27,49 @@ int analyze_data(raw_event *data)
   calibrate_TIGRESS(data,&cal_par->tg,&cev->tg);
   calibrate_CSIARRAY(data,&cal_par->csiarray,&cev->csiarray);
 
+  //Given any number of TIGRESS detector hits during the event, find the time at which 
+  //the first and second hits occur.
+  first_hit = true;
+  if(cev->tg.h.FT>0)
+    for(pos=1;pos<NPOSTIGR;pos++)
+      if((cev->tg.h.THP&(1<<(pos-1)))!=0)
+	if(cev->tg.det[pos].hge.FT>0)
+	  for(col=0;col<NCOL;col++)
+	    if((cev->tg.det[pos].hge.THP&(1<<col))!=0)
+	      if(cev->tg.det[pos].ge[col].h.FT>0)
+		if((cev->tg.det[pos].ge[col].h.THP&1)!=0)
+		  {
+                    thit=cev->tg.det[pos].ge[col].seg[0].T/cal_par->tg.contr_t;
+                    if (first_hit == true)
+                      {
+                        first_hit = false;
+                        ttg1=thit;
+                      }
+                    else if (ttg1>thit)
+                      {
+                        ttg1=thit; //assign the time of the first hit
+                      }
+                  }
+
+  //Given any number of CsI detector hits during the event, find the time at which 
+  //the first and second hits occur.
+  first_hit = true;
+  if(cev->csiarray.h.FT>0)
+    for(pos=1;pos<NCSI;pos++) //look at each CsI position
+      if((cev->csiarray.h.THP&(one<<pos))!=0) //is there a hit in the detector?
+        {
+          thit=cev->csiarray.csi[pos].T/cal_par->csiarray.contr_t;
+          if (first_hit == true)
+            {
+              first_hit = false;
+              tcsi1=thit;
+            }
+          else if (tcsi1>thit)
+            {
+              tcsi1=thit; //assign the time of the first hit
+            }
+        }
+
   if(cev->tg.h.FT>0)
     if(cev->csiarray.h.FT>0)
       for(pos=1;pos<NPOSTIGR;pos++)
@@ -36,29 +81,33 @@ int analyze_data(raw_event *data)
 		  if((cev->tg.det[pos].ge[col].h.THP&1)!=0)
 		    {
 		      ttg=cev->tg.det[pos].ge[col].seg[0].T/cal_par->tg.contr_t;
-		      
-		      for(csi=1;csi<NCSI;csi++)
-			if((cev->csiarray.h.THP&(one<<csi))!=0)
-			  {
-			    type=cev->csiarray.type[csi];
-			    chisq=cev->csiarray.chisq[csi];
-			    ndf=cev->csiarray.ndf[csi];
-			    chisq/=ndf;
-			    if(type==1 || type==2) /* two component or fast only */
-			      if(chisq>0 && chisq<10000)
-				{
-				  tcsi=cev->csiarray.csi[csi].T/cal_par->csiarray.contr_t;
-				  //printf("tcsi %10.3f\n",tcsi);
-				  //getc(stdin);
-				  
-				  tdiff=ttg-tcsi;
-				  //tdiff+=S4K;
-				  h_tcsi->Fill(tcsi);
-				  h_ttg->Fill(ttg);
-				  h_tdiff->Fill(tdiff);
-				  h->Fill(ttg,tcsi);
-				}
-			  }
+		      if(ttg==ttg1)//check whether the tigress hit is the first hit
+                        {
+		        for(csi=1;csi<NCSI;csi++)
+			  if((cev->csiarray.h.THP&(one<<csi))!=0)
+			    {
+			      type=cev->csiarray.type[csi];
+			      chisq=cev->csiarray.chisq[csi];
+			      ndf=cev->csiarray.ndf[csi];
+			      chisq/=ndf;
+			      if(type==1 || type==2) /* two component or fast only */
+			        if(chisq>0 && chisq<10000)
+				  {
+				    tcsi=cev->csiarray.csi[csi].T/cal_par->csiarray.contr_t;
+				    //printf("tcsi %10.3f\n",tcsi);
+				    //getc(stdin);
+				    if(tcsi==tcsi1)//check whether the CsI hit is the first hit
+                                      {
+				        tdiff=ttg-tcsi;
+				        //tdiff+=S4K;
+				        h_tcsi->Fill(tcsi);
+				        h_ttg->Fill(ttg);
+				        h_tdiff->Fill(tdiff);
+				        h->Fill(ttg,tcsi);
+                                      }
+				  }
+			    }
+                        }
 		    }
   
   free(cev);
@@ -72,7 +121,8 @@ int main(int argc, char *argv[])
 
   if(argc!=2)
     {
-      printf("TigressCsIArray_TCal master_file_name\n");
+      printf("TigressCsIArray_TCalFirstHit master_file_name\n");
+      printf("Generates a TTCal spectrum with only the first Tigress and CsI hits in a given event.\n");
       exit(-1);
     }
   
@@ -125,7 +175,7 @@ int main(int argc, char *argv[])
 
   sort(name);
   sprintf(title,name->fname.root_output_file);
-  //sprintf(title,"TigressCsIArray_TTCal.root");
+  //sprintf(title,"TigressCsIArray_TTCalFirstHit.root");
   TFile f(title, "recreate");
   h->GetXaxis()->SetTitle("T_{TIGRESS}-#phi_{RF} [ns]");
   h->GetXaxis()->CenterTitle(true);

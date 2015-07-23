@@ -93,8 +93,8 @@ int main(int argc, char *argv[])
     }
   
   sort(name);
-  
-  sprintf(title,"Tigress_TTCal.root");
+  sprintf(title,name->fname.root_output_file);
+  //sprintf(title,"Tigress_TTCal.root");
   TFile f(title, "recreate");
   h->GetXaxis()->SetTitle("Tigress TCal 1 [ns]");
   h->GetXaxis()->CenterTitle(true);

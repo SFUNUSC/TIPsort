@@ -62,37 +62,38 @@ int analyze_data(raw_event *data)
 	    /*   } */
 	  }
       }
-  
-  if(np==gate_np)
-    if(na==gate_na)
-      {
-	encode(data,output,enb);
-	//printf("Event encoded with np %d na %d\n\nEND OF EVENT\n",np,na);
-      }
+
+
+  h->Fill(np,na);
+
   return SEPARATOR_DISCARD;
 }
-/*====================================================================================*/
+/*=======================================================*/
 int main(int argc, char *argv[])
 {
   input_names_type* name;
   FILE *gateNameFile;
   TFile* f;
-  char aGateName[132],pGateName[132],det[132];
+  TCanvas *canvas;
+  TApplication *theApp;
+  char title[132],aGateName[132],pGateName[132],det[132];
 
-  if(argc!=4)
+
+  if(argc!=2)
     {
-      printf("\n ./separate_CsIArray_PID_ER master_file_name np na\n");
+      printf("check_Fold2D_PIDER master_file\n");
+      printf("Displays 2D fold histogram for protons and alphas whose gates at described in the gate_name_file specified in the master file.\n");
       exit(-1);
     }
- 
-  printf("Program separates events according to the specified CsI gates \n");
-
+  
+  h = new TH2D("FoldHistogram","FoldHistogram",10,0,10,10,0,10);
+  h->Reset();
+  
+  printf("Program sorts 2D fold histogram.\n");
+  
   name=(input_names_type*)malloc(sizeof(input_names_type));
   memset(name,0,sizeof(input_names_type));
-
   read_master(argv[1],name);
-  gate_np=atoi(argv[2]);
-  gate_na=atoi(argv[3]);
 
   if(name->flag.inp_data!=1)
     {
@@ -116,7 +117,7 @@ int main(int argc, char *argv[])
       printf("ERROR!!! Root gate file not defined!\n");
       exit(-1);
     }
- 
+
   if(name->flag.gate_name_file==1)
     {
       printf("Using gate name file: %s\n",name->fname.gate_name_file);
@@ -144,25 +145,6 @@ int main(int argc, char *argv[])
       fclose(gateNameFile);
     }
 
-  /*     //for 209Po only */
-  /*     while(fscanf(gateNameFile,"%s %s",det,aGateName)!=EOF) */
-  /* 	{ */
-  /* 	  pos=atoi(det); */
-  /* 	  if(strcmp(aGateName,"null")) */
-  /* 	    { */
-  /* 	      aGate[pos] = (TCutG *) gROOT->FindObject(aGateName); */
-  /* 	      aGateFlag[pos]=1; */
-  /* 	      printf("for position %d the gate flag is %d\n",pos,aGateFlag[pos]); */
-  /* 	    } */
-  /* 	} */
-  /*     fclose(gateNameFile); */
-  /*   } */
-  /* else */
-  /*   { */
-  /*     printf("ERROR!!! Gate name file not defined!\n"); */
-  /*     exit(-1); */
-  /*   } */
-  /* f->Close(); */
 
   for(pos=1;pos<NCSI;pos++)
     if((pGateFlag[pos]+aGateFlag[pos])!=0)
@@ -179,18 +161,21 @@ int main(int argc, char *argv[])
   	printf("\n");
       }
 
-  if((output=fopen(name->fname.out_data,"w"))==NULL)
-    {
-      printf("\nI can't open output file %s for writing\n",name->fname.out_data);
-      exit(-2);
-    }
-
   memset(enb,0,sizeof(enb));
   enb[0]=BUFFER_TAG;
   enb[1]++;
   enb[1]++;
 
-  sort(name);
- 
-}
+  sort(name); 
+  
+  theApp=new TApplication("App", &argc, argv);
+  canvas = new TCanvas(title,title,10,10, 500, 300);
+  h->GetXaxis()->SetTitle("proton Fold");
+  h->GetXaxis()->CenterTitle(true);
+  h->GetYaxis()->SetTitle("alpha Fold");
+  h->GetYaxis()->CenterTitle(true);
+  h->SetOption("COLZ");
 
+  h->Draw();
+  theApp->Run(kTRUE);
+}

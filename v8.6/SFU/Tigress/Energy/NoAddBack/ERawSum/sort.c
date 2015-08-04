@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
       exit(-1);
     }
   
-  printf("Program sorts summed ERaw histograms for Tigress crystal cores from a cluster file\n");
+  printf("Program sorts summed ERaw histograms for Tigress crystal cores from a cluster file.\n");
   
   strcpy(ClusterFileName,argv[1]);
   memset(hist,0,sizeof(hist));

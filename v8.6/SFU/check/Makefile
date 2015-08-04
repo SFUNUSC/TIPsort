@@ -19,6 +19,10 @@ all:
 	(cd Fold2D_PIDER r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: CHECK_FOLD2D_PIDER.
 
+	echo Making check_Fold2D_PIDERSUM.
+	(cd Fold2D_PIDERSum r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: CHECK_FOLD2D_PIDERSUM.
+
 	echo Making check_FoldSum.
 	(cd FoldSum r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: CHECK_FOLDSUM.
@@ -52,6 +56,7 @@ clean:
 	(cd Fold                && make -is clean && cd ..)
 	(cd Fold2D              && make -is clean && cd ..)
 	(cd Fold2D_PIDER        && make -is clean && cd ..)
+	(cd Fold2D_PIDERSum     && make -is clean && cd ..)
 	(cd FoldSum             && make -is clean && cd ..)
 	(cd TimeStampDifference && make -is clean && cd ..)
 	(cd TimeGatedTrigger    && make -is clean && cd ..)

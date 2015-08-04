@@ -26,8 +26,8 @@ typedef struct
   int    ceflag[NCSI];
   int    ctflag[NCSI];
   int    cposflag[NCSI];
-  /* float  ce[NCSI][3]; //exponential calibration parameters for CsI energy [# detectors][# parameters/detector] */
-  float  ce[NCSI][2];    //gain and offset calibration parameters for CsI energy [# detectors][# parameters/detector]
+  float  ce[NCSI][4]; //exponential calibration parameters for CsI energy [# detectors][# parameters/detector]
+  /*float  ce[NCSI][2];    //gain and offset calibration parameters for CsI energy [# detectors][# parameters/detector]*/
   double cpos[NCSI][3];  //CsI detector positions [# detectors][# parameters/detector (R,theta,phi)]
   float  ct[NCSI][2];
   int    ringflag[NCSI];

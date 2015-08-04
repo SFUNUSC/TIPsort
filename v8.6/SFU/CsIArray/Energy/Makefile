@@ -3,9 +3,17 @@ all:
 	(cd ERaw r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: ERAW.
 
+	echo Making ERawSum.
+	(cd ERawSum r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: ERAWSUM.
+
 	echo Making ECal.
 	(cd ECal r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: ECAL.
+
+	echo Making ECalSum.
+	(cd ECalSum r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: ECALSUM.
 
 	echo Making ECalRing.
 	(cd ECalRing r && make -is clean && make && make -is clean && cd ..)
@@ -42,7 +50,9 @@ all:
 
 clean:
 	(cd ERaw 				&& make -is clean && cd ..)
+	(cd ERawSum 				&& make -is clean && cd ..)
 	(cd ECal 				&& make -is clean && cd ..)
+	(cd ECalSum 				&& make -is clean && cd ..)
 	(cd ECalRing 				&& make -is clean && cd ..)
 	(cd ECal_CsIPIDr 			&& make -is clean && cd ..)
 	(cd ECalSum_CsIPIDr 			&& make -is clean && cd ..)

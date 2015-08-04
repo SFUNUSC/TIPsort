@@ -7,8 +7,8 @@ int analyze_data(raw_event *data)
   int pos;
   double e;
 
- //Need to ignore RF bit for analysis of triple alpha calibration sources
- /*if((data->h.setupHP&RF_BIT)==0)
+  //Need to ignore RF bit for analysis of triple alpha calibration sources  
+  /*if((data->h.setupHP&RF_BIT)==0)
     return SEPARATOR_DISCARD;
 */
  if((data->h.setupHP&CsIArray_BIT)==0)
@@ -25,7 +25,6 @@ int analyze_data(raw_event *data)
 	  e=cev->csiarray.csi[pos].E/cal_par->csiarray.contr_e;
 	  /* printf("CsIArray pos %d ene = %f\n",pos,e); */
 	  /* getc(stdin); */
-          
 	  if(e>=0 && e<S32K)
 	    {
 	      hist[pos][(int)rint(e)]++;
@@ -43,32 +42,40 @@ int analyze_data(raw_event *data)
 /*====================================================================================*/
 int main(int argc, char *argv[])
 {
-  FILE * output;
+  FILE *output, *cluster;
   input_names_type* name;
-  TCanvas *canvas;
-  TApplication *theApp;
+  //TCanvas *canvas;
+  //TApplication *theApp;
+  char DataFile[132];
 
   if(argc!=2)
     {
-      printf("CsIArray_ECal master_file_name\n");
+      printf("CsIArray_ECalSum master_file_name\n");
       exit(-1);
     }
   
   h = new TH2D("ECal","ECal",S4K,0,S4K-1,NCSI+1,0,NCSI);
   h->Reset();
-
-  printf("Program sorts ECal histograms for the CsIArray.\n");
+  
+  printf("Program sorts summed ECal histograms for the CsIArray from a cluster file.\n");
   name=(input_names_type*)malloc(sizeof(input_names_type));
-  memset(name,0,sizeof(input_names_type));
   cal_par=(calibration_parameters*)malloc(sizeof(calibration_parameters));
   memset(cal_par,0,sizeof(calibration_parameters));
   
   read_master(argv[1],name);
 
-  if(name->flag.inp_data!=1)
+  if(name->flag.cluster_file==1)
     {
-      printf("ERROR!!! Input data file not defined!\n");
-      exit(EXIT_FAILURE);
+      printf("Sorting calibrated energy histograms for CsIArray based upon the cluster file: %s\n",name->fname.cluster_file);
+      if((cluster=fopen(name->fname.cluster_file,"r"))==NULL)
+	{
+	  printf("ERROR! I can't open input file %s\n",name->fname.cluster_file);
+	  exit(-2);
+	}}
+  else
+    {
+      printf("ERROR! Cluster file not defined\n");
+      exit(-1);
     }
 
   if(name->flag.CSIARRAY_cal_par==1)
@@ -82,9 +89,16 @@ int main(int argc, char *argv[])
       exit(EXIT_FAILURE);
     }
   
-  sort(name);
+  while(fscanf(cluster,"%s",DataFile) != EOF)
+    {
+      memset(name,0,sizeof(input_names_type));
+      strcpy(name->fname.inp_data,DataFile);
+      
+      printf("Sorting particle energy data from file %s\n", name);
+      sort(name);
+    }
   
-  if((output=fopen("CsIArray_ECal.mca","w"))==NULL)
+  if((output=fopen("CsIArray_ECalSum.mca","w"))==NULL)
     {
       printf("ERROR!!! I cannot open the mca file!");
       exit(EXIT_FAILURE);
@@ -93,12 +107,12 @@ int main(int argc, char *argv[])
     fwrite(hist[pos],S32K*sizeof(int),1,output);
   
   fclose(output);
-
-  /* theApp=new TApplication("App", &argc, argv);
-  canvas = new TCanvas("ECal","ECal",10,10, 500, 300);
-  gPad->SetLogz(1);
-  gStyle->SetPalette(1);
-  h->Draw("COLZ");
   
-  theApp->Run(kTRUE);*/
+  // theApp=new TApplication("App", &argc, argv);
+  //canvas = new TCanvas("ECal","ECal",10,10, 500, 300);
+  //gPad->SetLogz(1);
+  //gStyle->SetPalette(1);
+  //h->Draw("COLZ");
+  
+  //theApp->Run(kTRUE);
 }

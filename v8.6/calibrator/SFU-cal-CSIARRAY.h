@@ -29,6 +29,7 @@ typedef struct
   float  ce[NCSI][4]; //exponential calibration parameters for CsI energy [# detectors][# parameters/detector]
   /*float  ce[NCSI][2];    //gain and offset calibration parameters for CsI energy [# detectors][# parameters/detector]*/
   double cpos[NCSI][3];  //CsI detector positions [# detectors][# parameters/detector (R,theta,phi)]
+  double cpos_xyz[NCSI][3];  //CsI detector positions [# detectors][# parameters/detector (x,y,z)]
   float  ct[NCSI][2];
   int    ringflag[NCSI];
   int    ring_map[NCSI];
@@ -43,7 +44,7 @@ typedef struct
   int    use_time_fit;
   int    DoRFUnwrapping;
   double Ebeam;
-  double mproj,mt,mp,md;
+  double mproj,mt,mp,md,pp,pbeta;
   int    TTCal_gate_length; //gate length for use in CsiArray_TTCal separator code
 } CSIARRAY_calibration_parameters;
 

@@ -50,6 +50,9 @@ void initialize_TIGRESS_calibration(TIGRESS_calibration_parameters *TIGRESS_cal_
 
 	      if(strcmp(str1,"Core_time_limits")==0)
 		read_TIGRESS_core_time_limits(TIGRESS_cal_par,str2);
+		
+		    if(strcmp(str1,"Detector_position_file")==0)
+		read_TIGRESS_detector_positions(TIGRESS_cal_par,str2);
 
 	      if(strcmp(str1,"TIGRESS_timing_from")==0)
 		{
@@ -342,6 +345,51 @@ void read_TIGRESS_core_time_limits(TIGRESS_calibration_parameters *TIGRESS_cal_p
 	    }
   fclose(inp);
   
+}
+/***********************************************************************/
+void read_TIGRESS_detector_positions(TIGRESS_calibration_parameters *TIGRESS_cal_par, char *filename)
+{
+  FILE *inp;
+  char line[132];
+  int  pos,col;
+  double x,y,z; 
+  double R,theta,phi;
+
+  if((inp=fopen(filename,"r"))==NULL)
+      {
+         printf("\nI can't open file %s\n",filename);
+         exit(EXIT_FAILURE);
+      }
+  printf("\nTIGRESS detector positions read from the file:\n %s\n",filename);
+
+  if(fgets(line,132,inp)!=NULL)
+    {
+      if(fgets(line,132,inp)!=NULL)
+	while(fscanf(inp,"%d %d %lf %lf %lf",&pos,&col,&x,&y,&z)!=EOF)
+	  if(pos>0&&pos<NPOSTIGR)
+	    if(col>=0&&col<NCOL)
+	    {
+	      TIGRESS_cal_par->tposflag[pos][col]=1;
+
+	      R = sqrt(x*x+y*y+z*z);
+	      theta = acos(z/R);
+	      phi = atan2(y,x);
+	      
+	      TIGRESS_cal_par->tpos[pos][col][0]=R;
+	      TIGRESS_cal_par->tpos[pos][col][1]=theta;
+	      TIGRESS_cal_par->tpos[pos][col][2]=phi;
+        TIGRESS_cal_par->tpos_xyz[pos][col][0]=x;
+	      TIGRESS_cal_par->tpos_xyz[pos][col][1]=y;
+	      TIGRESS_cal_par->tpos_xyz[pos][col][2]=z;
+	    }
+    }
+  else
+    {
+      printf("Wrong structure of file %s\n",filename);
+      printf("Aborting sort\n");
+      exit(1);
+    }
+  fclose(inp);
 }
 /*******************************************************************/
 void read_TIGRESS_ring_energy_gates(TIGRESS_calibration_parameters *TIGRESS_cal_par, char *filename)

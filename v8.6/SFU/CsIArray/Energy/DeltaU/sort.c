@@ -3,6 +3,8 @@
 int analyze_data(raw_event *data)
 {
   cal_event* cev;
+  unsigned long long int one=1;
+  int pos;
   double u;
   
   cev=(cal_event*)malloc(sizeof(cal_event));
@@ -11,14 +13,15 @@ int analyze_data(raw_event *data)
 
   if(cev->csiarray.h.FE==2)
     if(cev->csiarray.h.FT==2)
-      {
-	u=cev->csiarray.U;
-	//printf("CsIArray ene = %f\n",u);
-	//getc(stdin);
-	if(u>=0 && u<S32K)
-	  hist[(int)rint(u)]++;
-	  
-      }
+      for(pos=1;pos<NCSI;pos++)
+        if((cev->csiarray.h.EHP&(one<<pos))!=0)
+          {
+	    u=cev->csiarray.U;
+	    //printf("CsIArray ene = %f\n",u);
+	    //getc(stdin);
+            if(u>=0 && u<S32K)
+	    hist[pos][(int)rint(u)]++;
+          }
   
   free(cev);
   return SEPARATOR_DISCARD;
@@ -35,7 +38,7 @@ int main(int argc, char *argv[])
       exit(-1);
     }
   
-  printf("Program sorts ECal histograms for the CsIArray.\n");
+  printf("Program sorts deltaU histograms for the energy calibrated CsI array.\n");
   name=(input_names_type*)malloc(sizeof(input_names_type));
   memset(name,0,sizeof(input_names_type));
   cal_par=(calibration_parameters*)malloc(sizeof(calibration_parameters));
@@ -68,7 +71,8 @@ int main(int argc, char *argv[])
       exit(EXIT_FAILURE);
     }
  
-  fwrite(hist,S32K*sizeof(int),1,output);
+  for(int pos=0;pos<NCSI;pos++)
+    fwrite(hist[pos],S32K*sizeof(int),1,output);
   
   fclose(output);
 }

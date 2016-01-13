@@ -30,6 +30,10 @@ all:
 	echo Making ECalABSuppRingSum_deltaUcut.
 	(cd ECalABSuppRingSum_deltaUcut r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: ECALABSUPPRINGSUM_DELTAUCUT.
+	
+	echo Making ECalABSuppDSSum.
+	(cd ECalABSuppDSSum r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: ECALABSUPPDSSUM.
 
 	echo Making deltaU_ECalCut.
 	(cd deltaU_ECalCut r && make -is clean && make && make -is clean && cd ..)
@@ -65,6 +69,7 @@ clean:
 	(cd ECalABSuppRingSum_CsIPIDr          && make -is clean && cd ..)
 	(cd ECalABSum_CsIEGate_CsIPIDr         && make -is clean && cd ..)
 	(cd ECalABSuppRingSum_deltaUcut        && make -is clean && cd ..)
+	(cd ECalABSuppDSSum                    && make -is clean && cd ..)
 	(cd deltaU_ECalCut                     && make -is clean && cd ..)
 	(cd ECalABRing_CsIEGate                && make -is clean && cd ..)
 	(cd ECalABRingSum_CsIEGate             && make -is clean && cd ..)

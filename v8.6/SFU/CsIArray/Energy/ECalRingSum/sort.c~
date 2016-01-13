@@ -36,12 +36,13 @@ int analyze_data(raw_event *data)
 /*====================================================================================*/
 int main(int argc, char *argv[])
 {
-  FILE * output;
+  FILE *output,*cluster;
   input_names_type* name;
+  char DataFile[132];
 
   if(argc!=2)
     {
-      printf("CsIArray_ECalRing master_file_name\n");
+      printf("CsIArray_ECalRingSum master_file_name\n");
       exit(-1);
     }
   
@@ -53,10 +54,19 @@ int main(int argc, char *argv[])
   
   read_master(argv[1],name);
 
-  if(name->flag.inp_data!=1)
+if(name->flag.cluster_file==1)
     {
-      printf("ERROR!!! Input data file not defined!\n");
-      exit(EXIT_FAILURE);
+      printf("Sorting calibrated energy histograms for TIGRESS clovers and cores based upon the cluster file: %s\n",name->fname.cluster_file);
+      if((cluster=fopen(name->fname.cluster_file,"r"))==NULL)
+	{
+	  printf("ERROR! I can't open input file %s\n",name->fname.cluster_file);
+	  exit(-2);
+	}
+    }
+  else
+    {
+      printf("ERROR! Cluster file not defined\n");
+      exit(-1);
     }
 
   if(name->flag.CSIARRAY_cal_par==1)
@@ -70,9 +80,16 @@ int main(int argc, char *argv[])
       exit(EXIT_FAILURE);
     }
   
-  sort(name);
+while(fscanf(cluster,"%s",DataFile) != EOF)
+    {
+      memset(name,0,sizeof(input_names_type));
+      strcpy(name->fname.inp_data,DataFile);
+      
+      printf("Sorting CsI ECal Ring data from file %s\n", name);
+      sort(name);
+    }  
   
-  if((output=fopen("CsIArray_ECalRing.mca","w"))==NULL)
+  if((output=fopen("CsIArray_ECalRingSum.mca","w"))==NULL)
     {
       printf("ERROR!!! I cannot open the mca file!");
       exit(EXIT_FAILURE);

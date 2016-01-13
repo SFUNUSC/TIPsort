@@ -49,8 +49,11 @@ typedef struct
 {
   int    ceflag[NPOSTIGR][NCOL];
   int    ctflag[NPOSTIGR][NCOL];
+  int    tposflag[NPOSTIGR][NCOL];
   int    ringflag[NPOSTIGR][NCOL];
   float  ce[NPOSTIGR][NCOL][3];
+  double tpos[NPOSTIGR][NCOL][3];  //Tigress detector positions [# detectors][# crystals][# parameters/detector (R,theta,phi)]
+  double tpos_xyz[NPOSTIGR][NCOL][3];  //CsI detector positions [# detectors][# crystals][# parameters/detector (x,y,z)]
   float  ct[NPOSTIGR][NCOL][2];
   float  contr_e;
   float  contr_t;
@@ -75,6 +78,7 @@ void read_TIGRESS_core_e_cal_par(TIGRESS_calibration_parameters *, char *);
 void read_TIGRESS_core_t_cal_par(TIGRESS_calibration_parameters *, char *);
 void read_TIGRESS_core_energy_limits(TIGRESS_calibration_parameters *, char *);
 void read_TIGRESS_core_time_limits(TIGRESS_calibration_parameters *, char *);
+void read_TIGRESS_detector_positions(TIGRESS_calibration_parameters *, char *);
 void read_TIGRESS_ring_map(TIGRESS_calibration_parameters *, char *);
 void read_TIGRESS_suppression_map(TIGRESS_calibration_parameters *, char *);
 void read_TIGRESS_ring_energy_gates(TIGRESS_calibration_parameters *, char *);

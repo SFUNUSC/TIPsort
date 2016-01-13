@@ -13,6 +13,6 @@
 #include "TApplication.h"
 
 TH2D *h;
-int  hist[S32K];
+int  hist[NCSI][S32K];
 calibration_parameters* cal_par;
 #endif

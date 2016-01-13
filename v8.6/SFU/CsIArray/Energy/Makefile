@@ -47,6 +47,13 @@ all:
 	(cd DeltaUSum r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: DELTAUSUM.
 
+	echo Making DeltaURingSum.
+	(cd DeltaURingSum r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: DELTAURINGSUM.
+
+	echo Making DeltaUSameRingSum.
+	(cd DeltaUSameRingSum r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: DELTAUSAMERINGSUM.
 
 clean:
 	(cd ERaw 				&& make -is clean && cd ..)
@@ -61,5 +68,7 @@ clean:
 	(cd EECalSum 				&& make -is clean && cd ..)
 	(cd DeltaU 				&& make -is clean && cd ..)
 	(cd DeltaUSum 				&& make -is clean && cd ..)
+	(cd DeltaURingSum 				&& make -is clean && cd ..)
+	(cd DeltaUSameRingSum 				&& make -is clean && cd ..)
 
 	rm -f *~

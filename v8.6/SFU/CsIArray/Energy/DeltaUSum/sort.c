@@ -3,6 +3,8 @@
 int analyze_data(raw_event *data)
 {
   cal_event* cev;
+  unsigned long long int one=1;
+  int pos;
   double u;
   
   cev=(cal_event*)malloc(sizeof(cal_event));
@@ -11,14 +13,15 @@ int analyze_data(raw_event *data)
 
   if(cev->csiarray.h.FE==2)
     if(cev->csiarray.h.FT==2)
-      {
-	u=cev->csiarray.U;
-	//printf("CsIArray ene = %f\n",u);
-	//getc(stdin);
-	if(u>=0 && u<S32K)
-	  hist[(int)rint(u)]++;
-	  
-      }
+      for(pos=1;pos<NCSI;pos++)
+        if((cev->csiarray.h.EHP&(one<<pos))!=0)
+          {
+	    u=cev->csiarray.U;
+	    //printf("CsIArray ene = %f\n",u);
+            //getc(stdin);
+	    if(u>=0 && u<S32K)
+	      hist[pos][(int)rint(u)]++;
+          }
   
   free(cev);
   return SEPARATOR_DISCARD;
@@ -33,11 +36,11 @@ int main(int argc, char *argv[])
 
   if(argc!=2)
     {
-      printf("CsIArray_ECal master_file_name\n");
+      printf("DeltaUSum master_file_name\n");
       exit(-1);
     }
   
-  printf("Program sorts ECal histograms for the CsIArray.\n");
+  printf("Program sorts deltaU histograms for the energy calibrated CsI array.\n");
   name=(input_names_type*)malloc(sizeof(input_names_type));
   memset(name,0,sizeof(input_names_type));
   cal_par=(calibration_parameters*)malloc(sizeof(calibration_parameters));
@@ -45,9 +48,9 @@ int main(int argc, char *argv[])
   
   read_master(argv[1],name);
 
-if(name->flag.cluster_file==1)
+  if(name->flag.cluster_file==1)
     {
-      printf("Sorting calibrated energy histograms for TIGRESS clovers and cores based upon the cluster file: %s\n",name->fname.cluster_file);
+      printf("Sorting deltaU histograms for the energy calibrated CsI array based upon the cluster file: %s\n",name->fname.cluster_file);
       if((cluster=fopen(name->fname.cluster_file,"r"))==NULL)
 	{
 	  printf("ERROR! I can't open input file %s\n",name->fname.cluster_file);
@@ -71,7 +74,7 @@ if(name->flag.cluster_file==1)
       exit(EXIT_FAILURE);
     }
 
-while(fscanf(cluster,"%s",DataFile) != EOF)
+  while(fscanf(cluster,"%s",DataFile) != EOF)
     {
       memset(name,0,sizeof(input_names_type));
       strcpy(name->fname.inp_data,DataFile);
@@ -86,7 +89,8 @@ while(fscanf(cluster,"%s",DataFile) != EOF)
       exit(EXIT_FAILURE);
     }
  
-  fwrite(hist,S32K*sizeof(int),1,output);
+  for(int pos=0;pos<NCSI;pos++)
+    fwrite(hist[pos],S32K*sizeof(int),1,output);
   
   fclose(output);
 }

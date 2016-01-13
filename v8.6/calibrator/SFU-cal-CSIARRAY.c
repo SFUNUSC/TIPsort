@@ -291,6 +291,9 @@ void read_CSIARRAY_detector_positions(CSIARRAY_calibration_parameters *CSIARRAY_
 	      CSIARRAY_cal_par->cpos[pos][0]=R;
 	      CSIARRAY_cal_par->cpos[pos][1]=theta;
 	      CSIARRAY_cal_par->cpos[pos][2]=phi;
+        CSIARRAY_cal_par->cpos_xyz[pos][0]=x;
+	      CSIARRAY_cal_par->cpos_xyz[pos][1]=y;
+	      CSIARRAY_cal_par->cpos_xyz[pos][2]=z;
 	    }
     }
   else
@@ -335,6 +338,12 @@ void read_CSIARRAY_deltaU_parameters(CSIARRAY_calibration_parameters *CSIARRAY_c
 	    
 	    if(strcmp(str1,"Daughter_mass_in_amu")==0)
 	      CSIARRAY_cal_par->md=amuMeV*atoi(str2);
+	      
+	    if(strcmp(str1,"Projectile_p_in_MeV/c")==0)
+	      CSIARRAY_cal_par->pp=atof(str2);
+	      
+	    if(strcmp(str1,"Projectile_v/c")==0)
+	      CSIARRAY_cal_par->pbeta=atof(str2);
 	  }
     }
   else
@@ -665,7 +674,7 @@ void calibrate_CSIARRAY(raw_event* rev, CSIARRAY_calibration_parameters *CSIARRA
   /*     getc(stdin); */
   /*   } */
 
-  /* change U for fold 2 events based on energies and positions */
+  /* change in U for fold 2 events based on energies and positions */
   if(cp->h.FH==2)
       for(pos1=1;pos1<NCSI;pos1++)
   	if((cp->h.THP&(one<<pos1))!=0)
@@ -698,10 +707,10 @@ void calibrate_CSIARRAY(raw_event* rev, CSIARRAY_calibration_parameters *CSIARRA
 
   	      /* dU = (T1+T2)*(1+(ma/md)) + (1+2*(ma/md))*ma*Vcm*Vcm + 2*(ma/md)*sqrt(T1*T2)*(sin(theta1)*sin(theta2)*cos(phi1-phi2)+cos(theta1)*cos(theta2)) - (1+2*(ma/md))*sqrt(2*ma)*Vcm*(sqrt(T1)*cos(theta1)+sqrt(T2)*cos(theta2)); */
 
-  	      /* converts back to keV (2 keV/ch contraction) */
-  	      cp->U=500*((T1+T2)*(1+(ma/md)) + (1+2*(ma/md))*ma*Vcm*Vcm + 2*(ma/md)*sqrt(T1*T2)*(sin(theta1)*sin(theta2)*cos(phi1-phi2)+cos(theta1)*cos(theta2)) - (1+2*(ma/md))*sqrt(2*ma)*Vcm*(sqrt(T1)*cos(theta1)+sqrt(T2)*cos(theta2)));
+  	      /* converts back to keV (1 keV/ch contraction) */
+  	      cp->U=1000*( (T1+T2)*(1+(ma/md)) + (1+2*(ma/md))*ma*Vcm*Vcm + 2*(ma/md)*sqrt(T1*T2)*(sin(theta1)*sin(theta2)*cos(phi1-phi2)+cos(theta1)*cos(theta2)) - (1+2*(ma/md))*sqrt(2*ma)*Vcm*(sqrt(T1)*cos(theta1)+sqrt(T2)*cos(theta2)) );
   	      }
 
-  /* /\* printf("dU [MeV] %f cp->U [2 keV/ch] %f\n",dU,cp->U); *\/ */
+  /* /\* printf("dU [MeV] %f cp->U [1 keV/ch] %f\n",dU,cp->U); *\/ */
   /* /\* getc(stdin);   *\/ */
 }

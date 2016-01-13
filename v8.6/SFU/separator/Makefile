@@ -31,6 +31,10 @@ all:
 	(cd CsIPIDER_Sum r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Separator_CsIPIDER_Sum.
 
+	echo Making Separator_CsIDeltaU.
+	(cd CsIDeltaU r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: Separator_CsIDeltaU.
+
 	echo Making Separator_RF.
 	(cd RF r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Separator_RF.
@@ -43,6 +47,7 @@ clean:
 	(cd CsITTCalDiff        && make -is clean && cd ..)
 	(cd CsIPIDER            && make -is clean && cd ..)
 	(cd CsIPIDER_Sum        && make -is clean && cd ..)
+	(cd CsIDeltaU        && make -is clean && cd ..)
 	(cd RF                  && make -is clean && cd ..)
 	#(cd TigressCsITTCalDiff_firstEvent	&& make -is clean && cd ..)
 

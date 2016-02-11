@@ -1,3 +1,5 @@
 #exclude these file paths from being tracked by git
 current
 bin
+*.o
+*.a

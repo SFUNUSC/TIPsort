@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 
   if(argc!=3)
     {
-      printf("check_CsIFold SFU_data_file detector_subsystem_number\n");
+      printf("check_Fold SFU_data_file detector_subsystem_number\n");
       printf("Detector subsystem number required as third argument.\n");
       printf("---->1 for CsI, 2 for Griffin, 3 for Tigress, 4 for PINArray.<----\n");      
       exit(-1);
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
   h = new TH1D("FoldHistogram","FoldHistogram",10,0,10);
   h->Reset();
   
-  printf("Program sorts CsIFold histogram.\n");
+  printf("Program sorts Fold histogram.\n");
   
   name=(input_names_type*)malloc(sizeof(input_names_type));
   memset(name,0,sizeof(input_names_type));

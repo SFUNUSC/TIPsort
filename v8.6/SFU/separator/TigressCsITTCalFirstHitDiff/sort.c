@@ -38,12 +38,12 @@ int analyze_data(raw_event *data)
   if(cev->tg.h.FT>0)
     for(pos=1;pos<NPOSTIGR;pos++)
       if((cev->tg.h.THP&(1<<(pos-1)))!=0)
-	if(cev->tg.det[pos].hge.FT>0)
-	  for(col=0;col<NCOL;col++)
-	    if((cev->tg.det[pos].hge.THP&(1<<col))!=0)
-	      if(cev->tg.det[pos].ge[col].h.FT>0)
-		if((cev->tg.det[pos].ge[col].h.THP&1)!=0)
-		  {
+	      if(cev->tg.det[pos].hge.FT>0)
+	        for(col=0;col<NCOL;col++)
+	          if((cev->tg.det[pos].hge.THP&(1<<col))!=0)
+	            if(cev->tg.det[pos].ge[col].h.FT>0)
+		            if((cev->tg.det[pos].ge[col].h.THP&1)!=0)
+		              {
                     thit=cev->tg.det[pos].ge[col].seg[0].T/cal_par->tg.contr_t;
                     if (first_hit == true)
                       {
@@ -91,8 +91,8 @@ int analyze_data(raw_event *data)
               for(col=0;col<NCOL;col++)
                 if((cev->tg.det[pos].hge.THP&(1<<col))!=0)
                   if(cev->tg.det[pos].ge[col].h.FT>0)
-	            if((cev->tg.det[pos].ge[col].h.THP&1)!=0)
-	              {
+	                  if((cev->tg.det[pos].ge[col].h.THP&1)!=0)
+	                    {
                         id=pos-1;
                         id_ge=id*NCOL+col;
                         flag_ge|=(one<<id_ge); //flag the hit for preservation
@@ -105,44 +105,44 @@ int analyze_data(raw_event *data)
     {
       id=pos-1;
       for(col=0;col<NCOL;col++)
-	{	
-	  id_ge=id*NCOL+col;
-	  drop=(one<<id_ge);
-	  drop&=data->tg.g.GeHP;
-	  if(drop!=0)
-	    {
-	      drop&=flag_ge;
-	      if(drop==0)
-		{
-		  //drop this crystal
-		  memset(&data->tg.det[pos].ge[col],0,sizeof(SegTIGR));
-		  kill=none-(one<<col);
-		  data->tg.det[pos].h.GeHP&=kill;
-		  data->tg.det[pos].h.Gefold--;
-		  kill=none-(one<<id_ge);
-		  data->tg.g.GeHP&=kill;
-		  data->tg.g.Gefold--;
-		  data->tg.g.THP&=kill;
-		  data->tg.g.Tfold--;
-		}
-	    }
-	}
+	      {	
+	        id_ge=id*NCOL+col;
+	        drop=(one<<id_ge);
+	        drop&=data->tg.g.GeHP;
+	        if(drop!=0)
+	          {
+	            drop&=flag_ge;
+	            if(drop==0)
+		            {
+		              //drop this crystal
+		              memset(&data->tg.det[pos].ge[col],0,sizeof(SegTIGR));
+		              kill=none-(one<<col);
+		              data->tg.det[pos].h.GeHP&=kill;
+		              data->tg.det[pos].h.Gefold--;
+		              kill=none-(one<<id_ge);
+		              data->tg.g.GeHP&=kill;
+		              data->tg.g.Gefold--;
+		              data->tg.g.THP&=kill;
+		              data->tg.g.Tfold--;
+		            }
+	          }
+	      }
     }
   
   for(pos=1;pos<NPOSTIGR;pos++)
     {
       id=pos-1;
       if((data->tg.h.GeHP&(1<<id))!=0)
-	if(data->tg.det[pos].h.Gefold<=0)
-	  {
-	    //drop this position
-	    memset(&data->tg.det[pos],0,sizeof(CssTIGR));
-	    kill=none-(one<<id);
-	    data->tg.h.GeHP&=kill;
-	    data->tg.h.Gefold--;
-	    data->tg.g.PosHP&=kill;
-	    data->tg.g.Posfold--;
-	  }
+	      if(data->tg.det[pos].h.Gefold<=0)
+	        {
+	          //drop this position
+	          memset(&data->tg.det[pos],0,sizeof(CssTIGR));
+	          kill=none-(one<<id);
+	          data->tg.h.GeHP&=kill;
+	          data->tg.h.Gefold--;
+	          data->tg.g.PosHP&=kill;
+	          data->tg.g.Posfold--;
+	        }
     }
   
   
@@ -157,18 +157,18 @@ int analyze_data(raw_event *data)
   for(csi=1;csi<NCSI;csi++)
     if((data->csiarray.h.TSHP&(one<<csi))!=0)
       if((flag_csi&(one<<csi))==0)
-	{
-	  memset(&data->csiarray.csi[csi],0,sizeof(channel));
-	  memset(&data->csiarray.wfit[csi],0,sizeof(ShapePar));
-	  memset(&data->csiarray.t0[csi],0,sizeof(double));
-	  data->csiarray.h.Efold--;
-	  data->csiarray.h.Tfold--;	  
-	  data->csiarray.h.TSfold--;
-	  kill=none-(one<<csi);
-	  data->csiarray.h.TSHP&=kill;
-	  data->csiarray.h.EHP&=kill;
-	  data->csiarray.h.THP&=kill;
-	}
+	      {
+	        memset(&data->csiarray.csi[csi],0,sizeof(channel));
+	        memset(&data->csiarray.wfit[csi],0,sizeof(ShapePar));
+	        memset(&data->csiarray.t0[csi],0,sizeof(double));
+	        data->csiarray.h.Efold--;
+	        data->csiarray.h.Tfold--;	  
+	        data->csiarray.h.TSfold--;
+	        kill=none-(one<<csi);
+	        data->csiarray.h.TSHP&=kill;
+	        data->csiarray.h.EHP&=kill;
+	        data->csiarray.h.THP&=kill;
+	      }
   
   if(data->csiarray.h.TSfold<=0)
     {

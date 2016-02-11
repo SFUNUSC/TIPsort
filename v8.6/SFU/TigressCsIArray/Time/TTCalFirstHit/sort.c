@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
 
   if(argc!=2)
     {
-      printf("TigressCsIArray_TCalFirstHit master_file_name\n");
+      printf("TigressCsIArray_TTCalFirstHit master_file_name\n");
       printf("Generates a TTCal spectrum with only the first Tigress and CsI hits in a given event.\n");
       exit(-1);
     }

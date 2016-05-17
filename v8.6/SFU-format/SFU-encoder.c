@@ -241,10 +241,11 @@ int encode(raw_event* data, FILE* encoded_output,int* enb)
 		memcpy(&pck[pck[1]],&data->pinbd.pin,sizeof(channel));
 		pck[1]+=sizeof(channel)/sizeof(int);
 	      }
+	  memcpy(&e[e[1]],&pck[0],pck[1]*sizeof(int));
+    e[1]+=pck[1];
 	  
 	}
-      memcpy(&e[e[1]],&pck[0],pck[1]*sizeof(int));
-      e[1]+=pck[1];  
+      
       
       /* pack S3 sectors*/
       if((data->h.setupHP&S3SEC_BIT)!=0)

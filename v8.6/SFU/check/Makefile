@@ -46,6 +46,10 @@ all:
 	echo Making check_TimeGatedTrigger.
 	(cd TimeGatedTrigger r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: CHECK_TIMEGATEDTRIGGER.
+	
+	echo Making check_CsIRingHP2D.
+	(cd CsIRingHP2D r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: CHECK_CSIRINGHP2D.
 
 clean:
 	(cd EventTimeDifference && make -is clean && cd ..)
@@ -60,5 +64,6 @@ clean:
 	(cd FoldSum             && make -is clean && cd ..)
 	(cd TimeStampDifference && make -is clean && cd ..)
 	(cd TimeGatedTrigger    && make -is clean && cd ..)
+	(cd CsIRingHP2D         && make -is clean && cd ..)
 
 	rm -f *~

@@ -1503,46 +1503,64 @@ double fit_CsI_waveform(int N, short *waveform,ShapePar* par,WaveFormPar* wpar)
 
   if(imin==0)
     {
-      memcpy(par,p[0],sizeof(ShapePar));
-      memcpy(wpar,wp[0],sizeof(WaveFormPar));
-      par->type=1; //two component type
-      return par->chisq;
+      /* printf("imin %d\n",imin); */
+      memcpy(par,p[imin],sizeof(ShapePar));
+      memcpy(wpar,wp[imin],sizeof(WaveFormPar));
+      par->type=imin+1; //two component type
+      /* printf("p[0] chisq of %.2f\n",p[0]->chisq); */
+      /* printf("should return chisq of %.2f\n",par->chisq); */
     }
   else if(imin==1)
     {
-      memcpy(par,p[1],sizeof(ShapePar));
-      memcpy(wpar,wp[1],sizeof(WaveFormPar));
-
-      par->type=2; //fast only type
-      return par->chisq;
+      /* printf("imin %d\n",imin); */
+      memcpy(par,p[imin],sizeof(ShapePar));
+      memcpy(wpar,wp[imin],sizeof(WaveFormPar));
+      par->type=imin+1; //fast only type
+      /* printf("should return chisq of %.2f\n",par->chisq); */
     }
   else if(imin==2)
     {
-      memcpy(par,p[2],sizeof(ShapePar));
-      memcpy(wpar,wp[2],sizeof(WaveFormPar));
-      par->t[2]=p[2]->t[3];
-      par->am[2]=p[2]->am[3];
-      par->t[3]=p[2]->t[2];
-      par->am[3]=p[2]->am[2];
-      par->type=3; //slow only type
-      return par->chisq;
+      /* printf("imin %d\n",imin); */
+      memcpy(par,p[imin],sizeof(ShapePar));
+      memcpy(wpar,wp[imin],sizeof(WaveFormPar));
+      par->t[2]=p[imin]->t[3];
+      par->am[2]=p[imin]->am[3];
+      par->t[3]=p[imin]->t[2];
+      par->am[3]=p[imin]->am[2];
+      par->type=imin+1; //slow only type
+      /* printf("should return chisq of %.2f\n",par->chisq); */
     }
   else if(imin==3)
     {
-      memcpy(par,p[3],sizeof(ShapePar));
-      memcpy(wpar,wp[3],sizeof(WaveFormPar));
-      par->t[2]=p[3]->t[4];
-      par->am[2]=p[3]->am[4];
-      par->t[4]=p[3]->t[2];
-      par->am[4]=p[3]->am[2];
-      par->type=4; //gamma on PIN type
-      return par->chisq;
+      /* printf("imin %d\n",imin); */
+      memcpy(par,p[imin],sizeof(ShapePar));
+      memcpy(wpar,wp[imin],sizeof(WaveFormPar));
+      par->t[2]=p[imin]->t[4];
+      par->am[2]=p[imin]->am[4];
+      par->t[4]=p[imin]->t[2];
+      par->am[4]=p[imin]->am[2];
+      par->type=imin+1; //gamma on PIN type
+      /* printf("should return chisq of %.2f\n",par->chisq); */
     }
   else
     {
-      par->type=-1;
-      return BADCHISQ_FAIL_DIRECT;
+      /* printf("imin %d\n",imin); */
+      par->type=-1; // fit failure type
+      par->chisq=BADCHISQ_FAIL_DIRECT; // set it here so it still frees memory on bad fits
+      /* printf("should return chisq of %.2f\n",par->chisq); */
     }
+
+  // free memory allocated for the fit
+  for(i=0;i<4;i++)
+    {
+      free(p[i]);
+      free(wp[i]);
+    }
+
+  /* printf("returning chisq of %.2f\n",par->chisq); */
+  /* getc(stdin); */
+
+  return par->chisq; // generic chisq return statement for all types
 }
 
 /*================================================================*/

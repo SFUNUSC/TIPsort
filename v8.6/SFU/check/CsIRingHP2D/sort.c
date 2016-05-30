@@ -20,11 +20,16 @@ int analyze_data(raw_event *data)
             if((cev->csiarray.h.EHP&(one<<pos2))!=0)
               {
                 if(pos2!=pos1)
-                  h->Fill(cev->csiarray.ring[pos1],cev->csiarray.ring[pos2]);
+                  {
+                    if(cev->csiarray.ring[pos1]<cev->csiarray.ring[pos2])
+                      h->Fill(cev->csiarray.ring[pos1],cev->csiarray.ring[pos2]);
+                    else
+                      h->Fill(cev->csiarray.ring[pos2],cev->csiarray.ring[pos1]);
+                  }
                 else
                   {
                     //check that there are no events in all other detectors
-                    //(ie. all events are in one)
+                    //(ie. all events are in one) before adding to histogram
                     allow=true;
                     for(int i=1;i<NCSI;i++)
                       if(i!=pos1)
@@ -113,7 +118,7 @@ int main(int argc, char *argv[])
   
   printf("ringhit1 ringhit2  N\n");
   for(Int_t i=0;i<5;i++)
-    for(Int_t j=0;j<5;j++)
+    for(Int_t j=i;j<5;j++)
       printf("%i        %i        %lf\n",i+1,j+1,h->GetBinContent(i+2,j+2));
   printf("Wall detectors in rings 3-5 all have higher detector index than ring 1-2 detectors, which is why some bins are empty.\n");
   h->Draw();

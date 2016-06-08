@@ -119,8 +119,15 @@ int analyze_data(raw_event *data)
                     			if(eAddBack>=(intercept + ctheta*slope - width))
                     				{
 						              		h->Fill(ctheta,eAddBack);
-						              		sprintf(str,"%lf %lf\n",ctheta,eAddBack);
-						              		addToFile(outname,str);
+						              		//store data in array for later processing
+						              		ds_data[0][ds_data_ind]=ctheta;
+						              		ds_data[1][ds_data_ind]=eAddBack;
+						              		ds_data_ind++;
+						              		if(ds_data_ind>=DATASIZE)
+						              			{
+						              				printf("ERROR: Sort data size exceeds alllocated array size!\n");
+						              				exit(-1);
+						              			}
                     				}
                     	}
                   }
@@ -143,11 +150,12 @@ int main(int argc, char *argv[])
   char DataFile[132];
   char title[132];
   
-  if(argc!=7)
+  if(argc!=8)
     {
-      printf("TigressCsI_ECosThetaCalABSuppSum_LineCut master_file_name suppLow suppHigh slope intercept width\n");
+      printf("TigressCsI_ECosThetaCalABSuppSum_LineCut master_file_name suppLow suppHigh slope intercept width threshold\n");
       printf("Program sorts EThetaCalABSuppSum histograms for calibrated TIGRESS and CsI array.\n");
       printf("slope intercept, and width specify a diagonal band to search in, following the line of specified slope and intercept and taking values within the specified width above and below the line.\n");
+      printf("Any histogram bins with values below the specified threshold will be ignored.\n");
       exit(-1);
     }
   
@@ -164,11 +172,13 @@ int main(int argc, char *argv[])
   fprintf(file,"PLOT 1d\n");
   fclose(file);
   
+  ds_data_ind=0;
   supLow = atof(argv[2]);
   supHigh = atof(argv[3]);
   slope = atof(argv[4]);
   intercept = atof(argv[5]);
   width = atof(argv[6]);
+  threshold = atof(argv[7]);
   
   if(slope>=0.0)
   	{
@@ -243,6 +253,22 @@ int main(int argc, char *argv[])
       printf("Sorting data from file %s\n", name);
       sort(name);
     }
+  
+  //cut data using threshold
+  for(int i=0;i<h->GetNbinsX();i++)
+  	for(int j=0;j<h->GetNbinsY();j++)
+  		if(h->GetBinContent(i,j)<threshold)
+  			h->SetBinContent(i,j,0.0);
+  
+  //write data within the threshold to ASCII file
+  for(int i=0;i<ds_data_ind;i++)
+  	{
+  		if(h->GetBinContent(h->FindBin(ds_data[0][i],ds_data[1][i],0.))>0.0)
+  			{
+					sprintf(str,"%lf %lf\n",ds_data[0][i],ds_data[1][i]);
+					addToFile(outname,str);
+				}
+		}
   
   theApp=new TApplication("App", &argc, argv);
   canvas = new TCanvas("EDS","EDS",10,10, 800, 500);

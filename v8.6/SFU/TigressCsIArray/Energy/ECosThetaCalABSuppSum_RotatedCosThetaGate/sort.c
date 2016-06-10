@@ -148,6 +148,7 @@ int main(int argc, char *argv[])
       printf("Program sorts EThetaCalABSuppSum histograms for calibrated TIGRESS and CsI array.\n");
       printf("slope intercept, and width specify a diagonal band to search in, following the line of specified slope and intercept and taking values within the specified width above and below the line.\n");
       printf("The data is rotated by the specified slope and a 1-D spectrum is projected on the y-axis and saved in an .mca file.\n");
+      printf("The last two parameters specify a gate in cos theta, useful for restricting the entires by Doppler shift eg. when two peaks with different lifetimes overlap.\n");
       exit(-1);
     }
 

@@ -62,6 +62,26 @@ all:
 	echo Making EECal.
 	(cd  EECal r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: EECAL.
+	
+	echo Making ECosThetaCalABSuppSum.
+	(cd  ECosThetaCalABSuppSum r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: ECosThetaCalABSuppSum.
+	
+	echo Making ECosThetaCalABSuppSum_LineCut.
+	(cd  ECosThetaCalABSuppSum_LineCut r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: ECosThetaCalABSuppSum_LineCut.
+	
+	echo Making ECosThetaCalABSuppSum_LineCutThreshold.
+	(cd  ECosThetaCalABSuppSum_LineCutThreshold r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: ECosThetaCalABSuppSum_LineCutThreshold.
+	
+	echo Making ECosThetaCalABSuppSum_Rotated.
+	(cd  ECosThetaCalABSuppSum_Rotated r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: ECosThetaCalABSuppSum_Rotated.
+	
+	echo Making ECosThetaCalABSuppSum_RotatedCosThetaGate.
+	(cd  ECosThetaCalABSuppSum_RotatedCosThetaGate r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: ECosThetaCalABSuppSum_RotatedCosThetaGate.
 
 
 clean:
@@ -81,5 +101,10 @@ clean:
 	(cd EE_Plunger                         && make -is clean && cd ..)
 	(cd EE_PlungerSum                      && make -is clean && cd ..)
 	(cd EECal                              && make -is clean && cd ..)
+	(cd ECosThetaCalABSuppSum              && make -is clean && cd ..)
+	(cd ECosThetaCalABSuppSum_LineCut      && make -is clean && cd ..)
+	(cd ECosThetaCalABSuppSum_LineCutThreshold     && make -is clean && cd ..)
+	(cd Making ECosThetaCalABSuppSum_Rotated       && make -is clean && cd ..)
+	(cd ECosThetaCalABSuppSum_RotatedCosThetaGate  && make -is clean && cd ..)
 
 	rm -f *~

@@ -1,18 +1,5 @@
 #include "sort.h"
 
-void addToFile(const char * filename, const char * input)
-{
-	FILE *file;
-	if((file=fopen(filename,"a"))==NULL)
-		{
-			printf("ERROR: cannot open the file %s\n",filename);
-    	exit(EXIT_FAILURE);
-   	}
-  fprintf(file,"%s",input);
-  fclose(file);
-}
-
-/*=========================================================================*/
 int analyze_data(raw_event *data)
 {
   cal_event* cev;
@@ -22,6 +9,7 @@ int analyze_data(raw_event *data)
   double ecsi;
   int csi;
   unsigned long long int one=1;
+  double rotx,roty,rote;
   
   cev=(cal_event*)malloc(sizeof(cal_event));
   memset(cev,0,sizeof(cal_event));
@@ -115,13 +103,24 @@ int analyze_data(raw_event *data)
                     
                     if(suppFlag==0)
                     	{
-                    		if(eAddBack<=(intercept + ctheta*slope + width))
-                    			if(eAddBack>=(intercept + ctheta*slope - width))
-                    				{
-						              		h->Fill(ctheta,eAddBack);
-						              		sprintf(str,"%lf %lf\n",ctheta,eAddBack);
-						              		addToFile(outname,str);
-                    				}
+                    		if(ctheta>=mincth && ctheta<=maxcth)//angle gate
+		                  		if(eAddBack<=(intercept + ctheta*slope + width))
+		                  			if(eAddBack>=(intercept + ctheta*slope - width))
+		                  				{
+		                  					//fill normal data
+								            		h->Fill(ctheta,eAddBack);
+								            		//fill rotated data
+								            		rotx=ctheta*cos(rotAngle) + (eAddBack-intercept)*sin(rotAngle);
+								            		roty=-1.0*ctheta*sin(rotAngle) + (eAddBack-intercept)*cos(rotAngle);
+								            		h2->Fill(rotx,(roty - ylow)*(numBins-1.0)/(yhigh-ylow));
+								            		//assuming ctheta=0 (y-axis projection), 
+								            		//transform back into energy and fill histogram
+								            		rote=(roty)/cos(rotAngle) + intercept;
+								            		//printf("rote: %lf\n",rote);
+								            		if(rote>0.0 and rote<S32K) 
+								            			hist[0][(int)(rote)]++;
+								            			
+		                  				}
                     	}
                   }
                 
@@ -138,37 +137,28 @@ int main(int argc, char *argv[])
   TCanvas *canvas;
   TApplication *theApp;
   
-  FILE *cluster;
+  FILE *output, *cluster;
   input_names_type* name;
   char DataFile[132];
   char title[132];
   
-  if(argc!=7)
+  if(argc!=9)
     {
-      printf("TigressCsI_ECosThetaCalABSuppSum_LineCut master_file_name suppLow suppHigh slope intercept width\n");
+      printf("TigressCsI_ECosThetaCalABSuppSum_RotatedCosThetaGate master_file_name suppLow suppHigh slope intercept width minctheta maxctheta\n");
       printf("Program sorts EThetaCalABSuppSum histograms for calibrated TIGRESS and CsI array.\n");
       printf("slope intercept, and width specify a diagonal band to search in, following the line of specified slope and intercept and taking values within the specified width above and below the line.\n");
+      printf("The data is rotated by the specified slope and a 1-D spectrum is projected on the y-axis and saved in an .mca file.\n");
       exit(-1);
     }
-  
-  //set up the output file
-  sprintf(outname,"ECosTheta.txt");
-  printf("Output filename is: %s\n",outname);
-  FILE *file;
-	if((file=fopen(outname,"w"))==NULL)
-		{
-			printf("ERROR: cannot open the file %s\n",outname);
-    	exit(EXIT_FAILURE);
-   	}
-  fprintf(file,"FIT lin\n");
-  fprintf(file,"PLOT 1d\n");
-  fclose(file);
-  
+
   supLow = atof(argv[2]);
   supHigh = atof(argv[3]);
   slope = atof(argv[4]);
   intercept = atof(argv[5]);
   width = atof(argv[6]);
+  mincth = atof(argv[7]);
+  maxcth = atof(argv[8]);
+  rotAngle=atan2(slope,1.0);
   
   if(slope>=0.0)
   	{
@@ -181,8 +171,35 @@ int main(int argc, char *argv[])
   		EHigh=(-1*slope)+intercept+width;
   	}
   
+  numBins=400;
+  
+  //printf("Rotation angle (rad): %lf (deg): %lf\n",rotAngle,rotAngle*180.0/3.14);
+  
+  xlow=-1.0*cos(rotAngle) + (ELow-intercept)*sin(rotAngle);
+  xhigh=1.0*cos(rotAngle) + (EHigh-intercept)*sin(rotAngle);
+  ylow=1.0*sin(rotAngle) + (ELow-intercept)*cos(rotAngle);
+  yhigh=-1.0*sin(rotAngle) + (EHigh-intercept)*cos(rotAngle);
+  if(xlow>xhigh)
+  	{
+  		tmp=xlow;
+  		xlow=xhigh;
+  		xhigh=tmp;
+  	}
+  if(ylow>yhigh)
+  	{
+  		tmp=ylow;
+  		ylow=yhigh;
+  		yhigh=tmp;
+  	}
+ 	/*printf("rotation angle: %lf rad, %lf deg\n",rotAngle,rotAngle*180./3.14);
+  printf("x-axis range [%lf %lf]\n",xlow,xhigh);
+  printf("y-axis range [%lf %lf]\n",ylow,yhigh);
+  getc(stdin);*/
+  
   h = new TH2D("ECosThetaHistogram","ECosThetaHistogram",180,-1,1,EHigh-ELow,ELow,EHigh);
   h->Reset();
+  h2 = new TH2D("ECosThetaHistogramRotated","ECosThetaHistogramRotated",numBins,xlow,xhigh,numBins,0,numBins-1);
+  h2->Reset();
   
   printf("Program sorts ECosThetaCalABSuppSum histograms for TIGRESS.\n");
   
@@ -192,6 +209,7 @@ int main(int argc, char *argv[])
   cal_par=(calibration_parameters*)malloc(sizeof(calibration_parameters));
   memset(cal_par,0,sizeof(calibration_parameters));
   
+  memset(hist,0,sizeof(hist));
   read_master(argv[1],name);
   
   
@@ -246,17 +264,34 @@ int main(int argc, char *argv[])
   
   theApp=new TApplication("App", &argc, argv);
   canvas = new TCanvas("EDS","EDS",10,10,1200,750);//16:10
-  h->GetXaxis()->SetTitle("Cos(#theta)");
+ 	/*h->GetXaxis()->SetTitle("cos #theta (reconstructed)");
   h->GetXaxis()->CenterTitle(true);
   h->GetYaxis()->SetTitle("Calibrated TIGRESS Energy [keV]*contraction");
   h->GetYaxis()->CenterTitle(true);
   h->GetYaxis()->SetTitleOffset(1.5);
   h->SetOption("COLZ");
   h->Draw();
+  theApp->Run(kTRUE);*/
+  
+  h2->GetXaxis()->SetTitle("Rotated X");
+  h2->GetXaxis()->CenterTitle(true);
+  h2->GetYaxis()->SetTitle("Rotated Y");
+  h2->GetYaxis()->CenterTitle(true);
+  h2->GetYaxis()->SetTitleOffset(1.5);
+  h2->SetOption("COLZ");
+  h2->Draw();
   theApp->Run(kTRUE);
   
   sprintf(title,"TigressCsIArray_EDSCal.root");
   TFile f(title, "recreate");
   h->Write();
+  
+  if((output=fopen("DS_EDSSuppSum_rotated.mca","w"))==NULL)
+    {
+      printf("ERROR!!! I cannot open the mca file!\n");
+      exit(EXIT_FAILURE);
+    }
+  fwrite(hist,2*NGATES*S32K*sizeof(int),1,output);
+  fclose(output);
   
 }

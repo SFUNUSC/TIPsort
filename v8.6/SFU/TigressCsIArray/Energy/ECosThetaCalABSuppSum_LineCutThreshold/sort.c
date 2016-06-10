@@ -255,8 +255,8 @@ int main(int argc, char *argv[])
     }
   
   //cut data using threshold
-  for(int i=0;i<h->GetNbinsX();i++)
-  	for(int j=0;j<h->GetNbinsY();j++)
+  for(int i=0;i<=h->GetNbinsX();i++)
+  	for(int j=0;j<=h->GetNbinsY();j++)
   		if(h->GetBinContent(i,j)<threshold)
   			h->SetBinContent(i,j,0.0);
   
@@ -271,8 +271,8 @@ int main(int argc, char *argv[])
 		}
   
   theApp=new TApplication("App", &argc, argv);
-  canvas = new TCanvas("EDS","EDS",10,10, 800, 500);
-  h->GetXaxis()->SetTitle("Cos(#theta)");
+  canvas = new TCanvas("EDS","EDS",10,10,1200,750);//16:10
+  h->GetXaxis()->SetTitle("cos #theta (reconstructed)");
   h->GetXaxis()->CenterTitle(true);
   h->GetYaxis()->SetTitle("Calibrated TIGRESS Energy [keV]*contraction");
   h->GetYaxis()->CenterTitle(true);

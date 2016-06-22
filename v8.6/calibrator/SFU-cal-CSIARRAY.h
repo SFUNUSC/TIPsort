@@ -44,7 +44,7 @@ typedef struct
   int    use_time_fit;
   int    DoRFUnwrapping;
   double Ebeam;
-  double mproj,mt,mp,md,pp,pbeta;
+  double mproj,mt,mp,md,mr,pp,pbeta;
   int    TTCal_gate_length; //gate length for use in CsiArray_TTCal separator code
 } CSIARRAY_calibration_parameters;
 

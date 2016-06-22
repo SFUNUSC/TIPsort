@@ -53,7 +53,7 @@ int analyze_data(raw_event *data)
   
   //get momentum and beta values from calibration (values specified in parameter file)
   beam_p[2]=cal_par->csiarray.pp;
-  beta=cal_par->csiarray.pbeta;
+  //beta=cal_par->csiarray.pbeta;
   //beam_p[2]=sqrt(2.0*cal_par->csiarray.Ebeam*cal_par->csiarray.mproj); //momentum of incoming beam
   //beta=sqrt(2.0*cal_par->csiarray.Ebeam/(cal_par->csiarray.mproj)); // v/c of incoming beam
 
@@ -129,6 +129,11 @@ int analyze_data(raw_event *data)
                     //make momentum vector into direction vector  
                     for(int ind=0;ind<3;ind++)
                       res_dir[ind]=res_p[ind]/sqrt(res_p[0]*res_p[0] + res_p[1]*res_p[1] + res_p[2]*res_p[2]);
+                    //calculate speed of residual
+                    beta=sqrt(res_p[0]*res_p[0] + res_p[1]*res_p[1] + res_p[2]*res_p[2]);
+                    beta/=cal_par->csiarray.mr;
+                    //printf("beta: %f\n",beta);
+                    
                     //calculate ds
                     ds=sqrt(1-beta*beta) / (1-(beta*(res_dir[0]*gamma_dir[0] + res_dir[1]*gamma_dir[1] + res_dir[2]*gamma_dir[2])));
                     
@@ -177,7 +182,7 @@ int main(int argc, char *argv[])
       exit(-1);
     }
   
-  h = new TH1D("DSHistogram","DsHistogram",40,0.9,1.1);
+  h = new TH1D("DSHistogram","DsHistogram",100,0.95,1.05);
   h->Reset();
   
   printf("Program sorts ECalABSuppDSSum histograms for TIGRESS with doppler shift cuts specified by the gate file.\n");

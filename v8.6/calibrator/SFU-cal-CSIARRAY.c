@@ -338,6 +338,9 @@ void read_CSIARRAY_deltaU_parameters(CSIARRAY_calibration_parameters *CSIARRAY_c
 	    
 	    if(strcmp(str1,"Daughter_mass_in_amu")==0)
 	      CSIARRAY_cal_par->md=amuMeV*atoi(str2);
+	    
+	    if(strcmp(str1,"Residual_mass_in_amu")==0)
+	      CSIARRAY_cal_par->mr=amuMeV*atoi(str2);
 	      
 	    if(strcmp(str1,"Projectile_p_in_MeV/c")==0)
 	      CSIARRAY_cal_par->pp=atof(str2);

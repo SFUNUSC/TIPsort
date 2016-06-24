@@ -6,6 +6,7 @@
 #include "SFU-decoder.h"
 #include "SFU-cal.h"
 
+#include "TH1D.h"
 #include "TH2D.h"
 #include "TFile.h"
 
@@ -40,4 +41,6 @@ int num_gates;
 FILE *gateFile;
 
 TH2D *h,*h2;
+TH1D *h3;
+
 #endif

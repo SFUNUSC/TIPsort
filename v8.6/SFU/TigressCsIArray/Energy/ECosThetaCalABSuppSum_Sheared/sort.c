@@ -109,6 +109,7 @@ int analyze_data(raw_event *data)
 			              		sx=ctheta;
 			              		sy=-1.0*ctheta*slope + eAddBack;
 			              		h2->Fill(sx,sy);
+			              		h3->Fill(sy);
 			              		if(sy>=0.0 && sy<S32K)
 			              			hist[0][(int)(sy)]++;
                     	}
@@ -134,7 +135,7 @@ int main(int argc, char *argv[])
   
   if(argc!=5)
     {
-      printf("TigressCsI_ECosThetaCalABSuppSum_Rotated master_file_name suppLow suppHigh slope\n");
+      printf("TigressCsI_ECosThetaCalABSuppSum_Sheared master_file_name suppLow suppHigh slope\n");
       printf("Program sorts EThetaCalABSuppSum histograms for calibrated TIGRESS and CsI array.\n");
       printf("slope intercept, and width specify a diagonal band to search in, following the line of specified slope and intercept and taking values within the specified width above and below the line.\n");
       printf("The data is sheared by the specified slope and a 1-D spectrum is projected on the y-axis and saved in an .mca file.\n");
@@ -147,12 +148,14 @@ int main(int argc, char *argv[])
   
   numBins=400;
   int centerBin=4330;
-  int width=200;
+  int width=140;
   
   h = new TH2D("ECosThetaHistogram","ECosThetaHistogram",180,-1,1,numBins,centerBin-width,centerBin+width);
   h->Reset();
-  h2 = new TH2D("ECosThetaHistogramRotated","ECosThetaHistogramRotated",180,-1,1,numBins,centerBin-width,centerBin+width);
+  h2 = new TH2D("ECosThetaHistogramSheared","ECosThetaHistogramSheared",180,-1,1,numBins,centerBin-width,centerBin+width);
   h2->Reset();
+  h3 = new TH1D("ShearedE","ShearedE",numBins,centerBin-width,centerBin+width);
+  h3->Reset();
   
   printf("Program sorts ECosThetaCalABSuppSum histograms for TIGRESS.\n");
   
@@ -223,17 +226,28 @@ int main(int argc, char *argv[])
   h->GetYaxis()->CenterTitle(true);
   h->GetYaxis()->SetTitleOffset(1.5);
   h->SetOption("COLZ");
+  h->SetStats(0);
   h->Draw();
   theApp->Run(kTRUE);*/
   
-  h2->GetXaxis()->SetTitle("cos #theta (sheared)");
+  /*h2->GetXaxis()->SetTitle("cos #theta (sheared)");
   h2->GetXaxis()->CenterTitle(true);
   h2->GetYaxis()->SetTitle("Calibrated TIGRESS Energy [keV]*contraction");
   h2->GetYaxis()->CenterTitle(true);
   h2->GetYaxis()->SetTitleOffset(1.5);
   h2->SetOption("COLZ");
+  h2->SetStats(0);
   h2->Draw();
-  theApp->Run(kTRUE);
+  theApp->Run(kTRUE);*/
+  
+  /*h3->GetYaxis()->SetTitle("Counts per Channel");
+  h3->GetYaxis()->CenterTitle(true);
+  h3->GetXaxis()->SetTitle("Calibrated TIGRESS Energy [keV]*contraction");
+  h3->GetXaxis()->CenterTitle(true);
+  h3->GetYaxis()->SetTitleOffset(1.5);
+  h3->SetStats(0);
+  h3->Draw();
+  theApp->Run(kTRUE);*/
   
   sprintf(title,"TigressCsIArray_EDSCal.root");
   TFile f(title, "recreate");

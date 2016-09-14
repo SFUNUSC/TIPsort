@@ -15,7 +15,7 @@
 #define NPIN      45
 #define NS3SEC    33
 #define NS3RING   25
-#define NCSI      31
+#define NCSI      41
 #define NCSIRING   6
 
 #define MAX_DET_BITS  8

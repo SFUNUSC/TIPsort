@@ -82,6 +82,18 @@ all:
 	echo Making ECosThetaCalABSuppSum_RotatedCosThetaGate.
 	(cd  ECosThetaCalABSuppSum_RotatedCosThetaGate r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: ECosThetaCalABSuppSum_RotatedCosThetaGate.
+	
+	echo Making ECalABSuppDSReconstructed.
+	(cd  ECalABSuppDSReconstructed r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: ECalABSuppDSReconstructed.
+	
+	echo Making ECosThetaCalABSuppSum_Sheared.
+	(cd  ECosThetaCalABSuppSum_Sheared r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: ECosThetaCalABSuppSum_Sheared.
+	
+	echo Making FusEvap_ResE.
+	(cd  FusEvap_ResE r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: FusEvap_ResE.
 
 
 clean:
@@ -106,5 +118,8 @@ clean:
 	(cd ECosThetaCalABSuppSum_LineCutThreshold     && make -is clean && cd ..)
 	(cd Making ECosThetaCalABSuppSum_Rotated       && make -is clean && cd ..)
 	(cd ECosThetaCalABSuppSum_RotatedCosThetaGate  && make -is clean && cd ..)
+	(cd ECalABSuppDSReconstructed  && make -is clean && cd ..)
+	(cd ECosThetaCalABSuppSum_Sheared  && make -is clean && cd ..)
+	(cd FusEvap_ResE  && make -is clean && cd ..)
 
 	rm -f *~

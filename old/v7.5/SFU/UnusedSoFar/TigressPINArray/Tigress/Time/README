@@ -1,6 +1,0 @@
-PJV 6/25/2013 
-These two codes are for doing timing sans RF. The timing variable is Tcfd-Tts. For Tigress, the timing data are
-only plotted for events in coincidence with a chosen PIN diode. The choice is the third argument. For PINArray,
-the timing data are plotted and I align all to the same PIN diode as mentioned above. Thus, the PINArray program
-doesn't truly belong in "TigressPINArray", since it's only involving the PINArray. However, I keep it separate
-as "TRaw" is different not without the RF.

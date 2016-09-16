@@ -30,6 +30,10 @@ all:
 	echo Making Separator_CsIPIDER_Sum.
 	(cd CsIPIDER_Sum r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Separator_CsIPIDER_Sum.
+	
+	echo Making Separator_CsIPID_threshold.
+	(cd CsIPID_threshold r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: Separator_CsIPID_threshold.
 
 	echo Making Separator_CsIDeltaU.
 	(cd CsIDeltaU r && make -is clean && make && make -is clean && cd ..)

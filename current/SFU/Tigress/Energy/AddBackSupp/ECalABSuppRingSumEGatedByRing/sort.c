@@ -26,41 +26,41 @@ int analyze_data(raw_event *data)
       	suppFlag=0;
       	//check if the position is in the hit pattern
       	if((cev->tg.h.HHP&(1<<(pos-1)))!=0)
-	      //check the position fold
-	      if(cev->tg.det[pos].hge.FH>0)
-	        //check if the position is in the addback hit pattern
-	        if((cev->tg.h.AHP&(1<<(pos-1)))!=0)
-	          {
-		          //reset take for add-back suppression
-		          take=0;
-		          //Run through four cores for each position
-		          for(col=0;col<NCOL;col++)
-		            {
-		              //check if the position and color is in the hit pattern
-		              if((cev->tg.det[pos].hge.HHP&(1<<col))!=0)
-		                //check the fold
-		                if(cev->tg.det[pos].ge[col].h.FH>0)
-			                {
-                			  //suppress if the position is in the map and has not yet been suppressed
-                			  if(cev->tg.det[pos].ge[col].suppress>=supLow && cev->tg.det[pos].ge[col].suppress<=supHigh && take==0)
-                			    {
-                    			  /* once suppression flag is set
-                    				do not reset it, could remove the take bit
-                    				and keep resetting suppFlag, but this
-                    				is nicer */
-                			      suppFlag=1;
-                			      take=1;
-			                      //printf("event at pos %d col %d suppressed\n",pos,col);
-                			    }
-			                }
-		            }
-			     
-              energy[i]=cev->tg.det[pos].addback.E/cal_par->tg.contr_e;
-	            colAddBack=cev->tg.det[pos].addbackC;
-	            ring[i]=cev->tg.det[pos].ge[colAddBack].ring+NRING*suppFlag;
-	            i++;
-	            //printf("E = %f at pos %d col %d ring %d suppFlag1 = %d\n",cev->tg.det[pos].addback.E/cal_par->tg.contr_e,pos,colAddBack,cev->tg.det[pos].ge[colAddBack].ring,suppFlag);
-	          }
+			    //check the position fold
+			    if(cev->tg.det[pos].hge.FH>0)
+			      //check if the position is in the addback hit pattern
+			      if((cev->tg.h.AHP&(1<<(pos-1)))!=0)
+			        {
+				        //reset take for add-back suppression
+				        take=0;
+				        //Run through four cores for each position
+				        for(col=0;col<NCOL;col++)
+				          {
+				            //check if the position and color is in the hit pattern
+				            if((cev->tg.det[pos].hge.HHP&(1<<col))!=0)
+				              //check the fold
+				              if(cev->tg.det[pos].ge[col].h.FH>0)
+					              {
+		              			  //suppress if the position is in the map and has not yet been suppressed
+		              			  if(cev->tg.det[pos].ge[col].suppress>=supLow && cev->tg.det[pos].ge[col].suppress<=supHigh && take==0)
+		              			    {
+		                  			  /* once suppression flag is set
+		                  				do not reset it, could remove the take bit
+		                  				and keep resetting suppFlag, but this
+		                  				is nicer */
+		              			      suppFlag=1;
+		              			      take=1;
+					                    //printf("event at pos %d col %d suppressed\n",pos,col);
+		              			    }
+					              }
+				          }
+					   
+		            energy[i]=cev->tg.det[pos].addback.E/cal_par->tg.contr_e;
+			          colAddBack=cev->tg.det[pos].addbackC;
+			          ring[i]=cev->tg.det[pos].ge[colAddBack].ring+NRING*suppFlag;
+			          i++;
+			          //printf("E = %f at pos %d col %d ring %d suppFlag1 = %d\n",cev->tg.det[pos].addback.E/cal_par->tg.contr_e,pos,colAddBack,cev->tg.det[pos].ge[colAddBack].ring,suppFlag);
+			        }
       }
   
   if(i!=cev->tg.h.FA)
@@ -83,7 +83,7 @@ int analyze_data(raw_event *data)
 	                        if(energy[j]<S32K)
 		                        if(ring[j]>0)
 		                          if(ring[j]<NRING)
-		                            hist[ring[j]][ring[i]][(int)rint(energy[j])]++;
+		                            hist[ring[i]][ring[j]][(int)rint(energy[j])]++;
 		                break;//don't double count
 		              }        
 	      
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
 
   if(argc!=4)
     {
-      printf("TIGRESS_EECalABSuppSum master_file_name supLow supHigh\n");
+      printf("TIGRESS_ECalABSuppSumEGatedByRing master_file_name supLow supHigh\n");
       exit(-1);
     }
   

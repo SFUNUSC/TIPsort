@@ -18,6 +18,7 @@ int  hist[NRING*2][S32K];
 calibration_parameters* cal_par;
 double supLow,supHigh;
 int pos,col,colAddBack;
+int fold;
 
 TH2D *h;
 

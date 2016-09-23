@@ -35,6 +35,10 @@ all:
 	(cd ECalABSuppDSSum r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: ECALABSUPPDSSUM.
 	
+	echo Making ECalABSuppDSSumEGated.
+	(cd ECalABSuppDSSumEGated r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: ECALABSUPPDSSUMEGATED.
+	
 	echo Making ECalABSuppSumTree.
 	(cd ECalABSuppSumTree r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: ECALABSUPPSUMTREE.
@@ -106,6 +110,7 @@ clean:
 	(cd ECalABSum_CsIEGate_CsIPIDr         && make -is clean && cd ..)
 	(cd ECalABSuppRingSum_deltaUcut        && make -is clean && cd ..)
 	(cd ECalABSuppDSSum                    && make -is clean && cd ..)
+	(cd ECalABSuppDSSumEGated              && make -is clean && cd ..)
 	(cd ECalABSuppSumTree                  && make -is clean && cd ..)
 	(cd deltaU_ECalCut                     && make -is clean && cd ..)
 	(cd ECalABRing_CsIEGate                && make -is clean && cd ..)

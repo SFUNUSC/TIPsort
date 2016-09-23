@@ -16,7 +16,7 @@ SORT= sort.o\
 
 
 sort:$(SORT)
-	$(CC) -o $(BIN)/Tigress_ECalABSuppRingSumEGated $(SORT) $(CFLAGS) $(ROOT) -lm -ldl
+	$(CC) -o $(BIN)/Tigress_ECalABSuppRingSumEGatedFold $(SORT) $(CFLAGS) $(ROOT) -lm -ldl
 
 sort.o:sort.c sort.h
 	$(CC) -c -o sort.o sort.c $(CFLAGS) $(INC)

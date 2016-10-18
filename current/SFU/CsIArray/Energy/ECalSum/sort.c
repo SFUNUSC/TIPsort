@@ -27,7 +27,7 @@ int analyze_data(raw_event *data)
 	  /* getc(stdin); */
 	  if(e>=0 && e<S32K)
 	    {
-	      hist[pos][(int)rint(e)]++;
+	      hist[pos][(int)(e)]++;
 	      h->Fill(e,pos);
 	    }
 	  else

@@ -42,7 +42,7 @@ if(cev->tg.h.FH>0)
 			  if(etig<0 || etig>S32K-10) 
 			    etig=S32K-10;
 
-			  hist[ring][(int)rint(etig)]++;
+			  hist[ring][(int)(etig)]++;
 			}
 		    }
 	    }

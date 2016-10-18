@@ -58,7 +58,7 @@ int analyze_data(raw_event *data)
   		  col += NCOL*suppFlag;
 		  
   		  if(eAddBack>=0 && eAddBack<S32K)
-  		    hist[pos][col][(int)rint(eAddBack)]++;
+  		    hist[pos][col][(int)(eAddBack)]++;
   		  else
   		    {
 		    //printf("eAddback %d\n",eAddBack);

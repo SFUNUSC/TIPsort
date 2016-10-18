@@ -71,7 +71,7 @@ int analyze_data(raw_event *data)
 			if((ring>0) && (ring<NRING)) 
 			  {
 			    ring += NRING*suppFlag;
-			    hist[ring][(int)rint(eAddBack)]++;
+			    hist[ring][(int)(eAddBack)]++;
 			  }
 		      }
 		    else hist[ring][S32K-1000]++;

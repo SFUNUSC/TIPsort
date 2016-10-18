@@ -108,7 +108,7 @@ int analyze_data(raw_event *data)
 										if(ring[j]<NRING)
 											{
 												//printf("====> event [%d] should be incremented in ring %d\n",i,ring[i]);
-												hist[ring[i]][(int)rint(energy[i])]++;
+												hist[ring[i]][(int)(energy[i])]++;
 											}
 					if(energy[j]>=0)
 						if(energy[j]<S32K)
@@ -118,7 +118,7 @@ int analyze_data(raw_event *data)
 										if(ring[i]<NRING)
 											{
 												//printf("====> event [%d] should be incremented in ring %d\n",j,ring[j]);
-												hist[ring[j]][(int)rint(energy[j])]++;
+												hist[ring[j]][(int)(energy[j])]++;
 											}
 					//printf("----------\n");
 				}

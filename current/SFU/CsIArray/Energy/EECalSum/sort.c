@@ -57,7 +57,7 @@ int analyze_data(raw_event *data)
 	    
 	    if(e1<0 || e1>S32K)
 	      if(e2<0 || e2>S32K)
-		h_e1e2->Fill(S32K-1000,S32K-1000);
+					h_e1e2->Fill(S32K-1000,S32K-1000);
 	    
 	    if(e1<0 || e1>S32K)
 	      h_e1->Fill(S32K-1000);

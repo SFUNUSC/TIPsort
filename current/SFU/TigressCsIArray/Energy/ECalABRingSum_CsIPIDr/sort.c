@@ -58,7 +58,7 @@ int analyze_data(raw_event *data)
 	    ring=cev->tg.det[pos].addbackR;
 
 	    if(eAddBack<0 || eAddBack>S32K-10) eAddBack=S32K-10;
-	    hist[sp][ring][(int)rint(eAddBack)]++;
+	    hist[sp][ring][(int)(eAddBack)]++;
 	  }
   free(cev);
   return SEPARATOR_DISCARD;

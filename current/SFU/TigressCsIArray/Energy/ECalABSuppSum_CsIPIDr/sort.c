@@ -59,7 +59,7 @@ int analyze_data(raw_event *data)
 	      {
 		eAddBack = cev->tg.det[pos].addback.E/cal_par->tg.contr_e;
 		if(eAddBack<0 || eAddBack>S32K-10) eAddBack=S32K-10;
-		hist[sp][(int)rint(eAddBack)]++;
+			hist[sp][(int)(eAddBack)]++;
 	      }}
   free(cev);
   return SEPARATOR_DISCARD;

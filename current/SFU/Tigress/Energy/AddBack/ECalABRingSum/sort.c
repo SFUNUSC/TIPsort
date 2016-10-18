@@ -20,7 +20,7 @@ int analyze_data(raw_event *data)
 	    
 	    if((eAddBack>=0) && (eAddBack<S32K))
 	      {
-		if((ring>0) && (ring<NRING)) hist[ring][(int)rint(eAddBack)]++;
+		if((ring>0) && (ring<NRING)) hist[ring][(int)(eAddBack)]++;
 	      }
 	    else hist[ring][S32K-1000]++;
 	  }

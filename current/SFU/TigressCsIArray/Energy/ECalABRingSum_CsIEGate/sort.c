@@ -33,18 +33,18 @@ int analyze_data(raw_event *data)
 	     
 	     if(cev->csiarray.h.FH>0)
 	       for(csi=1;csi<NCSI;csi++)
-		 if((cev->csiarray.h.HHP&(one<<csi))!=0)
-		   {
-		     ecsi=cev->csiarray.csi[csi].E/1000.; /* CsI energy in MeV */
-		     
-		     if(ecsi>=eLow && ecsi<=eHigh)
-		       {
-			 if(etig<0 || etig>S32K-10) 
-			   etig=S32K-10;
-			 
-			 hist[ring][(int)rint(etig)]++;
-		       }
-		   }
+			 if((cev->csiarray.h.HHP&(one<<csi))!=0)
+				 {
+				   ecsi=cev->csiarray.csi[csi].E/1000.; /* CsI energy in MeV */
+				   
+				   if(ecsi>=eLow && ecsi<=eHigh)
+				     {
+							 if(etig<0 || etig>S32K-10) 
+								 etig=S32K-10;
+							 
+							 hist[ring][(int)(etig)]++;
+				     }
+				 }
 	   }
  
  free(cev);

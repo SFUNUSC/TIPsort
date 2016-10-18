@@ -26,7 +26,7 @@ int analyze_data(raw_event *data)
 	  /* printf("CsIArray pos %d ene = %f ring %d\n",pos,e,ring); */
 	  /* getc(stdin); */
 	  if(e>=0 && e<S32K)
-	    hist[ring][(int)rint(e)]++;
+	    hist[ring][(int)(e)]++;
 	  else
 	    hist[ring][S32K-1000]++;
 	}

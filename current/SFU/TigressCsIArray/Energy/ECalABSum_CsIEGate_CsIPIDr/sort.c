@@ -121,7 +121,7 @@ int analyze_data(raw_event *data)
 				if(eAddBack<0 || eAddBack>S32K-10) 
 				  eAddBack=S32K-10;
 				
-				histTigr[sp][(int)rint(eAddBack)]++;
+				histTigr[sp][(int)(eAddBack)]++;
 				
 			      }
 		    }

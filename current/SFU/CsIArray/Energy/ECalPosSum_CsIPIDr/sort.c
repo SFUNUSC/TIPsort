@@ -69,8 +69,8 @@ int analyze_data(raw_event *data)
 	  if(e>S32K-10) 
 	    e=S32K-2000;
 	  
-	  //hist[sp][(int)rint(e)]++;
-	  hist[pos][sp][(int)rint(e)]++;
+	  //hist[sp][(int)(e)]++;
+	  hist[pos][sp][(int)(e)]++;
 	}
 
 

@@ -153,7 +153,7 @@ int analyze_data(raw_event *data)
                     
                     for(int ind=0;ind<num_gates;ind++)
                       if(valueInRange(ds,gates[ind],gates[ind+1]))
-                        hist[ind + NGATES*suppFlag][(int)rint(eAddBack)]++;
+                        hist[ind + NGATES*suppFlag][(int)(eAddBack)]++;
                     
                     h->Fill(ds);
                   }

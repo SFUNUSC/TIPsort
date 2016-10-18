@@ -74,7 +74,7 @@ int analyze_data(raw_event *data)
 		if(eAddBack<S32K) 
 		  {
 		    //printf("eAddBack = %.2f at pos %d col %d ring %d suppFlag = %d suppFlagAll %d\n------------------------------\n",eAddBack,pos,colAddBack,ring,suppFlag,suppFlagAll);
-		    hist[ring][(int)rint(eAddBack)]++;
+		    hist[ring][(int)(eAddBack)]++;
 		  }
 		else 
 		  {

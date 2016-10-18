@@ -20,7 +20,7 @@ int analyze_data(raw_event *data)
   		  {
   		    e=cev->tg.det[pos].ge[col].seg[0].E/cal_par->tg.contr_e;
 		    if(e>=0 && e<S32K)
-		      hist[pos][col][(int)rint(e)]++;
+		      hist[pos][col][(int)(e)]++;
 		    else hist[pos][col][S32K-10]++;
 		  }
   free(cev);

@@ -83,7 +83,7 @@ int analyze_data(raw_event *data)
 	                        if(energy[j]<S32K)
 		                        if(ring[j]>0)
 		                          if(ring[j]<NRING)
-		                            hist[ring[j]][(int)rint(energy[j])]++;
+		                            hist[ring[j]][(int)(energy[j])]++;
 		                break;//don't double count
 		              }
     }

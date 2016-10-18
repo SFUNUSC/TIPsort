@@ -23,7 +23,7 @@ int analyze_data(raw_event *data)
 		    ring=cev->tg.det[pos].ge[col].ring;
 		    if((eCal>0) && (eCal<S32K))
 		      {
-			if((ring>0) && (ring<NRING)) hist[ring][(int)rint(eCal)]++;
+			if((ring>0) && (ring<NRING)) hist[ring][(int)(eCal)]++;
 		      }
 		      else hist[ring][S32K-1000]++;
   		  }

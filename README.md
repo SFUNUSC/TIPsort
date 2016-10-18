@@ -5,7 +5,7 @@ Sort codes used by the TIP guys.
 Various part contributed by K. Starosta, P. Voss, A. Chester, and J. Williams
 
 
-## Version Notes
+## Version History
 
 v7.2: Original version of sort codes on alphadon.
       Includes functionality for CsI detectors and PID from PIN diodes
@@ -47,3 +47,6 @@ v8.6 Various changes by Jonathan for analysis of 28Mg.
       to only keep hits which fall within a time gate after the initial 
       hit.  Gate length is specified in the Tigress and CsIArray calibration 
       parameter files linked to in the master file.
+
+v9.0 Moved to git for version control.  Use 'git log' in the source repository 
+     for version notes.

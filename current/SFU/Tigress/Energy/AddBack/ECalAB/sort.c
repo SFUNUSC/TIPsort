@@ -24,7 +24,7 @@ int analyze_data(raw_event *data)
 
 	    eAddBack = cev->tg.det[pos].addback.E/cal_par->tg.contr_e;  
 	    col = cev->tg.det[pos].addbackC;
-	    if(eAddBack>=0 && eAddBack<S32K) hist[pos][col][(int)rint(eAddBack)]++;
+	    if(eAddBack>=0 && eAddBack<S32K) hist[pos][col][(int)(eAddBack)]++;
 	    else hist[pos][col][S32K-1000]++;
 	    
 	    //if(cev->tg.det[pos].hge.FE > 2) printf("The add back energy is ---> %f.\n",eAddBack);

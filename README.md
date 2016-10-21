@@ -2,7 +2,7 @@
 
 Sort codes used by the TIP guys.
 
-Various part contributed by K. Starosta, P. Voss, A. Chester, and J. Williams
+Various parts contributed by K. Starosta, P. Voss, A. Chester, and J. Williams
 
 
 ## Version History

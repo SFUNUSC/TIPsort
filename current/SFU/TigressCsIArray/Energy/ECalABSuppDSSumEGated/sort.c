@@ -48,8 +48,18 @@ int analyze_data(raw_event *data)
 
   cev=(cal_event*)malloc(sizeof(cal_event));
   memset(cev,0,sizeof(cal_event));
+  memset(beam_p,0,sizeof(beam_p));
+  memset(part_p,0,sizeof(part_p));
+  memset(gamma_dir,0,sizeof(gamma_dir));
+  
   calibrate_TIGRESS(data,&cal_par->tg,&cev->tg);
   calibrate_CSIARRAY(data,&cal_par->csiarray,&cev->csiarray);
+  
+  //get momentum and beta values from calibration (values specified in parameter file)
+  beam_p[2]=cal_par->csiarray.pp;
+  //beta=cal_par->csiarray.pbeta;
+  //beam_p[2]=sqrt(2.0*cal_par->csiarray.Ebeam*cal_par->csiarray.mproj); //momentum of incoming beam
+  //beta=sqrt(2.0*cal_par->csiarray.Ebeam/(cal_par->csiarray.mproj)); // v/c of incoming beam
   
   energy=(double*)calloc(cev->tg.h.FA,sizeof(double));
   dsring=(int*)calloc(cev->tg.h.FA,sizeof(int));
@@ -136,12 +146,12 @@ int analyze_data(raw_event *data)
 			          
 			          for(int ind=0;ind<num_gates;ind++)
                 	if(valueInRange(ds,gates[ind],gates[ind+1]))
-                  	dsring[i]=ind + num_gates*suppFlag;
+                  	dsring[i]=ind + num_gates*suppFlag;//assign a doppler shift group to the event
 			          
+			          //printf("ds: %f, suppFlag: %i, doppler shift group: %i\n",ds,suppFlag,dsring[i]);
+			          //getc(stdin);
 			          energy[i]=eAddBack;
-			          dsring[i]=cev->tg.det[pos].ge[colAddBack].ring+NRING*suppFlag;
 			          i++;
-			          //printf("E = %f at pos %d col %d ring %d suppFlag1 = %d\n",cev->tg.det[pos].addback.E/cal_par->tg.contr_e,pos,colAddBack,cev->tg.det[pos].ge[colAddBack].ring,suppFlag);
 			        }
       }
   
@@ -153,18 +163,18 @@ int analyze_data(raw_event *data)
       //look for a gamma that falls into the gate
       if(energy[i]>=0)
 	      if(energy[i]<S32K)
-	        if(energy[i]>=cal_par->tg.relow[dsring[i]]/cal_par->tg.contr_e)
-		        if(energy[i]<=cal_par->tg.rehigh[dsring[i]]/cal_par->tg.contr_e)
-		          if(dsring[i]>0)
-		            if(dsring[i]<num_gates)
+	      	if(dsring[i]>=0)
+		      	if(dsring[i]<num_gates)
+					    if(energy[i]>=cal_par->tg.relow[dsring[i]]/cal_par->tg.contr_e)
+						    if(energy[i]<=cal_par->tg.rehigh[dsring[i]]/cal_par->tg.contr_e)
 		              {
 		                //add all gammas in the event that aren't the gamma that fell into the gate
 		                for(j=0;j<cev->tg.h.FA;j++)
 		                  if(j!=i)
 		                    if(energy[j]>=0)
 	                        if(energy[j]<S32K)
-		                        if(dsring[j]>0)
-		                          if(dsring[j]<NRING)
+		                        if(dsring[j]>=0)
+		                          if(dsring[j]<num_gates)
 		                            hist[dsring[j]][(int)(energy[j])]++;
 		                break;//don't double count
 		              }

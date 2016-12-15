@@ -19,6 +19,10 @@ all:
 	(cd CsITTCalDiff r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Separator_CsITTCalDiff.
 
+	echo Making Separator_TigressCsITTCalDiffSAFE.
+	(cd TigressCsITTCalDiffSAFE r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: Separator_TigressCsITTCalDiffSAFE.
+
 	#echo Making Separator_TigressCsITTCalDiff_firstEvent.
 	#(cd TigressCsITTCalDiff_firstEvent r && make -is clean && make && make -is clean && cd ..)
 	#echo DONE: Separator_TigressCsITTCalDiff_firstEvent.
@@ -59,5 +63,5 @@ clean:
 	(cd RF                  && make -is clean && cd ..)
 	(cd Fold                && make -is clean && cd ..)
 	#(cd TigressCsITTCalDiff_firstEvent	&& make -is clean && cd ..)
-
+	(cd TigressCsITTCalDiffSAFE	&& make -is clean && cd ..)
 	rm -f *~

@@ -16,8 +16,8 @@ int analyze_data(raw_event *data)
   if((data->h.setupHP&TIGRESS_BIT)==0)
     return SEPARATOR_DISCARD;
 
-  if((data->h.setupHP&RF_BIT)==0)
-    return SEPARATOR_DISCARD;
+  //if((data->h.setupHP&RF_BIT)==0)
+  //  return SEPARATOR_DISCARD;
 
   cev=(cal_event*)malloc(sizeof(cal_event));
   memset(cev,0,sizeof(cal_event));
@@ -30,12 +30,12 @@ int analyze_data(raw_event *data)
   if(cev->tg.h.FT>0)
     for(pos1=1;pos1<NPOSTIGR;pos1++)
       if((cev->tg.h.THP&(1<<(pos1-1)))!=0)
-	if(cev->tg.det[pos1].hge.FT>0)
-	  for(col1=0;col1<NCOL;col1++)
-	    if((cev->tg.det[pos1].hge.THP&(1<<col1))!=0)
-	      if(cev->tg.det[pos1].ge[col1].h.FT>0)
-		if((cev->tg.det[pos1].ge[col1].h.THP&1)!=0)
-		  {
+	      if(cev->tg.det[pos1].hge.FT>0)
+	        for(col1=0;col1<NCOL;col1++)
+	          if((cev->tg.det[pos1].hge.THP&(1<<col1))!=0)
+	            if(cev->tg.det[pos1].ge[col1].h.FT>0)
+		            if((cev->tg.det[pos1].ge[col1].h.THP&1)!=0)
+		              {
                     thit=cev->tg.det[pos1].ge[col1].seg[0].T/cal_par->tg.contr_t;
                     if (first_hit == true)
                       {
@@ -47,6 +47,7 @@ int analyze_data(raw_event *data)
                         t1=thit; //assign the time of the first hit
                       }
                   }
+  //printf("t1=%f\n",t1);
 
   //Open a gate after the first hit, if the second hit falls within the time window 
   //flag both hits to be preserved.
@@ -58,9 +59,10 @@ int analyze_data(raw_event *data)
             for(col1=0;col1<NCOL;col1++)
               if((cev->tg.det[pos1].hge.THP&(1<<col1))!=0)
                 if(cev->tg.det[pos1].ge[col1].h.FT>0)
-	          if((cev->tg.det[pos1].ge[col1].h.THP&1)!=0)
-	            {
+	                if((cev->tg.det[pos1].ge[col1].h.THP&1)!=0)
+	                  {
                       thit=cev->tg.det[pos1].ge[col1].seg[0].T/cal_par->tg.contr_t;
+                      //printf("thit=%f\n",thit);
                       if (thit<=tgate) //check whether the hit is in the gate
                         {
                           id=pos1-1;
@@ -74,60 +76,61 @@ int analyze_data(raw_event *data)
     //drop TIGRESS data out of the time limits
     for(pos=1;pos<NPOSTIGR;pos++)
       {
-	id=pos-1;
-	for(col=0;col<NCOL;col++)
-	  {	
-	    id_ge=id*NCOL+col;
-	    drop=(one<<id_ge);
-	    drop&=data->tg.g.GeHP;
-	    if(drop!=0)
-	      {
-		drop&=flag_ge;
-		if(drop==0)
-		  {
-		    //drop this crystal
-		    memset(&data->tg.det[pos].ge[col],0,sizeof(SegTIGR));
-		    kill=none-(one<<col);
-		    data->tg.det[pos].h.GeHP&=kill;
-		    data->tg.det[pos].h.Gefold--;
-		    kill=none-(one<<id_ge);
-		    data->tg.g.GeHP&=kill;
-		    data->tg.g.Gefold--;
-		    data->tg.g.THP&=kill;
-		    data->tg.g.Tfold--;
-		  }
-	      }
-	  }
+	      id=pos-1;
+	      for(col=0;col<NCOL;col++)
+	        {	
+	          id_ge=id*NCOL+col;
+	          drop=(one<<id_ge);
+	          drop&=data->tg.g.GeHP;
+	          if(drop!=0)
+	            {
+		            drop&=flag_ge;
+		            if(drop==0)
+		              {
+		                //drop this crystal
+		                memset(&data->tg.det[pos].ge[col],0,sizeof(SegTIGR));
+		                kill=none-(one<<col);
+		                data->tg.det[pos].h.GeHP&=kill;
+		                data->tg.det[pos].h.Gefold--;
+		                kill=none-(one<<id_ge);
+		                data->tg.g.GeHP&=kill;
+		                data->tg.g.Gefold--;
+		                data->tg.g.THP&=kill;
+		                data->tg.g.Tfold--;
+		              }
+	            }
+	        }
       }
     
     for(pos=1;pos<NPOSTIGR;pos++)
       {
-	id=pos-1;
-	if((data->tg.h.GeHP&(1<<id))!=0)
-	  if(data->tg.det[pos].h.Gefold<=0)
-	    {
-	      //drop this position
-	      memset(&data->tg.det[pos],0,sizeof(CssTIGR));
-	      kill=none-(one<<id);
-	      data->tg.h.GeHP&=kill;
-	      data->tg.h.Gefold--;
-	      data->tg.g.PosHP&=kill;
-	      data->tg.g.Posfold--;
-	    }
+	      id=pos-1;
+	      if((data->tg.h.GeHP&(1<<id))!=0)
+	        if(data->tg.det[pos].h.Gefold<=0)
+	          {
+	            //drop this position
+	            memset(&data->tg.det[pos],0,sizeof(CssTIGR));
+	            kill=none-(one<<id);
+	            data->tg.h.GeHP&=kill;
+	            data->tg.h.Gefold--;
+	            data->tg.g.PosHP&=kill;
+	            data->tg.g.Posfold--;
+	          }
       }    
     
     if(data->tg.h.Gefold<=0)
       {
-	memset(&data->tg,0,sizeof(Tigress));
-	kill=none-TIGRESS_BIT;
-	data->h.setupHP&=kill;
+	      memset(&data->tg,0,sizeof(Tigress));
+	      kill=none-TIGRESS_BIT;
+	      data->h.setupHP&=kill;
       }
+    
     
     if((data->h.setupHP&TIGRESS_BIT)==0)
       return SEPARATOR_DISCARD;
     
-    if((data->h.setupHP&RF_BIT)==0)
-      return SEPARATOR_DISCARD;
+    //if((data->h.setupHP&RF_BIT)==0)
+    //  return SEPARATOR_DISCARD; 
     
     encode(data,output,enb);
     

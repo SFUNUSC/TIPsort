@@ -8,8 +8,8 @@ int analyze_data(raw_event *data)
   int type;
   double chisq;
   
-  if((data->h.setupHP&RF_BIT)==0) 
-    return SEPARATOR_DISCARD;
+  //if((data->h.setupHP&RF_BIT)==0) 
+  //  return SEPARATOR_DISCARD;
 
   if((data->h.setupHP&CsIArray_BIT)==0) 
     return SEPARATOR_DISCARD;
@@ -23,7 +23,8 @@ int analyze_data(raw_event *data)
 	type=data->csiarray.wfit[pos].type;
 	if(type==1)
 	  {
-	    e=data->csiarray.wfit[pos].am[1];
+	    e=data->csiarray.csi[pos].charge;
+	    //e=data->csiarray.wfit[pos].am[1];
 	    s=data->csiarray.wfit[pos].am[3];
 	    f=data->csiarray.wfit[pos].am[2];
 	    

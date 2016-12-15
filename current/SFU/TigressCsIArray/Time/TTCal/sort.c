@@ -14,8 +14,8 @@ int analyze_data(raw_event *data)
   if((data->h.setupHP&TIGRESS_BIT)==0)
     return SEPARATOR_DISCARD;
 
-  if((data->h.setupHP&RF_BIT)==0)
-    return SEPARATOR_DISCARD;
+  //if((data->h.setupHP&RF_BIT)==0)
+  //  return SEPARATOR_DISCARD;
 
  if((data->h.setupHP&CsIArray_BIT)==0)
     return SEPARATOR_DISCARD;

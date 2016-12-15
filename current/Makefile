@@ -1,7 +1,7 @@
 all:
 
-	echo Setting up directories.
-	(mkdir ../bin && mkdir ../bin/midas && mkdir ../bin/sfu)
+#	echo Setting up directories.
+#	(mkdir ../bin && mkdir ../bin/midas && mkdir ../bin/sfu)
 
 	echo Making utils.
 	(cd utils && make -is very-clean && make && make -is clean && cd ..)

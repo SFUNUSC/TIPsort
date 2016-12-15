@@ -6,7 +6,7 @@ int analyze_data(raw_event *data)
   int pos,type;
   double chi,s,f,r,e;
   
-  if((data->h.setupHP&RF_BIT)==0) return SEPARATOR_DISCARD;
+  //if((data->h.setupHP&RF_BIT)==0) return SEPARATOR_DISCARD;
   if((data->h.setupHP&CsIArray_BIT)==0) return SEPARATOR_DISCARD;
   
   for(pos=1;pos<NCSI;pos++)

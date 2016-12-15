@@ -23,52 +23,52 @@ int analyze_data(raw_event *data)
     for(pos1=1;pos1<NPOSTIGR;pos1++)
       //check if the position is in the hit pattern
       if((cev->tg.h.HHP&(1<<(pos1-1)))!=0)
-	//check the position fold
-	if(cev->tg.det[pos1].hge.FH>0)
-	  //check if the position is in the addback hit pattern
-	  if((cev->tg.h.AHP&(1<<(pos1-1)))!=0)
-	    //Run through four cores for each position
-	    for(col1=0;col1<NCOL;col1++)
-	      //check if the position and color is in the hit pattern
-	      if((cev->tg.det[pos1].hge.HHP&(1<<col1))!=0)
-		//check the fold
-		if(cev->tg.det[pos1].ge[col1].h.FH>0)
-		  {
-		    //get energy for the first position
-		    e1=(int)rint(cev->tg.det[pos1].addback.E/cal_par->tg.contr_e);
-		    
-		    for(pos2=pos1+1;pos2<NPOSTIGR;pos2++)
-		      //check if the position is in the hit pattern
-		      if((cev->tg.h.HHP&(1<<(pos2-1)))!=0)
-			//check the position fold
-			if(cev->tg.det[pos2].hge.FH>0)
-			  //check if the position is in the addback hit pattern
-			  if((cev->tg.h.AHP&(1<<(pos2-1)))!=0)
-			    //Run through four cores for each position
-			    for(col2=0;col2<NCOL;col2++)
-			      //check if the position and color is in the hit pattern
-			      if((cev->tg.det[pos2].hge.HHP&(1<<col2))!=0)
-				//check the fold
-				if(cev->tg.det[pos2].ge[col2].h.FH>0)
-				  {
-				  //get energy for the second position
-				  e2=(int)rint(cev->tg.det[pos2].addback.E/cal_par->tg.contr_e);
-		    
-				  //if the evaluated energy is good at both positions
-				  if(e1>0)
-				    if(e1<S4K)
-				      if(e2>0)
-					if(e2<S4K)
-					  {
-					    mat[e1][e2]++;
-					    mat[e2][e1]++;
-			      
-					    //symmetrized
-					    h->Fill(e1,e2);
-					    h->Fill(e2,e1);
-					  }
-				  }
-		  }
+	      //check the position fold
+	      if(cev->tg.det[pos1].hge.FH>0)
+	        //check if the position is in the addback hit pattern
+	        if((cev->tg.h.AHP&(1<<(pos1-1)))!=0)
+	          //Run through four cores for each position
+	          for(col1=0;col1<NCOL;col1++)
+	            //check if the position and color is in the hit pattern
+	            if((cev->tg.det[pos1].hge.HHP&(1<<col1))!=0)
+		            //check the fold
+		            if(cev->tg.det[pos1].ge[col1].h.FH>0)
+		              {
+		                //get energy for the first position
+		                e1=(int)rint(cev->tg.det[pos1].addback.E/cal_par->tg.contr_e);
+		                
+		                for(pos2=pos1+1;pos2<NPOSTIGR;pos2++)
+		                  //check if the position is in the hit pattern
+		                  if((cev->tg.h.HHP&(1<<(pos2-1)))!=0)
+			                  //check the position fold
+			                  if(cev->tg.det[pos2].hge.FH>0)
+			                    //check if the position is in the addback hit pattern
+			                    if((cev->tg.h.AHP&(1<<(pos2-1)))!=0)
+			                      //Run through four cores for each position
+			                      for(col2=0;col2<NCOL;col2++)
+			                        //check if the position and color is in the hit pattern
+			                        if((cev->tg.det[pos2].hge.HHP&(1<<col2))!=0)
+				                        //check the fold
+				                        if(cev->tg.det[pos2].ge[col2].h.FH>0)
+				                          {
+				                            //get energy for the second position
+				                            e2=(int)rint(cev->tg.det[pos2].addback.E/cal_par->tg.contr_e);
+		                              
+				                            //if the evaluated energy is good at both positions
+				                            if(e1>0)
+				                              if(e1<S4K)
+				                                if(e2>0)
+					                          if(e2<S4K)
+					                            {
+					                              mat[e1][e2]++;
+					                              mat[e2][e1]++;
+			                                
+					                              //symmetrized
+					                              h->Fill(e1,e2);
+					                              h->Fill(e2,e1);
+					                            }
+				                          }
+		              }
   
   free(cev);
   return SEPARATOR_DISCARD;

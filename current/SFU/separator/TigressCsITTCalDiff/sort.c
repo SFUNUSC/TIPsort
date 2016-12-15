@@ -147,10 +147,10 @@ int analyze_data(raw_event *data)
 	      
 	      //CsI is in CsI window and later than first TIGRESS
 	      if(tdiff<=high)
-		if(tcsi>tmin_ttg)
-		  {
-		    flag_csi|=(one<<csi);
-		  }
+		      if(tcsi>tmin_ttg)
+		        {
+		          flag_csi|=(one<<csi);
+		        }
 	    }
 	
 	free(cev);
@@ -336,6 +336,8 @@ int main(int argc, char *argv[])
   g->Draw("same");
   theApp->Run(kTRUE);
  
+  free(name);
+  free(cal_par);
  
 }
 

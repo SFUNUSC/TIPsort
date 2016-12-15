@@ -11,8 +11,8 @@ int analyze_data(raw_event *data)
   long long int one=1,none=-1,kill;
   long long int flag_csi;
   
-  if((data->h.setupHP&RF_BIT)==0)
-    return SEPARATOR_DISCARD;
+  //if((data->h.setupHP&RF_BIT)==0)
+  //  return SEPARATOR_DISCARD;
   
   if((data->h.setupHP&CsIArray_BIT)==0)
     return SEPARATOR_DISCARD;
@@ -79,8 +79,8 @@ int analyze_data(raw_event *data)
       memset(&data->csiarray,0,sizeof(CsIArray));
     }
   
-  if((data->h.setupHP&RF_BIT)==0)
-    return SEPARATOR_DISCARD;
+  /* if((data->h.setupHP&RF_BIT)==0) */
+  /*   return SEPARATOR_DISCARD; */
   
   if((data->h.setupHP&CsIArray_BIT)==0)
     return SEPARATOR_DISCARD;

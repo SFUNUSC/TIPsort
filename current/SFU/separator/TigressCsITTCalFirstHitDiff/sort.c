@@ -15,13 +15,16 @@ int analyze_data(raw_event *data)
   double ttg1=10E10;
   double tcsi1=-10E10;
 
+  /* printf("init bits:\n  Tigress: %d\n  CsI: %d\n  RF: %d\n",data->h.setupHP&TIGRESS_BIT,data->h.setupHP&CsIArray_BIT,data->h.setupHP&RF_BIT); */
+  /* getc(stdin); */
+
   if((data->h.setupHP&TIGRESS_BIT)==0)
     return SEPARATOR_DISCARD;
 
-  if((data->h.setupHP&RF_BIT)==0)
-    return SEPARATOR_DISCARD;
+  //if((data->h.setupHP&RF_BIT)==0)
+  //  return SEPARATOR_DISCARD;
 
- if((data->h.setupHP&CsIArray_BIT)==0)
+  if((data->h.setupHP&CsIArray_BIT)==0)
     return SEPARATOR_DISCARD;
 
   cev=(cal_event*)malloc(sizeof(cal_event));
@@ -76,9 +79,12 @@ int analyze_data(raw_event *data)
         }
 
   tdiff=tcsi1-ttg1; //time difference between the first particle and first gamma
+  /* printf("tidff %f tlow %f thigh %f \n",tdiff,low,high); */
+
   h->Fill(tdiff);
   if((tdiff>=low)&&(tdiff<=high))
     {
+      /* printf("GOOD tidff %f tlow %f thigh %f \n",tdiff,low,high); */
       g->Fill(tdiff);
       if(cev->csiarray.h.FT>0)
         for(pos=1;pos<NCSI;pos++) //look at each CsI position
@@ -91,14 +97,17 @@ int analyze_data(raw_event *data)
               for(col=0;col<NCOL;col++)
                 if((cev->tg.det[pos].hge.THP&(1<<col))!=0)
                   if(cev->tg.det[pos].ge[col].h.FT>0)
-	                  if((cev->tg.det[pos].ge[col].h.THP&1)!=0)
-	                    {
+		    if((cev->tg.det[pos].ge[col].h.THP&1)!=0)
+		      {
                         id=pos-1;
                         id_ge=id*NCOL+col;
                         flag_ge|=(one<<id_ge); //flag the hit for preservation
                       }
-    } 
+    }
 
+  // cev malloc
+  // disasterous memory leak!
+  free(cev); 
   
   //drop TIGRESS data out of the time limits
   for(pos=1;pos<NPOSTIGR;pos++)
@@ -177,17 +186,22 @@ int analyze_data(raw_event *data)
       memset(&data->csiarray,0,sizeof(CsIArray));
     } 
 
+  /* printf("final bits:\n  Tigress: %d\n  CsI: %d\n  RF: %d\n",data->h.setupHP&TIGRESS_BIT,data->h.setupHP&CsIArray_BIT,data->h.setupHP&RF_BIT); */
+
   if((data->h.setupHP&TIGRESS_BIT)==0)
     return SEPARATOR_DISCARD;
-
-  if((data->h.setupHP&RF_BIT)==0)
-    return SEPARATOR_DISCARD;
-
- if((data->h.setupHP&CsIArray_BIT)==0)
-    return SEPARATOR_DISCARD;
-
+  
+  /* if((data->h.setupHP&RF_BIT)==0) */
+   /*   return SEPARATOR_DISCARD; */
+  
+  if((data->h.setupHP&CsIArray_BIT)==0)
+      return SEPARATOR_DISCARD;
+      
+  /* printf("pre encode:\n  Tigress: %d\n  CsI: %d\n  RF: %d\n",data->h.setupHP&TIGRESS_BIT,data->h.setupHP&CsIArray_BIT,data->h.setupHP&RF_BIT); */
+  /* getc(stdin); */
+  
   encode(data,output,enb);
-
+  
   return SEPARATOR_DISCARD;
 }
 /*====================================================================================*/
@@ -259,9 +273,7 @@ int main(int argc, char *argv[])
     {
       printf("\nOutput data file not defined\n");
       exit(EXIT_FAILURE);
-    }
-
- 
+    } 
  
   if((output=fopen(name->fname.out_data,"w"))==NULL)
     {
@@ -285,7 +297,8 @@ int main(int argc, char *argv[])
       g->Draw("same");
       theApp->Run(kTRUE);
     }
- 
+  free(name);
+  free(cal_par);
  
 }
 

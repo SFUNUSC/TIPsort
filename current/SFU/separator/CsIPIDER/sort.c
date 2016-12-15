@@ -8,8 +8,8 @@ int analyze_data(raw_event *data)
   int type;
   double chisq;
   
-  if((data->h.setupHP&RF_BIT)==0) 
-    return SEPARATOR_DISCARD;
+  //if((data->h.setupHP&RF_BIT)==0) 
+  //  return SEPARATOR_DISCARD;
 
   if((data->h.setupHP&CsIArray_BIT)==0) 
     return SEPARATOR_DISCARD;
@@ -23,7 +23,8 @@ int analyze_data(raw_event *data)
 	type=data->csiarray.wfit[pos].type;
 	if(type==1)
 	  {
-	    e=data->csiarray.wfit[pos].am[1];
+	    e=data->csiarray.csi[pos].charge;
+	    //e=data->csiarray.wfit[pos].am[1];
 	    s=data->csiarray.wfit[pos].am[3];
 	    f=data->csiarray.wfit[pos].am[2];
 	    
@@ -45,7 +46,9 @@ int analyze_data(raw_event *data)
 	    /*     /\* printf("kept event e %10.3f r %10.3f\n",e,r); *\/ */
 	    /*     } */
 	    /* /\* getc(stdin); *\/ */
-	    
+	    //printf("e %10.3f r %10.3f\n",e,r);
+	    //getc(stdin);
+
 	    if(pGateFlag[pos]==1)
 	      if(pGate[pos]->IsInside(e,r))
 		np++;
@@ -62,6 +65,9 @@ int analyze_data(raw_event *data)
 	    /*   } */
 	  }
       }
+
+  //printf("Event with np %d na %d\n\nEND OF EVENT\n",np,na);  
+  //getc(stdin);
   
   if(np==gate_np)
     if(na==gate_na)
@@ -167,16 +173,16 @@ int main(int argc, char *argv[])
   for(pos=1;pos<NCSI;pos++)
     if((pGateFlag[pos]+aGateFlag[pos])!=0)
       {
-  	printf("CsI %2d ",pos);
-  	if(aGateFlag[pos]==1)
-  	  printf("  alpha gate: %10s ",aGate[pos]->GetName());
-  	else
-  	  printf("%25s"," ");
-  	if(pGateFlag[pos]==1)
-  	  printf(" proton gate: %10s ",pGate[pos]->GetName());
-  	else
-  	  printf("%25s"," ");
-  	printf("\n");
+      	printf("CsI %2d ",pos);
+      	if(aGateFlag[pos]==1)
+      	  printf("  alpha gate: %10s ",aGate[pos]->GetName());
+      	else
+      	  printf("%25s"," ");
+      	if(pGateFlag[pos]==1)
+      	  printf(" proton gate: %10s ",pGate[pos]->GetName());
+      	else
+      	  printf("%25s"," ");
+      	printf("\n");
       }
 
   if((output=fopen(name->fname.out_data,"w"))==NULL)

@@ -64,12 +64,12 @@ int analyze_data(raw_event *data)
 	  }
       }
   
-  if(np==gate_np)
-    if(na==gate_na)
-      {
-	encode(data,output,enb);
-	//printf("Event encoded with np %d na %d\n\nEND OF EVENT\n",np,na);
-      }
+	if(np==gate_np)
+		if(na==gate_na)
+			{
+				encode(data,output,enb);
+				//printf("Event encoded with np %d na %d\n\nEND OF EVENT\n",np,na);
+			}
   return SEPARATOR_DISCARD;
 }
 /*====================================================================================*/
@@ -203,6 +203,10 @@ int main(int argc, char *argv[])
       printf("Reading data from file %s.\n",DataFile);
       strcpy(name->fname.inp_data,DataFile);
       sort(name);
+			//save the last buffer which will be dropped otherwise
+			//if enb[1]==2 then the buffer contains no data, only the header
+				if(enb[1]>2)
+					fwrite(enb,sizeof(int),BUFFSIZE,output);
     }
  
 }

@@ -36,19 +36,19 @@ int analyze_data(raw_event *data)
 	  }
       }
   
-  if(thrtype==0)
-    if(r<=threshold)
-      {
-	encode(data,output,enb);
-	//printf("Event encoded with np %d na %d\n\nEND OF EVENT\n",np,na);
-      }
-  if(thrtype==1)
-    if(r>=threshold)
-      {
-	encode(data,output,enb);
-	//printf("Event encoded with np %d na %d\n\nEND OF EVENT\n",np,na);
-      }    
-  return SEPARATOR_DISCARD;
+	if(thrtype==0)
+		if(r<=threshold)
+			{
+				encode(data,output,enb);
+				//printf("Event encoded with np %d na %d\n\nEND OF EVENT\n",np,na);
+			}
+	if(thrtype==1)
+		if(r>=threshold)
+			{
+				encode(data,output,enb);
+				//printf("Event encoded with np %d na %d\n\nEND OF EVENT\n",np,na);
+			}    
+	return SEPARATOR_DISCARD;
 }
 /*====================================================================================*/
 int main(int argc, char *argv[])
@@ -95,6 +95,11 @@ int main(int argc, char *argv[])
   enb[1]++;
 
   sort(name);
+  
+	//save the last buffer which will be dropped otherwise
+	//if enb[1]==2 then the buffer contains no data, only the header
+	if(enb[1]>2)
+		fwrite(enb,sizeof(int),BUFFSIZE,output);
  
 }
 

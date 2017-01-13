@@ -186,7 +186,9 @@ int main(int argc, char *argv[])
   for(i=1;i<=numMax;i++)
     {
       sort(name); 
-      // save the last buffer
-      fwrite(enb,sizeof(int),BUFFSIZE,output[i]);
-      fclose(output[i]);
+      
+			//save the last buffer which will be dropped otherwise
+			//if enb[1]==2 then the buffer contains no data, only the header
+			if(enb[1]>2)
+				fwrite(enb,sizeof(int),BUFFSIZE,output);
     }}

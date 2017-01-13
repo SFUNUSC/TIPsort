@@ -337,6 +337,11 @@ int main(int argc, char *argv[])
   enb[1]++;
 
   sort(name);
+  
+	//save the last buffer which will be dropped otherwise
+	//if enb[1]==2 then the buffer contains no data, only the header
+	if(enb[1]>2)
+		fwrite(enb,sizeof(int),BUFFSIZE,output);
 
   //theApp=new TApplication("App", &argc, argv);
   //canvas = new TCanvas("TTCalDiff", "TTCalDiff",10,10, 500, 300);

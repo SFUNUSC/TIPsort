@@ -287,6 +287,11 @@ int main(int argc, char *argv[])
 
   sort(name);
 
+	//save the last buffer which will be dropped otherwise
+	//if enb[1]==2 then the buffer contains no data, only the header
+	if(enb[1]>2)
+		fwrite(enb,sizeof(int),BUFFSIZE,output);
+
   //theApp=new TApplication("App", &argc, argv);
   //canvas = new TCanvas("Residual Energy", "Residual Energy",10,10, 500, 300);
   //h->Draw();

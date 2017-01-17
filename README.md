@@ -6,7 +6,11 @@ Various parts contributed by K. Starosta, P. Voss, A. Chester, J. Williams, and 
 
 ## Installation
 
-At the very least, ROOT (tested with v5.x) must be installed with environment variables set up properly.  Evironment variable setup can be done by adding to your .bashrc (and then reloading the terminal):
+The install script `install.sh` is provided in an attempt to automate the compilation and installation process.  It also attempts to set up the proper environment variables in the `.bashrc` file.  Use at your own risk.
+
+### Manual Installation
+
+At the very least, ROOT (tested with v5.x) must be installed with environment variables set up properly.  Environment variable setup can be done by adding to your `.bashrc` (and then reloading the terminal):
 
 ```
 #ROOT configuration in .bashrc
@@ -16,7 +20,7 @@ export ROOTLIB=$ROOTSYS/lib
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ROOTLIB
 ```
 
-Once this is done, run `make` from the `current` directory.  If everything works (you will see a bazillion compiler warnings), programs should be placed in the `bin` directory and subdirectories, which you can then add to your path:
+Once this is done, run `make` from the `current` directory.  If everything works (you will see a bazillion compiler warnings), programs should be placed in the `bin` directory (which needs to exist along with subdirectories `midas` and `sfu`), which you can then add to your path:
 
 ```
 #TIPsort configuration in .bashrc

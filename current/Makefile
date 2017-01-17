@@ -1,8 +1,5 @@
 all:
 
-#	echo Setting up directories.
-#	(mkdir ../bin && mkdir ../bin/midas && mkdir ../bin/sfu)
-
 	echo Making utils.
 	(cd utils && make -is very-clean && make && make -is clean && cd ..)
 	echo DONE: UTILS.
@@ -37,8 +34,6 @@ all:
 
 clean:
 	echo Making clean all directories and bin.
-	rm -rf ../bin/*
-	rmdir ../bin
 	(cd utils      && make -is clean && cd ..)
 	(cd SFU-format && make -is clean && cd ..)
 	(cd calibrator && make -is clean && cd ..)
@@ -46,7 +41,7 @@ clean:
 	(cd midas      && make -is clean && cd ..)
 	(cd GateMaker  && make -is clean && cd ..)
 	(cd MatrixBS   && make -is clean && cd ..)
-	(cd SpecBS   && make -is clean && cd ..)
+	(cd SpecBS     && make -is clean && cd ..)
 	rm -f *~
 	echo DONE: Making clean.
 
@@ -55,6 +50,10 @@ very-clean:
 	(cd utils      && make -is very-clean && cd ..)
 	(cd SFU-format && make -is very-clean && cd ..)
 	(cd calibrator && make -is very-clean && cd ..)
+	(cd SFU        && make -is very-clean && cd ..)
 	(cd midas      && make -is very-clean && cd ..)
+	(cd GateMaker  && make -is very-clean && cd ..)
+	(cd MatrixBS   && make -is very-clean && cd ..)
+	(cd SpecBS     && make -is very-clean && cd ..)
 	rm -f *~
 	echo DONE: Making very-clean.

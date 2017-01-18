@@ -1,6 +1,13 @@
 #A helper script for installation of the TIPsort codes
 
+#check directory the script is being run from
+if [ ! -d current ]; then
+	echo "This script must be run from the TIPsort base directory."
+	exit
+fi
+
 #check for properly set up ROOT
+echo "Checking ROOT installation..."
 if [ -z "$ROOTSYS" ]
 then 
 		echo "ROOTSYS environment variable is not set!"

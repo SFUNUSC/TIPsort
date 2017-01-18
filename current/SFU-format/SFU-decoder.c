@@ -4,7 +4,7 @@
 int next_event(int **bp, int *end, counters *c, int* e)
 {
   if((c->event%10000)==0)
-    printf("Number of analyzed events if %10ld\r",c->event);
+    printf("Number of analyzed events is %10ld\r",c->event);
   if(**bp!=(int)EVENT_TAG)
     return -1;
  

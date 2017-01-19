@@ -59,7 +59,7 @@ make
 cd ..
 
 #set up environment variables if neccesary
-if [ $(grep -xR "#Set up TIPsort" ~/.bashrc | wc -l) -lt 1 ]
+if [ -z "$TIPsort" ]
 then
 		echo "Setting up environment variables in .bashrc file..."
 		tipsort_loc=$(pwd)

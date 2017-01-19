@@ -400,33 +400,33 @@ void read_TIGRESS_ring_energy_gates(TIGRESS_calibration_parameters *TIGRESS_cal_
   float low,high;
  
 
-  if((inp=fopen(filename,"r"))==NULL)
-      {
-         printf("\nI can't open file %s\n",filename);
-         exit(EXIT_FAILURE);
-      }
+	if((inp=fopen(filename,"r"))==NULL)
+		{
+			printf("\nI can't open file %s\n",filename);
+			exit(EXIT_FAILURE);
+		}
   printf("\nTIGRESS ring energy gate limits read from the file:\n %s\n",filename);
 
-  if(fgets(line,132,inp)!=NULL)
-    {
-      if(fgets(line,132,inp)!=NULL)
-	while(fscanf(inp,"%d %f %f",&ring,&low,&high)!=EOF)
-	  if(ring>0 && ring<NRING)
-	      {
-		TIGRESS_cal_par->relow[ring]=low;
-		TIGRESS_cal_par->rehigh[ring]=high;
-		//printf("ring %d elow %.2f ehigh %.2f\n",ring,TIGRESS_cal_par->relow[ring],TIGRESS_cal_par->rehigh[ring]);
-		//getc(stdin);
-	      }
-    }
-	    else
-	    {
-	      printf("Wrong structure of file %s\n",filename);
-	      printf("Aborting sort\n");
-	      exit(1);
-	    }
-  fclose(inp);
-  
+	if(fgets(line,132,inp)!=NULL)
+		{
+			if(fgets(line,132,inp)!=NULL)
+				while(fscanf(inp,"%d %f %f",&ring,&low,&high)!=EOF)
+					if(ring>0 && ring<NRING)
+						{
+							TIGRESS_cal_par->relow[ring]=low;
+							TIGRESS_cal_par->rehigh[ring]=high;
+							//printf("ring %d elow %.2f ehigh %.2f\n",ring,TIGRESS_cal_par->relow[ring],TIGRESS_cal_par->rehigh[ring]);
+							//getc(stdin);
+						}
+		}
+	else
+		{
+			printf("Wrong structure of file %s\n",filename);
+			printf("Aborting sort\n");
+			exit(1);
+		}
+	fclose(inp);
+	
 }
 /*******************************************************************/
 void summarize_TIGRESS_calibration(TIGRESS_calibration_parameters *TIGRESS_cal_par, char *filename)

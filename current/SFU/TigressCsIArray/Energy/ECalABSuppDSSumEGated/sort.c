@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
 
   if(argc!=5)
     {
-      printf("TIGRESS_ECalABSuppSumEGated master_file_name supLow supHigh gate_file\n");
+      printf("TigressCsIArray_ECalABSuppDSSumEGated master_file_name supLow supHigh gate_file\n");
       printf("Program sorts Doppler shift gated spectra for TIGRESS with an energy gate applied to all Doppler shift gates.\n");
       printf("Energy gates are specified in the parameter files.\n");
       exit(-1);

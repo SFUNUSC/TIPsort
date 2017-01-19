@@ -6,7 +6,7 @@ Various parts contributed by K. Starosta, P. Voss, A. Chester, J. Williams, and 
 
 ## Installation
 
-The install script `install.sh` is provided in an attempt to automate the compilation and installation process.  It also attempts to set up the proper environment variables in the `.bashrc` file.  Use at your own risk.
+The install script `install.sh` is provided in an attempt to automate the compilation and installation process.  It also attempts to set up the proper environment variables in the `.bashrc` file.  Use at your own risk, I am not responsible for messing up your computer.
 
 ### Manual Installation
 

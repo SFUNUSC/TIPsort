@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
 
   if(argc!=4)
     {
-      printf("TIGRESS_ECalABSuppSumEGated master_file_name supLow supHigh\n");
+      printf("TIGRESS_ECalABSuppRingEGated master_file_name supLow supHigh\n");
       printf("Program sorts ring gated spectra for TIGRESS with an energy gate applied to all rings.\n");
       printf("Energy gates are specified in the parameter files.\n");
       exit(-1);
@@ -131,19 +131,10 @@ int main(int argc, char *argv[])
   /* h = new TH2D("Tigress EECalABSupp Sum","Tigress EECalABSuppSum",S1K,0,S4K-1,S1K,0,S4K-1); */
   /* h->Reset(); */
 
-  if(name->flag.cluster_file==1)
+  if(name->flag.inp_data!=1)
     {
-      printf("\nSorting data from cluster file:\n %s\n",name->fname.cluster_file);
-      if((cluster=fopen(name->fname.cluster_file,"r"))==NULL)
-	{
-	  printf("\nI can't open input file %s\n",name->fname.cluster_file);
-	  exit(-2);
-	}
-    }
-  else
-    {
-      printf("\nCluster file not defined\n");
-      exit(-1);
+      printf("ERROR!!! Input data file not defined.\n");
+      exit(EXIT_FAILURE);
     }
 
   if(name->flag.TIGRESS_cal_par==1)
@@ -158,22 +149,17 @@ int main(int argc, char *argv[])
           exit(EXIT_FAILURE);
         }
   
-  name->flag.inp_data=1; 
-  while(fscanf(cluster,"%s",n)!=EOF)
-    {
-      strcpy(name->fname.inp_data,n);
-      sort(name);
-    }
+  sort(name);
 
   fclose(cluster);
 
-  if((output=fopen("Ring_ECalABSuppSumEGated.mca","w"))==NULL)
+  if((output=fopen("Ring_ECalABSuppEGated.mca","w"))==NULL)
   	{
   	  printf("ERROR!!! I cannot open the mca file!\n");
   	  exit(EXIT_FAILURE);
   	}
   
-  for(ring=0;ring<NRING;ring++) 
+  for(ring=0;ring<NRING;ring++)
     fwrite(hist[ring],S32K*sizeof(int),1,output);
 
   fclose(output);

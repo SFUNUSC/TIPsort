@@ -101,8 +101,6 @@ int main(int argc, char *argv[])
 {
   FILE * output;
   input_names_type* name;
-  FILE *cluster;
-  char n[132];
   int ring=0;
 
   if(argc!=4)
@@ -150,8 +148,6 @@ int main(int argc, char *argv[])
         }
   
   sort(name);
-
-  fclose(cluster);
 
   if((output=fopen("Ring_ECalABSuppEGated.mca","w"))==NULL)
   	{

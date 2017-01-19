@@ -19,6 +19,4 @@ calibration_parameters* cal_par;
 double supLow,supHigh;
 int pos,col,colAddBack;
 
-TH2D *h;
-
 #endif

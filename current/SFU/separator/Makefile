@@ -1,36 +1,40 @@
 all:
+	echo Making AngleBetweenHits.
+	(cd AngleBetweenHits r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: AngleBetweenHits.
+	
 	echo Making TrigBits.
 	(cd TrigBits r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: TrigBits.
-
+	
 	echo Making Separator_TigressCsITTCalDiff.
 	(cd TigressCsITTCalDiff r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Separator_TigressCsITTCalDiff.
-
+	
 	echo Making Separator_TigressTTCalDiff.
 	(cd TigressTTCalDiff r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Separator_TigressTTCalDiff.
-
+	
 	echo Making Separator_TigressCsITTCalFirstHitDiff.
 	(cd TigressCsITTCalFirstHitDiff r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Separator_TigressCsITTCalFirstHitDiff.
-
+	
 	echo Making Separator_CsITTCalDiff.
 	(cd CsITTCalDiff r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Separator_CsITTCalDiff.
-
+	
 	echo Making Separator_TigressCsITTCalDiffSAFE.
 	(cd TigressCsITTCalDiffSAFE r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Separator_TigressCsITTCalDiffSAFE.
-
+	
 	#echo Making Separator_TigressCsITTCalDiff_firstEvent.
 	#(cd TigressCsITTCalDiff_firstEvent r && make -is clean && make && make -is clean && cd ..)
 	#echo DONE: Separator_TigressCsITTCalDiff_firstEvent.
-
+	
 	echo Making Separator_CsIPIDER.
 	(cd CsIPIDER r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Separator_CsIPIDER.
-
+	
 	echo Making Separator_CsIPIDER_Sum.
 	(cd CsIPIDER_Sum r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Separator_CsIPIDER_Sum.
@@ -38,11 +42,11 @@ all:
 	echo Making Separator_CsIPID_threshold.
 	(cd CsIPID_threshold r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Separator_CsIPID_threshold.
-
+	
 	echo Making Separator_CsIDeltaU.
 	(cd CsIDeltaU r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Separator_CsIDeltaU.
-
+	
 	echo Making Separator_RF.
 	(cd RF r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Separator_RF.
@@ -52,6 +56,7 @@ all:
 	echo DONE: Separator_Fold.
 
 clean:
+	(cd AngleBetweenHits            && make -is clean && cd ..)
 	(cd TrigBits            && make -is clean && cd ..)
 	(cd TigressCsITTCalDiff && make -is clean && cd ..)
 	(cd TigressCsITTCalFirstHitDiff && make -is clean && cd ..)

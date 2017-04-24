@@ -49,8 +49,6 @@ int main(int argc, char *argv[])
 {
   FILE * output;
   input_names_type* name;
-  TCanvas *canvas;
-  TApplication *theApp;
   int stop,pos,col;
   char n[132];
   
@@ -112,12 +110,15 @@ int main(int argc, char *argv[])
 	}
     }
 
-  theApp=new TApplication("App", &argc, argv);
-  canvas = new TCanvas("Tigress_TCal", "Tigress_TCal",10,10, 500, 300);
-  gPad->SetLogz(1);
-  gStyle->SetPalette(1);
-  h->Draw("COLZ");
+  // ROOT drawing stuff
+  /* TCanvas *canvas; */
+  /* TApplication *theApp; */
+  /* theApp=new TApplication("App", &argc, argv); */
+  /* canvas = new TCanvas("Tigress_TCal", "Tigress_TCal",10,10, 500, 300); */
+  /* gPad->SetLogz(1); */
+  /* gStyle->SetPalette(1); */
+  /* h->Draw("COLZ"); */
   
-  theApp->Run(kTRUE);
+  /* theApp->Run(kTRUE); */
 
 }

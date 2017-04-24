@@ -6,3 +6,4 @@ bin
 *.sfu
 *.map
 *.mca
+*#

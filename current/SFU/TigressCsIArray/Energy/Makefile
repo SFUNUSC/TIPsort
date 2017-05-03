@@ -35,6 +35,14 @@ all:
 	(cd ECalABSuppRingSum_deltaUcut r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: ECALABSUPPRINGSUM_DELTAUCUT.
 	
+	echo Making ECalABSuppCsIRingSum.
+	(cd ECalABSuppCsIRingSum r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: ECALABSUPPCSIRINGSUM.
+	
+	echo Making ECalABSuppCsIRing.
+	(cd ECalABSuppCsIRing r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: ECALABSUPPCSIRING.
+	
 	echo Making ECalABSuppDSSum.
 	(cd ECalABSuppDSSum r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: ECALABSUPPDSSUM.
@@ -114,6 +122,8 @@ clean:
 	(cd ECalABSuppRingSum_CsIPIDr          && make -is clean && cd ..)
 	(cd ECalABSum_CsIEGate_CsIPIDr         && make -is clean && cd ..)
 	(cd ECalABSuppRingSum_deltaUcut        && make -is clean && cd ..)
+	(cd ECalABSuppCsIRing                  && make -is clean && cd ..)
+	(cd ECalABSuppCsIRingSum               && make -is clean && cd ..)
 	(cd ECalABSuppDSSum                    && make -is clean && cd ..)
 	(cd ECalABSuppDSSumEGated              && make -is clean && cd ..)
 	(cd ECalABSuppSumTree                  && make -is clean && cd ..)
@@ -126,7 +136,7 @@ clean:
 	(cd ECosThetaCalABSuppSum              && make -is clean && cd ..)
 	(cd ECosThetaCalABSuppSum_LineCut      && make -is clean && cd ..)
 	(cd ECosThetaCalABSuppSum_LineCutThreshold     && make -is clean && cd ..)
-	(cd Making ECosThetaCalABSuppSum_Rotated       && make -is clean && cd ..)
+	(cd ECosThetaCalABSuppSum_Rotated       && make -is clean && cd ..)
 	(cd ECosThetaCalABSuppSum_RotatedCosThetaGate  && make -is clean && cd ..)
 	(cd ECalABSuppDSReconstructed  && make -is clean && cd ..)
 	(cd ECosThetaCalABSuppSum_Sheared  && make -is clean && cd ..)

@@ -67,6 +67,14 @@ all:
 	(cd  ECalABRingSum_CsIEGate r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: ECALABRINGSUM_CSIEGATE.
 	
+	echo Making CsIECalSum_TigEGate.
+	(cd  CsIECalSum_TigEGate r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: CSIECALSUM_TIGEGATE.
+	
+	echo Making CsIECal_TigEGate.
+	(cd  CsIECal_TigEGate r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: CSIECAL_TIGEGATE.
+	
 	echo Making EE_Plunger.
 	(cd  EE_Plunger r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: EE_PLUNGER.
@@ -130,6 +138,8 @@ clean:
 	(cd deltaU_ECalCut                     && make -is clean && cd ..)
 	(cd ECalABRing_CsIEGate                && make -is clean && cd ..)
 	(cd ECalABRingSum_CsIEGate             && make -is clean && cd ..)
+	(cd CsIECal_TigEGate                   && make -is clean && cd ..)
+	(cd CsIECalSum_TigEGate                && make -is clean && cd ..)
 	(cd EE_Plunger                         && make -is clean && cd ..)
 	(cd EE_PlungerSum                      && make -is clean && cd ..)
 	(cd EECal                              && make -is clean && cd ..)

@@ -23,8 +23,10 @@ int analyze_data(raw_event *data)
 	type=data->csiarray.wfit[pos].type;
 	if(type==1)
 	  {
-	    e=data->csiarray.csi[pos].charge;
-	    //e=data->csiarray.wfit[pos].am[1];
+	  	if(useCharge==1)
+	    	e=data->csiarray.csi[pos].charge;
+	    else
+	    	e=data->csiarray.wfit[pos].am[1];
 	    s=data->csiarray.wfit[pos].am[3];
 	    f=data->csiarray.wfit[pos].am[2];
 	    
@@ -51,10 +53,10 @@ int analyze_data(raw_event *data)
 
 	    if(pGateFlag[pos]==1)
 	      if(pGate[pos]->IsInside(e,r))
-		np++;
+					np++;
 	    if(aGateFlag[pos]==1)
 	      if(aGate[pos]->IsInside(e,r))
-		na++;
+					na++;
 	    
 	    /* if(np>0 || na>0) */
 	    /*   { */
@@ -84,10 +86,12 @@ int main(int argc, char *argv[])
   FILE *gateNameFile;
   TFile* f;
   char aGateName[132],pGateName[132],det[132];
+  useCharge=0;
 
-  if(argc!=4)
+  if((argc!=4)&&(argc!=5))
     {
-      printf("\n ./separate_CsIArray_PID_ER master_file_name np na\n");
+      printf("\n ./separate_CsIArray_PID_ER master_file_name np na useCharge\n");
+      printf("\nuseCharge is an optional parameter, set to 1 if charge is to be used instead of fitted amplitude, otherwise leave blank.\n");
       exit(-1);
     }
  
@@ -99,6 +103,8 @@ int main(int argc, char *argv[])
   read_master(argv[1],name);
   gate_np=atoi(argv[2]);
   gate_na=atoi(argv[3]);
+  if(argc>4)
+  	useCharge=atoi(argv[4]);
 
   if(name->flag.inp_data!=1)
     {

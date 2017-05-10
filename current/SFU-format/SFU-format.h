@@ -5,6 +5,7 @@
 #include "waveform_analyzer.h"
 
 #define NRING      7
+#define NPINRING   4
 #define NSFUdaq   60
 #define NPOSTIGR  17
 #define NPOSGRIF   4

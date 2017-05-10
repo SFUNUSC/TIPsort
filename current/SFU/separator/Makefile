@@ -54,6 +54,10 @@ all:
 	echo Making Separator_Fold.
 	(cd Fold r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Separator_Fold.
+	
+	echo Making Separator_TigressPINTTCalDiff.
+	(cd TigressPINTTCalDiff r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: Separator_TigressPINTTCalDiff.
 
 clean:
 	(cd AngleBetweenHits            && make -is clean && cd ..)
@@ -69,4 +73,5 @@ clean:
 	(cd Fold                && make -is clean && cd ..)
 	#(cd TigressCsITTCalDiff_firstEvent	&& make -is clean && cd ..)
 	(cd TigressCsITTCalDiffSAFE	&& make -is clean && cd ..)
+	(cd TigressPINTTCalDiff     && make -is clean && cd ..)
 	rm -f *~

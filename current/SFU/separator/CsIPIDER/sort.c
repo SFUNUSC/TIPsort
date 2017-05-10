@@ -105,6 +105,9 @@ int main(int argc, char *argv[])
   gate_na=atoi(argv[3]);
   if(argc>4)
   	useCharge=atoi(argv[4]);
+  
+  if(useCharge==1)
+  	printf("Using charge rather than amplitude for PID separation.\n");
 
   if(name->flag.inp_data!=1)
     {

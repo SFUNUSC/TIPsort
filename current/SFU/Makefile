@@ -7,6 +7,10 @@ all:
 	(cd  TigressCsIArray && make -is clean && make && make -is clean && cd ..)
 	echo DONE: TIGRESSCSIARRAY.
 	
+	echo Making TigressPINArray.
+	(cd  TigressPINArray && make -is clean && make && make -is clean && cd ..)
+	echo DONE: TigressPINArray.
+	
 	echo Making TigressBGO.
 	(cd  TigressBGO && make -is clean && make && make -is clean && cd ..)
 	echo DONE: TIGRESSBGO.
@@ -14,6 +18,10 @@ all:
 	echo Making CsIArray.
 	(cd  CsIArray && make -is clean && make && make -is clean && cd ..)
 	echo DONE: CsIArray.
+	
+	echo Making PINArray.
+	(cd  PINArray && make -is clean && make && make -is clean && cd ..)
+	echo DONE: PINArray.
 	
 	echo Making Check.
 	(cd  check && make -is clean && make && make -is clean && cd ..)
@@ -34,8 +42,10 @@ all:
 clean:
 	(cd Tigress         && make -is clean && cd ..)
 	(cd TigressCsIArray && make -is clean && cd ..)
+	(cd TigressPINArray && make -is clean && cd ..)
 	(cd TigressBGO	    && make -is clean && cd ..)
 	(cd CsIArray        && make -is clean && cd ..)
+	(cd PINArray        && make -is clean && cd ..)
 	(cd check           && make -is clean && cd ..)
 	(cd separator       && make -is clean && cd ..)
 	(cd display         && make -is clean && cd ..)	

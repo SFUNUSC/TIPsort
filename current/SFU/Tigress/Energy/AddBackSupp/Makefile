@@ -7,6 +7,10 @@ all:
 	(cd ECalABSuppRing r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Tigress_ECalABSuppRing.
 	
+	echo Making Tigress_ECalABSuppRingDopplerCorrected.
+	(cd ECalABSuppRingDopplerCorrected r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: Tigress_ECalABSuppRingDopplerCorrected.
+	
 	#echo Making Tigress_ECalABSuppTester.
 	#(cd ECalABSuppTester r && make -is clean && make && make -is clean && cd ..)
 	#echo DONE: Tigress_ECalABSuppTester.
@@ -18,6 +22,10 @@ all:
 	echo Making Tigress_ECalABSuppRingSum.
 	(cd ECalABSuppRingSum r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Tigress_ECalABSuppRingSum.
+	
+	echo Making Tigress_ECalABSuppRingSumRingDopplerCorrected.
+	(cd ECalABSuppRingSumRingDopplerCorrected r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: Tigress_ECalABSuppRingSumRingDopplerCorrected.
 	
 	echo Making Tigress_ECalABSuppRingEGated.
 	(cd ECalABSuppRingEGated r && make -is clean && make && make -is clean && cd ..)
@@ -59,6 +67,10 @@ all:
 	(cd EECalABSuppSum r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Tigress_EECalABSuppSum.
 	
+	echo Making Tigress_EECalABSuppSumRingDopplerCorrected.
+	(cd EECalABSuppSumRingDopplerCorrected r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: Tigress_EECalABSuppSumRingDopplerCorrected.
+	
 	#echo Making Tigress_ECalABSupp_OnBGOPresence.
 	#(cd SuppOnBGOPresence r && make -is clean && make && make -is clean && cd ..)
 	#echo DONE: Tigress_ECalABSupp_OnBGOPresence.
@@ -66,9 +78,11 @@ all:
 clean:
 	(cd ECalABSupp               	    && make -is clean && cd ..)
 	(cd ECalABSuppRing           	    && make -is clean && cd ..)
+	(cd ECalABSuppRingDopplerCorrected     && make -is clean && cd ..)
 	#(cd ECalABSuppTester             && make -is clean && cd ..)
 	(cd ECalABSuppSum            	    && make -is clean && cd ..)
 	(cd ECalABSuppRingSum             && make -is clean && cd ..)
+	(cd ECalABSuppRingSumRingDopplerCorrected     && make -is clean && cd ..)
 	(cd ECalABSuppRingEGated       && make -is clean && cd ..)
 	(cd ECalABSuppRingSumEGated       && make -is clean && cd ..)
 	(cd ECalABSuppRingSumEGatedFold     && make -is clean && cd ..)
@@ -79,5 +93,6 @@ clean:
 	#(cd SuppOnBGOTLimits                && make -is clean && cd ..)
 	#(cd SuppOnBGOPresence               && make -is clean && cd ..)
 	(cd EECalABSuppSum        	    && make -is clean && cd ..)
+	(cd EECalABSuppSumRingDopplerCorrected    && make -is clean && cd ..)
 
 	rm -f *~

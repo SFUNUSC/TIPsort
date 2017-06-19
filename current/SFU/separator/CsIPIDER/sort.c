@@ -20,52 +20,52 @@ int analyze_data(raw_event *data)
   for(pos=1;pos<NCSI;pos++)
     if((data->csiarray.h.THP&(one<<pos))!=0)
       {
-	type=data->csiarray.wfit[pos].type;
-	if(type==1)
-	  {
-	  	if(useCharge==1)
-	    	e=data->csiarray.csi[pos].charge;
-	    else
-	    	e=data->csiarray.wfit[pos].am[1];
-	    s=data->csiarray.wfit[pos].am[3];
-	    f=data->csiarray.wfit[pos].am[2];
-	    
-	    /* for(int i=1;i<=4;i++) */
-	    /* printf("amp[%d] %Lf\n",i,data->csiarray.wfit[pos].am[i]); */
-	    
-	    if(f==0)
-	      r=0;
-	    else
-	      r=s/f*100;
-	    
-	    r+=100;
+				type=data->csiarray.wfit[pos].type;
+				if(type==1)
+					{
+						if(useCharge==1)
+							e=data->csiarray.csi[pos].charge;
+						else
+							e=data->csiarray.wfit[pos].am[1];
+						s=data->csiarray.wfit[pos].am[3];
+						f=data->csiarray.wfit[pos].am[2];
+					
+						/* for(int i=1;i<=4;i++) */
+						/* printf("amp[%d] %Lf\n",i,data->csiarray.wfit[pos].am[i]); */
+					
+						if(f==0)
+							r=0;
+						else
+							r=s/f*100;
+					
+						r+=100;
 
-	    /* //for "rough" PID from 209Po */
-	    /* if(e>=0. && e<=2000.) */
-	    /*   if(r>100. && r<=300.) */
-	    /*     { */
-	    /*     na++; */
-	    /*     /\* printf("kept event e %10.3f r %10.3f\n",e,r); *\/ */
-	    /*     } */
-	    /* /\* getc(stdin); *\/ */
-	    //printf("e %10.3f r %10.3f\n",e,r);
-	    //getc(stdin);
+						/* //for "rough" PID from 209Po */
+						/* if(e>=0. && e<=2000.) */
+						/*   if(r>100. && r<=300.) */
+						/*     { */
+						/*     na++; */
+						/*     /\* printf("kept event e %10.3f r %10.3f\n",e,r); *\/ */
+						/*     } */
+						/* /\* getc(stdin); *\/ */
+						//printf("e %10.3f r %10.3f\n",e,r);
+						//getc(stdin);
 
-	    if(pGateFlag[pos]==1)
-	      if(pGate[pos]->IsInside(e,r))
-					np++;
-	    if(aGateFlag[pos]==1)
-	      if(aGate[pos]->IsInside(e,r))
-					na++;
-	    
-	    /* if(np>0 || na>0) */
-	    /*   { */
-	    /*     printf("pos %d\n",pos); */
-	    /*     printf("e %10.3f r %10.3f\n",e,r); */
-	    /*     printf("na %d np %d\n",na,np); */
-	    /*     getc(stdin); */
-	    /*   } */
-	  }
+						if(pGateFlag[pos]==1)
+							if(pGate[pos]->IsInside(e,r))
+								np++;
+						if(aGateFlag[pos]==1)
+							if(aGate[pos]->IsInside(e,r))
+								na++;
+					
+						/* if(np>0 || na>0) */
+						/*   { */
+						/*     printf("pos %d\n",pos); */
+						/*     printf("e %10.3f r %10.3f\n",e,r); */
+						/*     printf("na %d np %d\n",na,np); */
+						/*     getc(stdin); */
+						/*   } */
+					}
       }
 
   //printf("Event with np %d na %d\n\nEND OF EVENT\n",np,na);  

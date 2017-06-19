@@ -14,5 +14,7 @@
 int detectorSubsystem=0;
 char *title;
 
+long foldHist[10];
+
 TH1D *h;
 #endif

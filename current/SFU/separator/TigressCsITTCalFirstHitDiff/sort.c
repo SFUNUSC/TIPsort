@@ -88,21 +88,25 @@ int analyze_data(raw_event *data)
       g->Fill(tdiff);
       if(cev->csiarray.h.FT>0)
         for(pos=1;pos<NCSI;pos++) //look at each CsI position
-          if((cev->csiarray.h.THP&(one<<pos))!=0) //is there a hit in the detector?
-            flag_csi|=(one<<pos); //flag the hit for preservation
+        	{
+		        if((cev->csiarray.h.THP&(one<<pos))!=0) //is there a hit in the detector?
+		          flag_csi|=(one<<pos); //flag the hit for preservation
+          }
       if(cev->tg.h.FT>0)
         for(pos=1;pos<NPOSTIGR;pos++) //look at each Tigress position
-          if((cev->tg.h.THP&(1<<(pos-1)))!=0)
-            if(cev->tg.det[pos].hge.FT>0)
-              for(col=0;col<NCOL;col++)
-                if((cev->tg.det[pos].hge.THP&(1<<col))!=0)
-                  if(cev->tg.det[pos].ge[col].h.FT>0)
-		    if((cev->tg.det[pos].ge[col].h.THP&1)!=0)
-		      {
-                        id=pos-1;
-                        id_ge=id*NCOL+col;
-                        flag_ge|=(one<<id_ge); //flag the hit for preservation
-                      }
+        	{
+		        if((cev->tg.h.THP&(1<<(pos-1)))!=0)
+		          if(cev->tg.det[pos].hge.FT>0)
+		            for(col=0;col<NCOL;col++)
+		              if((cev->tg.det[pos].hge.THP&(1<<col))!=0)
+		                if(cev->tg.det[pos].ge[col].h.FT>0)
+											if((cev->tg.det[pos].ge[col].h.THP&1)!=0)
+												{
+													id=pos-1;
+													id_ge=id*NCOL+col;
+													flag_ge|=(one<<id_ge); //flag the hit for preservation
+												}
+					}
     }
 
   // cev malloc

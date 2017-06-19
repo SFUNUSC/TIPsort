@@ -357,6 +357,8 @@ void sort_and_assemble_list(char* inp_name,char* map_name)
       /* close the midas list */
       fclose(midas_list);
       /* analyze the last data assembly buffer */
+      printf("dp_trig: %i, dp_first: %i\n",dp->trig,dp->first);
+      getc(stdin);
       for(int i=0;i<dp->trig-dp->first;i++)
 	assemble_event(i,list,dp,&map);
       stop=1;

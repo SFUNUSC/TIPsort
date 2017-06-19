@@ -7,6 +7,7 @@ int analyze_data(raw_event *data)
     {
       printf("Inconsistent time stamps \n");
       printf("max %16.16llx min %16.16llx diff %16.16llx\n",max,min,max-min);
+      printf("integer: max %10.10Li min %10.10Li diff %10.10Li\n",max,min,max-min);
       display_raw_event(data);
       getc(stdin);
     }

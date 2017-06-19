@@ -47,17 +47,32 @@ int unpack_tig10_bank(int *data, int length, Tig10_event *ptr, int proc_wave, sh
       case 0x4:                             /*      CFD Time */
         if( ptr->cfd_flag!=0 ){
             fprintf(stderr,"Event 0x%x: port %d, ", trigger_num, ptr->port );
-            fprintf(stderr,"cfd already seen - discarding\n");
-            /* debug_dump_event(evntbuf, evntbuflen, 0, 0); */ return(-1);
-         }
-	ptr->cfd = value & 0x00ffffff;
-	ptr->cfd_flag++;
+            fprintf(stderr,"cfd already seen - ");
+            if(ptr->cfd==(value & 0x00ffffff)){//JW 19/6/17: check for duplicate (DAQ wrote same fragment data twice)
+                fprintf(stderr,"duplicate, keeping fragment\n");
+            }else{
+                fprintf(stderr,"discarding fragment\n");
+                /* debug_dump_event(evntbuf, evntbuflen, 0, 0); */ return(-1);
+            }
+        }else{ 
+	          ptr->cfd = value & 0x00ffffff;
+	          ptr->cfd_flag++;
+	      }
 	break;
       case 0x5:                             /*        Charge */
          if( ptr->charge_flag!=0){
             fprintf(stderr,"Event 0x%x: port %d, ", trigger_num, ptr->port );
-            fprintf(stderr,"charge already seen - discarding\n");
-            /* debug_dump_event(evntbuf, evntbuflen, 0, 0); */ return(-1);
+            fprintf(stderr,"charge already seen - ");
+	          if(ptr->charge==(value & 0x00ffffff)){//JW 19/6/17: check for duplicate (DAQ wrote same fragment data twice)
+	              fprintf(stderr,"duplicate, keeping fragment\n");
+	          }else{
+	              if((value & 0x02000000)&&(ptr->charge == NEG_CHARGE_VALUE)){
+	                  fprintf(stderr,"duplicate, keeping fragment\n");
+	              }else{
+	                  fprintf(stderr,"discarding fragment\n");
+	                  /* debug_dump_event(evntbuf, evntbuflen, 0, 0); */ return(-1);
+	              }
+	          }
          }
 	 //PJV: 10/3/13
 	 //The charge reported needs to be divided by the integration K and 
@@ -83,11 +98,17 @@ int unpack_tig10_bank(int *data, int length, Tig10_event *ptr, int proc_wave, sh
       case 0x6:                             /*      LED Time */
         if( ptr->led_flag!=0 ){
             fprintf(stderr,"Event 0x%x: port %d, ", trigger_num, ptr->port );
-            fprintf(stderr,"led already seen - discarding\n");
-            /* debug_dump_event(evntbuf, evntbuflen, 0, 0); */ return(-1);
-         }
-	ptr->led = value & 0x00ffffff;
-	ptr->led_flag++;
+            fprintf(stderr,"led already seen - ");
+	          if(ptr->led==(value & 0x00ffffff)){//JW 19/6/17: check for duplicate (DAQ wrote same fragment data twice)
+	              fprintf(stderr,"duplicate, keeping fragment\n");
+	          }else{
+	              fprintf(stderr,"discarding fragment\n");
+	              /* debug_dump_event(evntbuf, evntbuflen, 0, 0); */ return(-1);
+	          }
+         }else{
+	          ptr->led = value & 0x00ffffff;
+	          ptr->led_flag++;
+	       }
 	break;
       case 0x8: 
 	break;                      /*  Event header */
@@ -95,43 +116,73 @@ int unpack_tig10_bank(int *data, int length, Tig10_event *ptr, int proc_wave, sh
          if( subtype == 0 ){                            /*    Time Stamp */
 	   if( ptr->timestamp_flag!=0){
 	     fprintf(stderr,"Event 0x%x: port %d, ", trigger_num, ptr->port );
-	     fprintf(stderr,"time stamp already seen - discarding\n");
-	     /* debug_dump_event(evntbuf, evntbuflen, 0, 0); */ return(-1);
-	   } 
+	     fprintf(stderr,"time stamp already seen - ");
+	     if(ptr->timestamp==(value & 0x00ffffff)){//JW 19/6/17: check for duplicate (DAQ wrote same fragment data twice)
+	         fprintf(stderr,"duplicate, keeping fragment\n");
+	     }else{
+	         fprintf(stderr,"discarding fragment\n");
+	         /* debug_dump_event(evntbuf, evntbuflen, 0, 0); */ return(-1);
+	     }
+	   }else{ 
            ptr->timestamp  = value & 0x00ffffff;
-	   ptr->timestamp_flag++;
+	         ptr->timestamp_flag++;
+	   }
          } else if( subtype == 1 ){              /* timestamp upper bits */
 	   if( ptr->timestamp_up_flag!=0){
 	     fprintf(stderr,"Event 0x%x: port %d, ", trigger_num, ptr->port );
-	     fprintf(stderr,"time stamp up already seen - discarding\n");
-	     /* debug_dump_event(evntbuf, evntbuflen, 0, 0); */ return(-1);
-	   } 
-	    ptr->timestamp_up = value & 0x00ffffff;
-	    ptr->timestamp_up_flag++;
+	     fprintf(stderr,"time stamp up already seen - ");
+	     if(ptr->timestamp_up==(value & 0x00ffffff)){//JW 19/6/17: check for duplicate (DAQ wrote same fragment data twice)
+	         fprintf(stderr,"duplicate, keeping fragment\n");
+	     }else{
+	         fprintf(stderr,"discarding fragment\n");
+	         /* debug_dump_event(evntbuf, evntbuflen, 0, 0); */ return(-1);
+	     }
+	   }else{ 
+	     ptr->timestamp_up = value & 0x00ffffff;
+	     ptr->timestamp_up_flag++;
+	   }
          } else if( subtype == 2 ){                          /* livetime */
 	   if( ptr->livetime_flag!=0){
 	     fprintf(stderr,"Event 0x%x: port %d, ", trigger_num, ptr->port );
-	     fprintf(stderr,"livetime already seen - discarding\n");
-	     /* debug_dump_event(evntbuf, evntbuflen, 0, 0); */ return(-1);
-	   } 
+	     fprintf(stderr,"livetime already seen - ");
+	     if(ptr->livetime==(value & 0x00ffffff)){//JW 19/6/17: check for duplicate (DAQ wrote same fragment data twice)
+	         fprintf(stderr,"duplicate, keeping fragment\n");
+	     }else{
+	         fprintf(stderr,"discarding fragment\n");
+	         /* debug_dump_event(evntbuf, evntbuflen, 0, 0); */ return(-1);
+	     }
+	   }else{
             ptr->livetime  = value & 0x00ffffff;
             ptr->livetime_flag++;
+     }
          } else if( subtype == 4 ){                /* triggers requested */
 	   if( ptr->trig_req_flag!=0){
 	     fprintf(stderr,"Event 0x%x: port %d, ", trigger_num, ptr->port );
-	     fprintf(stderr,"trigger requested already seen - discarding\n");
-	     /* debug_dump_event(evntbuf, evntbuflen, 0, 0); */ return(-1);
-	   }  
+	     fprintf(stderr,"trigger requested already seen - ");
+	     if(ptr->trig_req==(value & 0x00ffffff)){//JW 19/6/17: check for duplicate (DAQ wrote same fragment data twice)
+	         fprintf(stderr,"duplicate, keeping fragment\n");
+	     }else{
+	         fprintf(stderr,"discarding fragment\n");
+	         /* debug_dump_event(evntbuf, evntbuflen, 0, 0); */ return(-1);
+	     }
+	   }else{
            ptr->trig_req    = value & 0x00ffffff;
-	   ptr->trig_req_flag++;
+	         ptr->trig_req_flag++;
+	   }
          } else if( subtype == 8 ){                 /* accepted triggers */
 	   if( ptr->trig_acc!=0){
 	     fprintf(stderr,"Event 0x%x: port %d, ", trigger_num, ptr->port );
-	     fprintf(stderr,"trigger accept already seen - discarding\n");
-	     /* debug_dump_event(evntbuf, evntbuflen, 0, 0); */ return(-1);
-	   } 
+	     fprintf(stderr,"trigger accept already seen - ");
+	     if(ptr->trig_acc==(value & 0x00ffffff)){//JW 19/6/17: check for duplicate (DAQ wrote same fragment data twice)
+	         fprintf(stderr,"duplicate, keeping fragment\n");
+	     }else{
+	         fprintf(stderr,"discarding fragment\n");
+	         /* debug_dump_event(evntbuf, evntbuflen, 0, 0); */ return(-1);
+	     }
+	   }else{ 
             ptr->trig_acc     = value & 0x00ffffff;
             ptr->trig_acc_flag++;
+     }
          }
          break;
       case 0xb: 

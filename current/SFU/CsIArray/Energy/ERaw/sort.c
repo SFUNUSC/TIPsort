@@ -7,11 +7,11 @@ int analyze_data(raw_event *data)
 
   if(data->csiarray.h.Efold>0)
     for(pos=1;pos<NCSI;pos++)
-      if((data->csiarray.h.EHP&(one<<pos))!=0)
-	{
-	  e=data->csiarray.csi[pos].charge;
-	  if((e>=0) && (e<S32K)) hist[pos][e]++;
-	}
+      if((data->csiarray.h.THP&(one<<pos))!=0)
+				{
+					e=data->csiarray.csi[pos].charge;
+					if((e>=0) && (e<S32K)) hist[pos][e]++;
+				}
   return SEPARATOR_DISCARD;
 }
 /*==========================================================*/

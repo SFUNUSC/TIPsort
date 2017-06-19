@@ -23,6 +23,15 @@ int analyze_data(raw_event *data)
   
   flag_csi=0;
 
+	//check the number of hits, make sure there are at least 2
+	int numHits=0;
+	if(cev->csiarray.h.FT>0)
+    for(pos1=1;pos1<NCSI;pos1++) //look at each CsI position
+      if((cev->csiarray.h.THP&(one<<pos1))!=0) //is there a hit in the detector?
+      	numHits++;
+  if(numHits<2)
+  	return SEPARATOR_DISCARD; //don't keep events without enough hits
+
   //Given any number of CsI detector hits during the event, find the time at which 
   //the first and second hits occur.
   if(cev->csiarray.h.FT>0)
@@ -59,18 +68,18 @@ int analyze_data(raw_event *data)
   for(csi=1;csi<NCSI;csi++)
     if((data->csiarray.h.TSHP&(one<<csi))!=0)
       if((flag_csi&(one<<csi))==0)
-	{
-	  memset(&data->csiarray.csi[csi],0,sizeof(channel));
-	  memset(&data->csiarray.wfit[csi],0,sizeof(ShapePar));
-	  memset(&data->csiarray.t0[csi],0,sizeof(double));
-	  data->csiarray.h.Efold--;
-	  data->csiarray.h.Tfold--;	  
-	  data->csiarray.h.TSfold--;
-	  kill=none-(one<<csi);
-	  data->csiarray.h.TSHP&=kill;
-	  data->csiarray.h.EHP&=kill;
-	  data->csiarray.h.THP&=kill;
-	}
+				{
+					memset(&data->csiarray.csi[csi],0,sizeof(channel));
+					memset(&data->csiarray.wfit[csi],0,sizeof(ShapePar));
+					memset(&data->csiarray.t0[csi],0,sizeof(double));
+					data->csiarray.h.Efold--;
+					data->csiarray.h.Tfold--;	  
+					data->csiarray.h.TSfold--;
+					kill=none-(one<<csi);
+					data->csiarray.h.TSHP&=kill;
+					data->csiarray.h.EHP&=kill;
+					data->csiarray.h.THP&=kill;
+				}
   
   if(data->csiarray.h.TSfold<=0)
     {
@@ -84,6 +93,10 @@ int analyze_data(raw_event *data)
   
   if((data->h.setupHP&CsIArray_BIT)==0)
     return SEPARATOR_DISCARD;
+  
+  //check that there are 2 CsI events 
+  if(data->csiarray.h.TSfold<2)
+  	return SEPARATOR_DISCARD;
   
   encode(data,output,enb);
   

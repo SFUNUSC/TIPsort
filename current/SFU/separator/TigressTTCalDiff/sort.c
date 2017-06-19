@@ -132,6 +132,10 @@ int analyze_data(raw_event *data)
     //if((data->h.setupHP&RF_BIT)==0)
     //  return SEPARATOR_DISCARD; 
     
+    //check that there are 2 Tigress events 
+		if(data->tg.h.Gefold<2)
+			return SEPARATOR_DISCARD;
+    
     encode(data,output,enb);
     
     return SEPARATOR_DISCARD;

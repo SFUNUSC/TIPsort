@@ -3,6 +3,10 @@ all:
 	(cd Triggers r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: CHECK_TRIGGERS.
 	
+	echo Making check_EventTimeDifference.
+	(cd EventTimeDifference r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: CHECK_EventTimeDifference.
+	
 	echo Making check_TrigBits.
 	(cd TrigBits r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: CHECK_TRIGBITS.

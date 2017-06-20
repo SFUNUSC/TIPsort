@@ -255,7 +255,7 @@ void sort_and_assemble(char* inp_name,char* map_name)
       printf("\n Number of analyzed fragments is %8ld\n",dp->proc);
       printf("\n");
       /* analyze the last data assembly buffer */
-      for(int i=0;i<dp->trig-dp->first;i++)
+      for(int i=0;i<=dp->trig-dp->first;i++)
 				assemble_event(i,list,dp,&map);
       stop=1;
       break;
@@ -357,7 +357,7 @@ void sort_and_assemble_list(char* inp_name,char* map_name)
       /* close the midas list */
       fclose(midas_list);
       /* analyze the last data assembly buffer */
-      for(int i=0;i<dp->trig-dp->first;i++)
+      for(int i=0;i<=dp->trig-dp->first;i++)
 				assemble_event(i,list,dp,&map);
       stop=1;
       break;

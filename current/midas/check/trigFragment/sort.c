@@ -6,14 +6,14 @@ int analyze_fragment(Tig10_event* ptr, short* waveform)
 	if((ptr->trigger_num&0x0fffffff)==trig)
     {
   
-  printf("=========================================================\n");
-  printf("Trigger  number : %8d\n",ptr->trigger_num&0x0fffffff);
-  printf("           Port : %8d\n",ptr->port);
-  printf("          Tig10 : %8d\n",ptr->tig10);
-  printf("      Collector : %8d\n",ptr->collector);
-  printf("        Channel : %8d\n",ptr->channel);
-  printf("         Charge : %8d\n",ptr->charge);
-  printf("Waveform length : %8d\n",ptr->waveform_length);
+			printf("=========================================================\n");
+			printf("Trigger  number : %8d\n",ptr->trigger_num&0x0fffffff);
+			printf("           Port : %8d\n",ptr->port);
+			printf("          Tig10 : %8d\n",ptr->tig10);
+			printf("      Collector : %8d\n",ptr->collector);
+			printf("        Channel : %8d\n",ptr->channel);
+			printf("         Charge : %8d\n",ptr->charge);
+			printf("Waveform length : %8d\n",ptr->waveform_length);
   
   /*if(ptr->waveform_length!=0)
     {  

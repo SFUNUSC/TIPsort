@@ -5,6 +5,9 @@ int analyze_data(raw_event *data)
 	unsigned long long int min,max;
   if(verify_ts(data,&min,&max)>delta)
     {
+    	//display_raw_event(data);
+    	//getc(stdin);
+    	//printf("\n\n\n\n");
       numBadEvents++;
     }
   numEvents++;

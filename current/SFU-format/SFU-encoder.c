@@ -296,28 +296,28 @@ int encode(raw_event* data, FILE* encoded_output,int* enb)
 	}
       
       if(e[1]<BUFFSIZE-2)
-	{
-	  if((enb[1]+e[1])<BUFFSIZE) /* buffer has space */
-	    {
-	      memcpy(&enb[enb[1]],&e[0],e[1]*sizeof(int));
-	      enb[1]+=e[1];
-	    }
-	  else /* no space, save current and start a new buffer */
-	    {
-	      fwrite(enb,sizeof(int),BUFFSIZE,encoded_output);
-	      memset(enb,0,BUFFSIZE*sizeof(int));
-	      enb[0]=BUFFER_TAG;
-	      enb[1]++;
-	      enb[1]++;
-	      memcpy(&enb[enb[1]],&e[0],e[1]*sizeof(int));
-	      enb[1]+=e[1];
-	    }
-	}
+				{
+					if((enb[1]+e[1])<BUFFSIZE) /* buffer has space */
+						{
+							memcpy(&enb[enb[1]],&e[0],e[1]*sizeof(int));
+							enb[1]+=e[1];
+						}
+					else /* no space, save current and start a new buffer */
+						{
+							fwrite(enb,sizeof(int),BUFFSIZE,encoded_output);
+							memset(enb,0,BUFFSIZE*sizeof(int));
+							enb[0]=BUFFER_TAG;
+							enb[1]++;
+							enb[1]++;
+							memcpy(&enb[enb[1]],&e[0],e[1]*sizeof(int));
+							enb[1]+=e[1];
+						}
+				}
       else
-	{
-	  printf("Event dropped due to the length restriction\n");
-	  printf("Event length is 0x%8.8x\n",e[1]);
-	}
+				{
+					printf("Event dropped due to the length restriction\n");
+					printf("Event length is 0x%8.8x\n",e[1]);
+				}
     }
   return 0;
 }

@@ -39,7 +39,6 @@ int main(int argc, char *argv[])
       printf ("Sorting from a list: found extension %s\n", ext);
       sort_and_assemble_list(argv[1],argv[3]);
       printf("SUCCESS: assembled events from list %s into sfu file %s\n",argv[1],argv[2]);
-      return 0;
     }
   /* sort from a single midas file */
   else if(strcmp(ext,".mid")==0)
@@ -47,7 +46,6 @@ int main(int argc, char *argv[])
       printf ("Sorting from a midas file: found extension %s\n", ext);
       sort_and_assemble(argv[1],argv[3]);
       printf("SUCCESS: assembled events from midas file %s into sfu file %s\n",argv[1],argv[2]);
-      return 0;
     }
   else
     {
@@ -55,4 +53,9 @@ int main(int argc, char *argv[])
       printf("Input is list (ext .list) or single file (ext .mid)\n");
       exit(-2);
     }
+    
+  //write the last buffer
+  fwrite(enb,sizeof(int),BUFFSIZE,encoded_output);
+  return 0;
+  
 }

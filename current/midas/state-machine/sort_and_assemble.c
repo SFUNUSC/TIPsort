@@ -53,12 +53,12 @@ void assemble_event(int ind,node* list, data_pointers* dp,tmap* map)
       current=list[ind].next;
       //            frag=0;
       while(current->next!=NULL)
-	{
-	  //frag++;
-	  //printf("mapping fragment %d\n",frag);//getc(stdin);
-	  map_event(current->eptr,current->wptr,&data,map,dp->turn);
-	  current=current->next;
-	}
+	      {
+          //frag++;
+	        //printf("mapping fragment %d\n",frag);//getc(stdin);
+	        map_event(current->eptr,current->wptr,&data,map,dp->turn);
+	        current=current->next;
+	      }
       //frag++;
       //printf("mapping fragment %d\n",frag);//getc(stdin);
       map_event(current->eptr,current->wptr,&data,map,dp->turn);
@@ -256,7 +256,7 @@ void sort_and_assemble(char* inp_name,char* map_name)
       printf("\n");
       /* analyze the last data assembly buffer */
       for(int i=0;i<dp->trig-dp->first;i++)
-	assemble_event(i,list,dp,&map);
+				assemble_event(i,list,dp,&map);
       stop=1;
       break;
     default:
@@ -342,25 +342,23 @@ void sort_and_assemble_list(char* inp_name,char* map_name)
       /* read the name of the next input file */
       if(fscanf(midas_list,"%s",name)==EOF){ state = END_OF_SORT; }
       else
-	{
-	  /* open the next file */
-	  if((input=fopen(name,"r"))==NULL)
-	    {
-	      printf("\nI can't open input file %s\n",name);
-	      exit(-2);
-	    }
-	  /* sort next file */
-	  state = END_OF_RECORD;
-	}
+				{
+					/* open the next file */
+					if((input=fopen(name,"r"))==NULL)
+						{
+							printf("\nI can't open input file %s\n",name);
+							exit(-2);
+						}
+					/* sort next file */
+					state = END_OF_RECORD;
+				}
       break;
     case END_OF_SORT:
       /* close the midas list */
       fclose(midas_list);
       /* analyze the last data assembly buffer */
-      printf("dp_trig: %i, dp_first: %i\n",dp->trig,dp->first);
-      getc(stdin);
       for(int i=0;i<dp->trig-dp->first;i++)
-	assemble_event(i,list,dp,&map);
+				assemble_event(i,list,dp,&map);
       stop=1;
       break;
     default:

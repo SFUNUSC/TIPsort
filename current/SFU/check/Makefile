@@ -47,6 +47,14 @@ all:
 	(cd TimeStampDifference r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: CHECK_TIMESTAMPDIFFERENCE.
 	
+	echo Making check_TimeStampDeltaFraction.
+	(cd TimeStampDeltaFraction r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: CHECK_TIMESTAMPDeltaFraction.
+	
+	echo Making check_TimeStampDeltaFractionPerDetector.
+	(cd TimeStampDeltaFractionPerDetector r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: CHECK_TIMESTAMPDeltaFractionPerDetector.
+	
 	echo Making check_TimeGatedTrigger.
 	(cd TimeGatedTrigger r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: CHECK_TIMEGATEDTRIGGER.
@@ -67,6 +75,8 @@ clean:
 	(cd Fold2D_PIDERSum     && make -is clean && cd ..)
 	(cd FoldSum             && make -is clean && cd ..)
 	(cd TimeStampDifference && make -is clean && cd ..)
+	(cd TimeStampDeltaFraction && make -is clean && cd ..)
+	(cd TimeStampDeltaFractionPerDetector && make -is clean && cd ..)
 	(cd TimeGatedTrigger    && make -is clean && cd ..)
 	(cd CsIRingHP2D         && make -is clean && cd ..)
 

@@ -259,10 +259,14 @@ void display_rheader(rheader* d)
   printf("Event number                      %8d\n",d->trig_num&0x7fffffff);
   printf("Fragment fold                     %8d\n",d->frag_fold);
   printf("Trigger bits                      %8d 0x%8.8x\n",d->setupHP,d->setupHP);
-  printf("Time Stamp High Min               %8.8x\n",d->timestamp_up_min&0x00ffffff);
-  printf("Time Stamp High Max               %8.8x\n",d->timestamp_up_max&0x00ffffff);
-  printf("Time Stamp Low Min                %8.8x\n",d->timestamp_min&0x00ffffff);
-  printf("Time Stamp Low Max                %8.8x\n",d->timestamp_max&0x00ffffff);  ;
+  //printf("Time Stamp High Min               %8.8x\n",d->timestamp_up_min&0x00ffffff);
+  printf("Time Stamp High Min               %Li\n",d->timestamp_up_min);
+  //printf("Time Stamp High Max               %8.8x\n",d->timestamp_up_max&0x00ffffff);
+  printf("Time Stamp High Max               %Li\n",d->timestamp_up_max);
+  //printf("Time Stamp Low Min                %8.8x\n",d->timestamp_min&0x00ffffff);
+  printf("Time Stamp Low Min                %Li\n",d->timestamp_min);
+  //printf("Time Stamp Low Max                %8.8x\n",d->timestamp_max&0x00ffffff);
+  printf("Time Stamp Low Max                %Li\n",d->timestamp_max);  ;
   printf("Data for: ");
   for(int i=0;i<MAX_DET_BITS;i++)
     switch(d->setupHP&(1<<i))
@@ -299,7 +303,8 @@ void display_rheader(rheader* d)
 /*===============================================================*/
 void display_channel(int i,channel* d)
 {
-  printf(" %4d     %8.8x  %8.8x  %8.8x  %8.8x\n",i,d->timestamp_up&0x00ffffff,d->timestamp&0x00ffffff,d->cfd,d->charge);  
+  //printf(" %4d     %8.8x  %8.8x  %8.8x  %8.8x\n",i,d->timestamp_up&0x00ffffff,d->timestamp&0x00ffffff,d->cfd,d->charge);  
+  printf(" %4d     %.8Li  %.8Li  %.8Li  %.8Li\n",i,d->timestamp_up,d->timestamp,d->cfd,d->charge);  
 }
 /*===============================================================*/
 void display_RF(RF* d)

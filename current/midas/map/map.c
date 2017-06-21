@@ -418,18 +418,18 @@ void map_event(Tig10_event *ptr, short* waveform, raw_event *data,tmap* map,int 
   if(turn>-1)
     {
       if(data->h.frag_fold==0)
-	data->h.trig_num=(ptr->trigger_num&0x00ffffff)+turn*0x01000000;
+				data->h.trig_num=(ptr->trigger_num&0x00ffffff)+turn*0x01000000;
       else
-	{
-	  if(data->h.trig_num!=((ptr->trigger_num&0x00ffffff)+turn*0x01000000))
-	    {
-	      printf("Reconstruction error: inconsistent trigger number\n");
-	      printf("Event trigger number    %8d\n",(data->h.trig_num));
-	      printf("Fragment trigger number %8d\n",(ptr->trigger_num));
-	      printf("Sort forced to terminate\n");
-	      exit(0);
-	    }
-	}
+				{
+					if(data->h.trig_num!=((ptr->trigger_num&0x00ffffff)+turn*0x01000000))
+						{
+							printf("Reconstruction error: inconsistent trigger number\n");
+							printf("Event trigger number    %8d\n",(data->h.trig_num));
+							printf("Fragment trigger number %8d\n",(ptr->trigger_num));
+							printf("Sort forced to terminate\n");
+							exit(0);
+						}
+				}
     }
 
   data->h.frag_fold++;

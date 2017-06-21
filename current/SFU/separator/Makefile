@@ -15,9 +15,13 @@ all:
 	(cd TigressTTCalDiff r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Separator_TigressTTCalDiff.
 	
-	echo Making Separator_TigressCsITTCalFirstHitDiff.
-	(cd TigressCsITTCalFirstHitDiff r && make -is clean && make && make -is clean && cd ..)
-	echo DONE: Separator_TigressCsITTCalFirstHitDiff.
+	echo Making Separator_TigressTTCalDiff.
+	(cd TigressTTCalDiff r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: Separator_TigressTTCalDiff.
+	
+	echo Making Separator_TigressDropCore.
+	(cd TigressDropCore r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: Separator_TigressDropCore.
 	
 	echo Making Separator_CsITTCalDiff.
 	(cd CsITTCalDiff r && make -is clean && make && make -is clean && cd ..)
@@ -65,6 +69,7 @@ clean:
 	(cd TigressCsITTCalDiff && make -is clean && cd ..)
 	(cd TigressCsITTCalFirstHitDiff && make -is clean && cd ..)
 	(cd TigressTTCalDiff    && make -is clean && cd ..)
+	(cd TigressDropCore    && make -is clean && cd ..)
 	(cd CsITTCalDiff        && make -is clean && cd ..)
 	(cd CsIPIDER            && make -is clean && cd ..)
 	(cd CsIPIDER_Sum        && make -is clean && cd ..)

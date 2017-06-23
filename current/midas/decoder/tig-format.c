@@ -1,9 +1,24 @@
 #include "tig-format.h"
 
-
-int unpack_tig10_bank(int *data, int length, Tig10_event *ptr, int proc_wave, short* waveform)
+int get_trigger_from_table(int ts, int* tab,int numTrig)
 {
-  int type, subtype, value, trigger_num;
+	//printf("ts: %i\n",ts&0x0fffffff);
+	//for(int i=0;i<20;i++)
+	//  printf("%.5i   %.12i\n",i,tab[i]);
+	for(int i=0;i<numTrig;i++) //loop through trigger numbers
+		if(tab[i]==(ts&0x0fffffff))
+			{
+				//printf("Returning trigger: %i\n",i+1);
+				//getc(stdin);
+				return i+1;
+			}
+	//printf("WARNING: could not find timestamp value: %i.\n",ts);
+	return 0; //could not find appropriate trigger num
+}
+/*================================================================*/
+int unpack_tig10_bank(int *data, int length, Tig10_event *ptr, int proc_wave, short* waveform, int mapTS, int *tstable, int tstableSize)
+{
+   int type, subtype, value, trigger_num, found_trig;
    unsigned int *bankend = (unsigned *)data + length;
    unsigned int *evntbuf = (unsigned *)data;
    int *wave_len = NULL;
@@ -20,7 +35,7 @@ int unpack_tig10_bank(int *data, int length, Tig10_event *ptr, int proc_wave, sh
       value = *(evntbuf++) & 0x0fffffff;
       switch( type ){
       case 0x0: if( wave_len == NULL ){
-            fprintf(stderr,"Reconstruction error 0\n"); return(-1);
+            fprintf(stderr,"\nReconstruction error 0\n"); return(-1);
          }
 	//	printf("extracting waveforms\n");
 	 if( proc_wave )
@@ -46,12 +61,10 @@ int unpack_tig10_bank(int *data, int length, Tig10_event *ptr, int proc_wave, sh
 	break;           /*  trapeze data */
       case 0x4:                             /*      CFD Time */
         if( ptr->cfd_flag!=0 ){
-            fprintf(stderr,"Event 0x%x: port %d, ", trigger_num, ptr->port );
-            fprintf(stderr,"cfd already seen - ");
             if(ptr->cfd==(value & 0x00ffffff)){//JW 19/6/17: check for duplicate (DAQ wrote same fragment data twice)
-                fprintf(stderr,"duplicate, keeping fragment\n");
+                //fprintf(stderr,"\nEvent 0x%x: port %d, cfd already seen - duplicate, keeping fragment\n", trigger_num, ptr->port);
             }else{
-                fprintf(stderr,"discarding fragment\n");
+                fprintf(stderr,"\nEvent 0x%x: port %d, cfd already seen - discarding fragment\n", trigger_num, ptr->port);
                 /* debug_dump_event(evntbuf, evntbuflen, 0, 0); */ return(-1);
             }
         }else{ 
@@ -61,15 +74,12 @@ int unpack_tig10_bank(int *data, int length, Tig10_event *ptr, int proc_wave, sh
 	break;
       case 0x5:                             /*        Charge */
          if( ptr->charge_flag!=0){
-            fprintf(stderr,"Event 0x%x: port %d, ", trigger_num, ptr->port );
-            fprintf(stderr,"charge already seen - ");
 	          if(ptr->charge==(value & 0x00ffffff)){//JW 19/6/17: check for duplicate (DAQ wrote same fragment data twice)
-	              fprintf(stderr,"duplicate, keeping fragment\n");
 	          }else{
 	              if((value & 0x02000000)&&(ptr->charge == NEG_CHARGE_VALUE)){
-	                  fprintf(stderr,"duplicate, keeping fragment\n");
+	                  //fprintf(stderr,"\nEvent 0x%x: port %d, charge already seen - duplicate, keeping fragment\n", trigger_num, ptr->port);
 	              }else{
-	                  fprintf(stderr,"discarding fragment\n");
+	                  fprintf(stderr,"\nEvent 0x%x: port %d, charge already seen - discarding fragment\n", trigger_num, ptr->port);
 	                  /* debug_dump_event(evntbuf, evntbuflen, 0, 0); */ return(-1);
 	              }
 	          }
@@ -97,12 +107,10 @@ int unpack_tig10_bank(int *data, int length, Tig10_event *ptr, int proc_wave, sh
          break;
       case 0x6:                             /*      LED Time */
         if( ptr->led_flag!=0 ){
-            fprintf(stderr,"Event 0x%x: port %d, ", trigger_num, ptr->port );
-            fprintf(stderr,"led already seen - ");
 	          if(ptr->led==(value & 0x00ffffff)){//JW 19/6/17: check for duplicate (DAQ wrote same fragment data twice)
-	              fprintf(stderr,"duplicate, keeping fragment\n");
+	              //fprintf(stderr,"\nEvent 0x%x: port %d, led already seen - duplicate, keeping fragment\n", trigger_num, ptr->port);
 	          }else{
-	              fprintf(stderr,"discarding fragment\n");
+	              fprintf(stderr,"\nEvent 0x%x: port %d, led already seen - discarding fragment\n", trigger_num, ptr->port);
 	              /* debug_dump_event(evntbuf, evntbuflen, 0, 0); */ return(-1);
 	          }
          }else{
@@ -115,26 +123,28 @@ int unpack_tig10_bank(int *data, int length, Tig10_event *ptr, int proc_wave, sh
       case 0xa:
          if( subtype == 0 ){                            /*    Time Stamp */
 	   if( ptr->timestamp_flag!=0){
-	     fprintf(stderr,"Event 0x%x: port %d, ", trigger_num, ptr->port );
-	     fprintf(stderr,"time stamp already seen - ");
 	     if(ptr->timestamp==(value & 0x00ffffff)){//JW 19/6/17: check for duplicate (DAQ wrote same fragment data twice)
-	         fprintf(stderr,"duplicate, keeping fragment\n");
+	         //fprintf(stderr,"\nEvent 0x%x: port %d, time stamp already seen - duplicate, keeping fragment\n", trigger_num, ptr->port);
 	     }else{
-	         fprintf(stderr,"discarding fragment\n");
+	         fprintf(stderr,"\nEvent 0x%x: port %d, time stamp already seen - discarding fragment\n", trigger_num, ptr->port);
 	         /* debug_dump_event(evntbuf, evntbuflen, 0, 0); */ return(-1);
 	     }
-	   }else{ 
+	   }else{
            ptr->timestamp  = value & 0x00ffffff;
+           if(mapTS) //map triggers based on timestamp
+             {
+	             found_trig = get_trigger_from_table(ptr->timestamp,tstable,tstableSize);
+	             if(found_trig!=0) //check whether finding the trigger num failed
+	               ptr->trigger_num = found_trig;
+	           }
 	         ptr->timestamp_flag++;
 	   }
          } else if( subtype == 1 ){              /* timestamp upper bits */
 	   if( ptr->timestamp_up_flag!=0){
-	     fprintf(stderr,"Event 0x%x: port %d, ", trigger_num, ptr->port );
-	     fprintf(stderr,"time stamp up already seen - ");
 	     if(ptr->timestamp_up==(value & 0x00ffffff)){//JW 19/6/17: check for duplicate (DAQ wrote same fragment data twice)
-	         fprintf(stderr,"duplicate, keeping fragment\n");
+	         //fprintf(stderr,"\nEvent 0x%x: port %d, time stamp up already seen - duplicate, keeping fragment\n", trigger_num, ptr->port);
 	     }else{
-	         fprintf(stderr,"discarding fragment\n");
+	         fprintf(stderr,"\nEvent 0x%x: port %d, time stamp up already seen - discarding fragment\n", trigger_num, ptr->port);
 	         /* debug_dump_event(evntbuf, evntbuflen, 0, 0); */ return(-1);
 	     }
 	   }else{ 
@@ -143,12 +153,10 @@ int unpack_tig10_bank(int *data, int length, Tig10_event *ptr, int proc_wave, sh
 	   }
          } else if( subtype == 2 ){                          /* livetime */
 	   if( ptr->livetime_flag!=0){
-	     fprintf(stderr,"Event 0x%x: port %d, ", trigger_num, ptr->port );
-	     fprintf(stderr,"livetime already seen - ");
 	     if(ptr->livetime==(value & 0x00ffffff)){//JW 19/6/17: check for duplicate (DAQ wrote same fragment data twice)
-	         fprintf(stderr,"duplicate, keeping fragment\n");
+	         //fprintf(stderr,"\nEvent 0x%x: port %d, livetime already seen - duplicate, keeping fragment\n", trigger_num, ptr->port);
 	     }else{
-	         fprintf(stderr,"discarding fragment\n");
+	         fprintf(stderr,"\nEvent 0x%x: port %d, livetime already seen - discarding fragment\n", trigger_num, ptr->port);
 	         /* debug_dump_event(evntbuf, evntbuflen, 0, 0); */ return(-1);
 	     }
 	   }else{
@@ -157,12 +165,10 @@ int unpack_tig10_bank(int *data, int length, Tig10_event *ptr, int proc_wave, sh
      }
          } else if( subtype == 4 ){                /* triggers requested */
 	   if( ptr->trig_req_flag!=0){
-	     fprintf(stderr,"Event 0x%x: port %d, ", trigger_num, ptr->port );
-	     fprintf(stderr,"trigger requested already seen - ");
 	     if(ptr->trig_req==(value & 0x00ffffff)){//JW 19/6/17: check for duplicate (DAQ wrote same fragment data twice)
-	         fprintf(stderr,"duplicate, keeping fragment\n");
+	         //fprintf(stderr,"\nEvent 0x%x: port %d, trigger requested already seen - duplicate, keeping fragment\n", trigger_num, ptr->port);
 	     }else{
-	         fprintf(stderr,"discarding fragment\n");
+	         fprintf(stderr,"\nEvent 0x%x: port %d, trigger requested already seen - discarding fragment\n", trigger_num, ptr->port);
 	         /* debug_dump_event(evntbuf, evntbuflen, 0, 0); */ return(-1);
 	     }
 	   }else{
@@ -171,12 +177,10 @@ int unpack_tig10_bank(int *data, int length, Tig10_event *ptr, int proc_wave, sh
 	   }
          } else if( subtype == 8 ){                 /* accepted triggers */
 	   if( ptr->trig_acc!=0){
-	     fprintf(stderr,"Event 0x%x: port %d, ", trigger_num, ptr->port );
-	     fprintf(stderr,"trigger accept already seen - ");
 	     if(ptr->trig_acc==(value & 0x00ffffff)){//JW 19/6/17: check for duplicate (DAQ wrote same fragment data twice)
-	         fprintf(stderr,"duplicate, keeping fragment\n");
+	         //fprintf(stderr,"\nEvent 0x%x: port %d, trigger accept already seen - duplicate, keeping fragment\n", trigger_num, ptr->port);
 	     }else{
-	         fprintf(stderr,"discarding fragment\n");
+	         fprintf(stderr,"\nEvent 0x%x: port %d, trigger accept already seen - discarding fragment\n", trigger_num, ptr->port);
 	         /* debug_dump_event(evntbuf, evntbuflen, 0, 0); */ return(-1);
 	     }
 	   }else{ 
@@ -200,9 +204,9 @@ int unpack_tig10_bank(int *data, int length, Tig10_event *ptr, int proc_wave, sh
  	 break;
       case 0xe: break;                                    /* Event Trailer */
       case 0xf:                                     /* EventBuilder Timeout*/
-                fprintf(stderr,"Reconstruction error 3\n"); return(-1);
+                fprintf(stderr,"\nReconstruction error 3\n"); return(-1);
       default:  
-	fprintf(stderr,"Reconstruction error 4\n"); 
+	fprintf(stderr,"\nReconstruction error 4\n"); 
 	printf("=========================================================\n");
 	printf("Trigger  number : %8d\n",ptr->trigger_num&0x0fffffff);
 	printf("           Port : %8d\n",ptr->port);
@@ -215,6 +219,12 @@ int unpack_tig10_bank(int *data, int length, Tig10_event *ptr, int proc_wave, sh
       }
    }
    return(0); 
+}
+/*================================================================*/
+//unpack without using a timestamp lookup table
+int unpack_tig10_bank(int *data, int length, Tig10_event *ptr, int proc_wave, short* waveform)
+{
+	return unpack_tig10_bank(data,length,ptr,proc_wave,waveform,0,NULL,0);
 }
 /*================================================================*/
 void print_fragment_info(Tig10_event *ptr,int time_offset)

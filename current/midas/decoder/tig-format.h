@@ -42,6 +42,7 @@ typedef struct tig10_event_struct {
 } Tig10_event;
 
 
+int unpack_tig10_bank(int *, int, Tig10_event *, int, short*,int,int*,int);
 int unpack_tig10_bank(int *, int, Tig10_event *, int, short*);
 void print_fragment_info(Tig10_event*,int);
 #endif

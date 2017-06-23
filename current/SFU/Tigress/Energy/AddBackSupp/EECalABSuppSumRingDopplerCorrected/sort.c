@@ -64,6 +64,7 @@ int analyze_data(raw_event *data)
 		
 		//get energy for the first position
 		e1=(int)rint(cev->tg.det[pos1].addback.E/cal_par->tg.contr_e);
+		e1/=cntr;
 		colAddBack = cev->tg.det[pos1].addbackC;
 		if(cev->tg.det[pos1].ge[colAddBack].ring<NRING)
 	     e1=e1*dshift[cev->tg.det[pos1].ge[colAddBack].ring];
@@ -104,6 +105,7 @@ int analyze_data(raw_event *data)
 			    
 			    //get energy for the second position
 			    e2=(int)rint(cev->tg.det[pos2].addback.E/cal_par->tg.contr_e);
+			    e2/=cntr;
 			    colAddBack = cev->tg.det[pos2].addbackC;
 			    if(cev->tg.det[pos2].ge[colAddBack].ring<NRING)
 	     			e2=e2*dshift[cev->tg.det[pos2].ge[colAddBack].ring];
@@ -140,9 +142,10 @@ int main(int argc, char *argv[])
   char n[132];
   char title[132];
 
-  if(argc!=5)
+  if((argc!=5)&&(argc!=6))
     {
-      printf("TIGRESS_EECalABSuppSumRingDopplerCorrected master_file_name supLow supHigh shift_file\n");
+      printf("TIGRESS_EECalABSuppSumRingDopplerCorrected master_file_name supLow supHigh shift_file contraction\n");
+      printf("The energy contraction is an optional parameter.\n");
       exit(-1);
     }
   
@@ -156,6 +159,13 @@ int main(int argc, char *argv[])
   read_master(argv[1],name);
   supLow=atof(argv[2]);
   supHigh=atof(argv[3]);
+  if(argc==6)
+  	{
+  		cntr=atof(argv[5]);
+  		printf("Using an energy contraction factor of %f\n",cntr);
+  	}
+  else
+  	cntr=1.;
 
   h = new TH2D("Tigress EECalABSupp Sum","Tigress EECalABSuppSum",S1K,0,S4K-1,S1K,0,S4K-1);
   h->Reset();

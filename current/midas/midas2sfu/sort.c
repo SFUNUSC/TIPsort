@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 
   if((encoded_output=fopen(argv[2],"w"))==NULL)
     {
-      printf("ERROR!!! I can't open %s for writing!\n",argv[2]);
+      printf("ERROR: File %s cannot be opened for writing.\n",argv[2]);
       exit(-2);
     }
 
@@ -36,20 +36,20 @@ int main(int argc, char *argv[])
   /* sort from a list of midas files */
   if(strcmp(ext,".list")==0)
     {
-      printf ("Sorting from a list: found extension %s\n", ext);
+      printf ("-> Sorting from a list: found extension %s\n", ext);
       sort_and_assemble_list(argv[1],argv[3]);
       printf("SUCCESS: assembled events from list %s into sfu file %s\n",argv[1],argv[2]);
     }
   /* sort from a single midas file */
   else if(strcmp(ext,".mid")==0)
     {
-      printf ("Sorting from a midas file: found extension %s\n", ext);
+      printf ("-> Sorting from a midas file: found extension %s\n", ext);
       sort_and_assemble(argv[1],argv[3]);
       printf("SUCCESS: assembled events from midas file %s into sfu file %s\n",argv[1],argv[2]);
     }
   else
     {
-      printf ("ERROR!!! Imporoper midas file source extension.\n");
+      printf ("ERROR: Imporoper midas file source extension.\n");
       printf("Input is list (ext .list) or single file (ext .mid)\n");
       exit(-2);
     }

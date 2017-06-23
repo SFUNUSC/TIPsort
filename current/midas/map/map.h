@@ -61,6 +61,7 @@ int  s3_sec[5][10];
 int  s3_ring[4][10];
 int  s3_gid[10];
 int  s3_ord[10];
+int ts_order;//whether or not to order events by timestamp (rather than trigger number)
 } tmap;
 
 const int tigr_css_group=60;

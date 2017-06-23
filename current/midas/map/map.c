@@ -84,35 +84,50 @@ void read_map(char* name,tmap* map)
   
   if((inp=fopen(name,"r"))==NULL)
       {
-         printf("\nFile %s can not be opened\n",name);
+         printf("\nERROR: map file %s can not be opened\n",name);
          exit(EXIT_FAILURE);
       }
   else
-    printf("TDAQ map read from file %s\n",name);
+    printf("-> TDAQ map read from file: %s\n",name);
 
   //initialize map to -1 to avoid mis-labeling channels
   memset(map,-1,sizeof(tmap));
 
   while(fscanf(inp,"%s %s",str1,str2)!=EOF)
     {
+    
+    	if(strcmp(str1,"TIMESTAMP_ORDER")==0)
+			{
+				if(strcmp(str2,"YES")==0)
+					{
+						printf("-> Events will be mapped based on timestamps.\n");
+						map->ts_order=1;
+					}
+				else
+					{
+						printf("-> Events will be mapped based on trigger number.\n");
+						map->ts_order=0;
+					}
+			}
+    
       if(strcmp(str1,"PINBD")==0)
-	if(strcmp(str2,"PARAMETERS")==0)
-	  if(fscanf(inp,"%s %s",str1,str2)!=EOF)
-	    if(strcmp(str1,"CHANNEL")==0)
-	      map->pinbd=atoi(str2);
+				if(strcmp(str2,"PARAMETERS")==0)
+					if(fscanf(inp,"%s %s",str1,str2)!=EOF)
+						if(strcmp(str1,"CHANNEL")==0)
+							map->pinbd=atoi(str2);
  
      if(strcmp(str1,"RF")==0)
-	if(strcmp(str2,"PARAMETERS")==0)
-	  {
-	    if(fscanf(inp,"%s %s",str1,str2)!=EOF)
-	      if(strcmp(str1,"CHANNEL")==0)
-		map->rf=atoi(str2);
-	    if(fscanf(inp,"%s %s",str1,str2)!=EOF)
-	      if(strcmp(str1,"PERIOD")==0)
-		map->rf_period=atof(str2);
-	    //printf("RF channel %d RF period %f\n",map->rf,map->rf_period);
-	    //getc(stdin);
-	  }
+			if(strcmp(str2,"PARAMETERS")==0)
+				{
+					if(fscanf(inp,"%s %s",str1,str2)!=EOF)
+					  if(strcmp(str1,"CHANNEL")==0)
+							map->rf=atoi(str2);
+					if(fscanf(inp,"%s %s",str1,str2)!=EOF)
+					  if(strcmp(str1,"PERIOD")==0)
+							map->rf_period=atof(str2);
+					//printf("RF channel %d RF period %f\n",map->rf,map->rf_period);
+					//getc(stdin);
+				}
 
     if(strcmp(str1,"TIGRESS")==0)
 	if(strcmp(str2,"CHANNEL")==0)
@@ -310,12 +325,12 @@ void read_map(char* name,tmap* map)
 		if(strcmp(str2,"Position")==0)
 		  while(take==1)
 		      if(fscanf(inp,"%s %s",str1,str2)!=EOF)
-			{
-			  if((strcmp(str1,"END")==0)||(strcmp(str1,"MAP")==0))
-			    take=0;
-			  else
-			    map->csiarray_map[atoi(str1)]=atoi(str2);
-			}
+						{
+							if((strcmp(str1,"END")==0)||(strcmp(str1,"MAP")==0))
+								take=0;
+							else
+								map->csiarray_map[atoi(str1)]=atoi(str2);
+						}
 	  }
 
      if(strcmp(str1,"S3")==0)
@@ -382,27 +397,27 @@ void read_map(char* name,tmap* map)
 		   }
        }
 
-     if(strcmp(str1,"RINGMAP")==0)
-       {
-	 ord=atoi(str2);
-	 if(fscanf(inp,"%s %s",str1,str2)!=EOF)
-	   if(strcmp(str1,"Channel")==0)
-	     if(strcmp(str2,"Ring")==0)
-	       while(take==1)
-		 if(fscanf(inp,"%s %s",str1,str2)!=EOF)
-		   {
-		     if((strcmp(str1,"END")==0)||(strcmp(str1,"MAP")==0))
-		       take=0;
-		     else
-		       {
-			 map->s3_ring[ord][atoi(str1)]=atoi(str2);
-		       }
-		   }
-       }
+		if(strcmp(str1,"RINGMAP")==0)
+			{
+				ord=atoi(str2);
+				if(fscanf(inp,"%s %s",str1,str2)!=EOF)
+					if(strcmp(str1,"Channel")==0)
+						if(strcmp(str2,"Ring")==0)
+							while(take==1)
+								if(fscanf(inp,"%s %s",str1,str2)!=EOF)
+									{
+										if((strcmp(str1,"END")==0)||(strcmp(str1,"MAP")==0))
+											take=0;
+										else
+											{
+												map->s3_ring[ord][atoi(str1)]=atoi(str2);
+											}
+									}
+			}
       
     }
   fclose(inp);
-  print_map(map);
+  //print_map(map);
 }
 /*======================================================================*/
 void map_event(Tig10_event *ptr, short* waveform, raw_event *data,tmap* map,int turn)

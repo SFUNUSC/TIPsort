@@ -20,6 +20,7 @@ calibration_parameters* cal_par;
 double  tlow,thigh;
 double supLow,supHigh;
 int colAddBack;
+double cntr;
 
 double dshift[NRING+1];
 char str[256];

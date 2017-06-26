@@ -38,75 +38,6 @@ void remove_event(int ind, node* list)
  
 }
 /*================================================================*/
-void generate_timestamp_table(int* tab, node* list,data_pointers* dp)
-{
-
-	node* current;
-	int tsize;
-	int maxNumTS=60;
-	int modeVal,modeNum;
-	int countNum;
-	int tsval;
-	
-	int *vals=(int*)malloc(maxNumTS*sizeof(int));
-	if(vals==NULL)
-		{
-			printf("ERROR: Could not allocate memory for timestamp value array!\n");
-			exit(-2);
-		}
-
-	for(int i=1;i<=dp->trig-dp->first;i++) //loop through trigger numbers
-		{
-			if(list[i].next!=NULL)
-				{
-					tsize=0;
-					memset(vals,0,maxNumTS*sizeof(int));
-					current=list[i].next;
-					while(current->next!=NULL)
-	      		{
-	      			//record the timestamp value
-	      			if(tsize<maxNumTS)
-	      				{
-	      					tsval=current->eptr->timestamp&0x0fffffff;
-			    				vals[tsize]=tsval;
-			    				//printf("Trigger #%i, node#%i, ts: %i\n",current->eptr->trigger_num&0x0fffffff,tsize,vals[tsize]);
-			    				tsize++;
-	      				}
-	      			current=current->next;
-	      			
-	      		}
-	      		
-	      	//find the mode of the timestamp values
-	      	modeNum=0;
-	      	modeVal=0;
-	      	for(int j=0;j<tsize;j++)//loop through timestamp array
-	      		{
-	      			//printf("node#%i ts array value: %i\n",j,vals[j]);
-	      			if((vals[j]!=modeVal)||(j==0))
-	      				{
-	      					countNum=0;
-	      					for(int k=0;k<tsize;k++)//loop through timestamp array
-	      						if(vals[k]==vals[j])
-	      							countNum++;
-	      					if(countNum>modeNum)
-	      						{
-	      							modeNum=countNum;
-	      							modeVal=vals[j];
-	      						}
-	      				}
-	      		}
-	      	
-	      	//set the mode as the proper timestamp for the trigger
-	      	tab[i-1]=modeVal;
-	      	//printf("Trigger #%i, tsize: %i, modeVal: %i, modeNum: %i\n",i,tsize,modeVal,modeNum);
-	      	//if(modeNum!=tsize)
-	      	//	getc(stdin);
-				}
-		}
-		
-	free(vals);
-}
-/*================================================================*/
 void assemble_event(int ind,node* list, data_pointers* dp,tmap* map)
 {
   node* current;
@@ -242,7 +173,7 @@ void add_tig10_event(Tig10_event *ptr,short* waveform,node* list, data_pointers 
 }
 
 /*================================================================*/
-int get_and_assemble_fragments(node* list, data_pointers* dp,tmap* map,int mapTS,int *tstable,int tstableSize)
+int get_and_assemble_fragments(node* list, data_pointers* dp,tmap* map,int mapTS,ts_table* t)
 {
    int *bank_data, items;
    char *bank_name;
@@ -256,7 +187,7 @@ int get_and_assemble_fragments(node* list, data_pointers* dp,tmap* map,int mapTS
       //      fprintf(stdout,"bank:%s length:%d\n", bank_name, items);
       if( strcmp(bank_name,"WFDN") ){ continue; } /* ignore other banks */
       swapInt( (char *)bank_data, items*sizeof(int) );
-      unpack_tig10_bank( bank_data, items, &tig10_event, process_waveforms,waveform,mapTS,tstable,tstableSize);
+      unpack_tig10_bank( bank_data, items, &tig10_event, process_waveforms,waveform,mapTS,t);
       add_tig10_event( &tig10_event,waveform,list,dp,map);
    }
    return(-1); /* go to next event */
@@ -265,7 +196,7 @@ int get_and_assemble_fragments(node* list, data_pointers* dp,tmap* map,int mapTS
 //Assemble fragments without remapping trigger numbers based on timestamp
 int get_and_assemble_fragments(node* list, data_pointers* dp,tmap* map)
 {
-	return get_and_assemble_fragments(list,dp,map,0,NULL,0);
+	return get_and_assemble_fragments(list,dp,map,0,NULL);
 }
 /*================================================================*/
 void sort_and_assemble(char* inp_name,char* map_name)
@@ -276,9 +207,12 @@ void sort_and_assemble(char* inp_name,char* map_name)
   static tmap    map;
   data_pointers* dp=NULL;
   node*          list;
-  int*      tstable; //lookup table mapping trigger numbers to timestamps
+  ts_table*      tstable; //lookup table mapping trigger numbers to timestamps
   int i;
   int num_trig; //the number of triggers
+
+	
+ 
  
  /* open the input file*/
   if((input=fopen(inp_name,"r"))==NULL)
@@ -310,8 +244,25 @@ void sort_and_assemble(char* inp_name,char* map_name)
     }
  /* get the map */
   read_map(map_name,&map);
- 
- 	printf("-> Getting and assembling fragments ...\n");
+  
+  if(map.ts_order)
+  	{
+			tstable=(ts_table*)malloc(sizeof(ts_table));
+			printf("-> Generating timestamp table ...\n");
+			tstable->tableSize=0;
+			tstable->allocatedSize=5000000;
+			tstable->table=(int*)malloc(5000000*sizeof(int));
+			if(tstable->table==NULL)
+			{
+				printf("ERROR: Could not allocate memory for timestamp table!\n");
+				exit(-2);
+			}
+		}
+	else
+		{
+			printf("-> Getting and assembling fragments ...\n");
+		}
+ 	
   while(stop==0){
     switch(state){
     case END_OF_RECORD:
@@ -323,29 +274,29 @@ void sort_and_assemble(char* inp_name,char* map_name)
       else { state = GET_FRAGMENTS; }
       break;
     case GET_FRAGMENTS:
-      if( get_and_assemble_fragments(list,dp,&map) < 0 ){ state = NEXT_EVENT;}
-      else { state = GET_FRAGMENTS;  }
+    	if(map.ts_order)
+    		{
+    			//timestamp mapping specified by "-1" argument
+		  		if( get_and_assemble_fragments(list,dp,&map,-1,tstable) < 0 ){ state = NEXT_EVENT;}
+		    	else { state = GET_FRAGMENTS;  }
+    		}
+    	else
+    		{
+    			if( get_and_assemble_fragments(list,dp,&map) < 0 ){ state = NEXT_EVENT;}
+      		else { state = GET_FRAGMENTS;  }
+    		}
       break;
     case END_OF_FILE:
       fclose(input);
       num_trig=dp->trig-dp->first;
       printf("\n-> Total number of assembled fragments is %8ld, corresponding to %8ld triggers.\n",dp->proc,num_trig);
       
-      //If neccesary, generate the lookup table and remap events based on timestamp
       if(map.ts_order)
       	{
-      		printf("-> Generating trigger-timestamp map ...\n");
- 					tstable=(int*)malloc(num_trig*sizeof(int));
- 					if(tstable==NULL)
- 						{
- 							printf("ERROR: Could not allocate memory for lookup table!\n");
- 							exit(-2);
- 						}
- 					generate_timestamp_table(tstable,list,dp);
- 					printf("-> Map generated ...\n");
+ 					printf("-> Timestamp table generated, contains %8i unique timestamps.\n",tstable->tableSize);
  					/*printf("EVENT#     TIMESTAMP\n");
 					for(int i=1;i<=20;i++)
-						printf("%.5i   %.12i\n",i,tstable[i]);
+						printf("%.5i   %.12i\n",i,tstable->table[i]);
 					for(int i=0;i<3;i++)
 						printf("    .              .\n");*/
  				}
@@ -419,7 +370,7 @@ void sort_and_assemble(char* inp_name,char* map_name)
 				  break;
 				case GET_FRAGMENTS:
 				  //trigger number correction is here
-				  if( get_and_assemble_fragments(list,dp,&map,1,tstable,num_trig) < 0 ){ state = NEXT_EVENT;}
+				  if( get_and_assemble_fragments(list,dp,&map,1,tstable) < 0 ){ state = NEXT_EVENT;}
 				  else { state = GET_FRAGMENTS;  }
 				  break;
 				case END_OF_FILE:
@@ -459,9 +410,11 @@ void sort_and_assemble_list(char* inp_name,char* map_name)
   static tmap    map;
   data_pointers* dp=NULL;
   node*          list;
-  int*      tstable; //lookup table mapping trigger numbers to timestamps
+  ts_table*      tstable; //lookup table mapping trigger numbers to timestamps
   int i;
   int num_trig; //the number of triggers
+  
+  tstable=(ts_table*)malloc(sizeof(ts_table));
  
   /* open the list of midas files */
   if((midas_list=fopen(inp_name,"r"))==NULL)
@@ -504,7 +457,24 @@ void sort_and_assemble_list(char* inp_name,char* map_name)
   /* get the map */
   read_map(map_name,&map);
  
- 	printf("-> Getting and assembling fragments ...\n");
+ 	if(map.ts_order)
+  	{
+			tstable=(ts_table*)malloc(sizeof(ts_table));
+			printf("-> Generating timestamp table ...\n");
+			tstable->tableSize=0;
+			tstable->allocatedSize=5000000;
+			tstable->table=(int*)malloc(5000000*sizeof(int));
+			if(tstable->table==NULL)
+			{
+				printf("ERROR: Could not allocate memory for timestamp table!\n");
+				exit(-2);
+			}
+		}
+	else
+		{
+			printf("-> Getting and assembling fragments ...\n");
+		}
+		
   while(stop==0){
     switch(state){
     case END_OF_RECORD:
@@ -516,8 +486,17 @@ void sort_and_assemble_list(char* inp_name,char* map_name)
       else { state = GET_FRAGMENTS; }
       break;
     case GET_FRAGMENTS:
-      if( get_and_assemble_fragments(list,dp,&map) < 0 ){ state = NEXT_EVENT;}
-      else { state = GET_FRAGMENTS;  }
+    	if(map.ts_order)
+    		{
+    			//timestamp mapping specified by "-1" argument
+		  		if( get_and_assemble_fragments(list,dp,&map,-1,tstable) < 0 ){ state = NEXT_EVENT;}
+		    	else { state = GET_FRAGMENTS;  }
+    		}
+    	else
+    		{
+    			if( get_and_assemble_fragments(list,dp,&map) < 0 ){ state = NEXT_EVENT;}
+      		else { state = GET_FRAGMENTS;  }
+    		}
       break;
     case END_OF_FILE:
       fclose(input);
@@ -542,21 +521,12 @@ void sort_and_assemble_list(char* inp_name,char* map_name)
       
       num_trig=dp->trig-dp->first;
       
-      //If neccesary, generate the lookup table and remap events based on timestamp
       if(map.ts_order)
       	{
-      		printf("-> Generating trigger-timestamp map ...\n");
- 					tstable=(int*)malloc(num_trig*sizeof(int));
- 					if(tstable==NULL)
- 						{
- 							printf("ERROR: Could not allocate memory for lookup table!\n");
- 							exit(-2);
- 						}
- 					generate_timestamp_table(tstable,list,dp);
- 					printf("-> Map generated ...\n");
+ 					printf("-> Timestamp table generated, contains %8i unique timestamps.\n",tstable->tableSize);
  					/*printf("EVENT#     TIMESTAMP\n");
 					for(int i=1;i<=20;i++)
-						printf("%.5i   %.12i\n",i,tstable[i]);
+						printf("%.5i   %.12i\n",i,tstable->table[i]);
 					for(int i=0;i<3;i++)
 						printf("    .              .\n");*/
  				}
@@ -642,7 +612,7 @@ void sort_and_assemble_list(char* inp_name,char* map_name)
 				  break;
 				case GET_FRAGMENTS:
 					//trigger number correction is here
-				  if( get_and_assemble_fragments(list,dp,&map,1,tstable,num_trig) < 0 ){ state = NEXT_EVENT;}
+				  if( get_and_assemble_fragments(list,dp,&map,1,tstable) < 0 ){ state = NEXT_EVENT;}
 				  else { state = GET_FRAGMENTS;  }
 				  break;
 				case END_OF_FILE:

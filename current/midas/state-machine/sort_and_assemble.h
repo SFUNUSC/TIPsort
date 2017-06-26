@@ -45,7 +45,7 @@ void assemble_event(int,node*, data_pointers*,tmap*);
 void add_tig10_event(Tig10_event*,short*,node*,data_pointers*,tmap*);
 void sort_and_assemble(char*,char*);
 void sort_and_assemble_list(char*,char*);
-int  get_and_assemble_fragments(node*,data_pointers*,tmap*,int,int*,int);
+int  get_and_assemble_fragments(node*,data_pointers*,tmap*,int,ts_table*);
 int  get_and_assemble_fragments(node*,data_pointers*,tmap*);
 
 

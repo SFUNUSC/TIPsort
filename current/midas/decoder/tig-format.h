@@ -41,8 +41,14 @@ typedef struct tig10_event_struct {
    int                livetime;
 } Tig10_event;
 
+typedef struct ts_table
+{
+	int tableSize; //number of entries in the table
+	int allocatedSize; //number of entries allocated in memory
+  int*      table; //lookup table mapping trigger numbers to timestamps
+}ts_table;
 
-int unpack_tig10_bank(int *, int, Tig10_event *, int, short*,int,int*,int);
+int unpack_tig10_bank(int *, int, Tig10_event *, int, short*,int,ts_table*);
 int unpack_tig10_bank(int *, int, Tig10_event *, int, short*);
 void print_fragment_info(Tig10_event*,int);
 #endif

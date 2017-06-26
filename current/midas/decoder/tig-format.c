@@ -1,22 +1,59 @@
 #include "tig-format.h"
 
-int get_trigger_from_table(int ts, int* tab,int numTrig)
+
+void add_timestamp_to_table(int ts, ts_table* t)
 {
-	//printf("ts: %i\n",ts&0x0fffffff);
+	if(t->tableSize>=t->allocatedSize)
+		{
+			printf("WARNING: allocated timestamp table size exceeded by data!\n");
+			return;
+		}
+		
+	//check if the timestamp is already in the table
+	//search backwards since if there is a duplicate it is most likely the previous entry
+	for(int i=t->tableSize-1;i>=0;i--)
+  	{
+  		if(t->table[i]==ts)
+  			return;
+  	}
+  	
+  //add the timestamp to the table
+	t->table[t->tableSize]=ts;
+	t->tableSize++;
+	
+	return;
+}
+/*================================================================*/
+int get_trigger_from_table(int origTrigNum, int ts, ts_table* t)
+{
+	//printf("ts: %i\n",ts);
 	//for(int i=0;i<20;i++)
 	//  printf("%.5i   %.12i\n",i,tab[i]);
-	for(int i=0;i<numTrig;i++) //loop through trigger numbers
-		if(tab[i]==(ts&0x0fffffff))
+	
+	//start search at the original trigger number, since the mapped 
+	//trigger number will likely be slightly larger than it (and if not, 
+	//will likely be slightly smaller)
+	
+	for(int i=origTrigNum;i<t->tableSize;i++) //loop through larger trigger numbers
+		if(t->table[i]==ts)
 			{
 				//printf("Returning trigger: %i\n",i+1);
 				//getc(stdin);
 				return i+1;
 			}
-	//printf("WARNING: could not find timestamp value: %i.\n",ts);
+	for(int i=origTrigNum-1;i>=0;i--) //loop through smaller trigger numbers
+		if(t->table[i]==ts)
+			{
+				//printf("Returning trigger: %i\n",i+1);
+				//getc(stdin);
+				return i+1;
+			}
+	printf("WARNING: could not find timestamp value: %i.\n",ts&0x0fffffff);
+	//getc(stdin);
 	return 0; //could not find appropriate trigger num
 }
 /*================================================================*/
-int unpack_tig10_bank(int *data, int length, Tig10_event *ptr, int proc_wave, short* waveform, int mapTS, int *tstable, int tstableSize)
+int unpack_tig10_bank(int *data, int length, Tig10_event *ptr, int proc_wave, short* waveform, int mapTS, ts_table* t)
 {
    int type, subtype, value, trigger_num, found_trig;
    unsigned int *bankend = (unsigned *)data + length;
@@ -131,12 +168,6 @@ int unpack_tig10_bank(int *data, int length, Tig10_event *ptr, int proc_wave, sh
 	     }
 	   }else{
            ptr->timestamp  = value & 0x00ffffff;
-           if(mapTS) //map triggers based on timestamp
-             {
-	             found_trig = get_trigger_from_table(ptr->timestamp,tstable,tstableSize);
-	             if(found_trig!=0) //check whether finding the trigger num failed
-	               ptr->trigger_num = found_trig;
-	           }
 	         ptr->timestamp_flag++;
 	   }
          } else if( subtype == 1 ){              /* timestamp upper bits */
@@ -218,13 +249,25 @@ int unpack_tig10_bank(int *data, int length, Tig10_event *ptr, int proc_wave, sh
 	return(-1);
       }
    }
+   
+   if(mapTS==1) //map triggers based on timestamp
+     {
+       found_trig = get_trigger_from_table(ptr->trigger_num&0x0fffffff,ptr->timestamp,t);
+       if(found_trig!=0) //check whether finding the trigger num failed
+         ptr->trigger_num = found_trig;
+     }
+   else if(mapTS==-1) //generate timestamp map
+   	{
+   		add_timestamp_to_table(ptr->timestamp,t);
+   	}
+   
    return(0); 
 }
 /*================================================================*/
 //unpack without using a timestamp lookup table
 int unpack_tig10_bank(int *data, int length, Tig10_event *ptr, int proc_wave, short* waveform)
 {
-	return unpack_tig10_bank(data,length,ptr,proc_wave,waveform,0,NULL,0);
+	return unpack_tig10_bank(data,length,ptr,proc_wave,waveform,0,NULL);
 }
 /*================================================================*/
 void print_fragment_info(Tig10_event *ptr,int time_offset)

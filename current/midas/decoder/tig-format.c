@@ -1,7 +1,7 @@
 #include "tig-format.h"
 
 
-void add_timestamp_to_table(int ts, ts_table* t)
+void add_timestamp_to_table(unsigned long long int ts, ts_table* t)
 {
 	if(t->tableSize>=t->allocatedSize)
 		{
@@ -24,7 +24,7 @@ void add_timestamp_to_table(int ts, ts_table* t)
 	return;
 }
 /*================================================================*/
-int get_trigger_from_table(int origTrigNum, int ts, ts_table* t)
+int get_trigger_from_table(int origTrigNum, unsigned long long int ts, ts_table* t)
 {
 	//printf("ts: %i\n",ts);
 	//for(int i=0;i<20;i++)
@@ -252,13 +252,17 @@ int unpack_tig10_bank(int *data, int length, Tig10_event *ptr, int proc_wave, sh
    
    if(mapTS==1) //map triggers based on timestamp
      {
-       found_trig = get_trigger_from_table(ptr->trigger_num&0x0fffffff,ptr->timestamp,t);
+       unsigned long long int ts=((unsigned long long)ptr->timestamp_up&0x00ffffff)<<24;
+       ts|=((unsigned long long)ptr->timestamp&0x00ffffff);
+       found_trig = get_trigger_from_table(ptr->trigger_num&0x0fffffff,ts,t);
        if(found_trig!=0) //check whether finding the trigger num failed
          ptr->trigger_num = found_trig;
      }
    else if(mapTS==-1) //generate timestamp map
    	{
-   		add_timestamp_to_table(ptr->timestamp,t);
+   		unsigned long long int ts=((unsigned long long)ptr->timestamp_up&0x00ffffff)<<24;
+      ts|=((unsigned long long)ptr->timestamp&0x00ffffff);
+   		add_timestamp_to_table(ts,t);
    	}
    
    return(0); 

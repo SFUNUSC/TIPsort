@@ -1,4 +1,8 @@
 all:
+	echo Making display_RawEventAboveTimestampDelta.
+	(cd RawEventAboveTimestampDelta r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: DISPLAY_RawEventAboveTimestampDelta.
+	
 	echo Making display_RawEvent.
 	(cd RawEvent r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: DISPLAY_RawEvent.
@@ -21,6 +25,7 @@ all:
 
 clean:
 	(cd RawEvent && make -is clean && cd ..)
+	(cd RawEventAboveTimestampDelta && make -is clean && cd ..)
 	(cd RawEventForTigressCore && make -is clean && cd ..)
 	(cd Tigress  && make -is clean && cd ..)
 	(cd CsIArray && make -is clean && cd ..)

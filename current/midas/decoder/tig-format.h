@@ -45,7 +45,7 @@ typedef struct ts_table
 {
 	int tableSize; //number of entries in the table
 	int allocatedSize; //number of entries allocated in memory
-  int*      table; //lookup table mapping trigger numbers to timestamps
+  unsigned long long int*      table; //lookup table mapping trigger numbers to timestamps
 }ts_table;
 
 int unpack_tig10_bank(int *, int, Tig10_event *, int, short*,int,ts_table*);

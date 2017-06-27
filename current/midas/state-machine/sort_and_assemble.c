@@ -1,12 +1,33 @@
 #include "sort_and_assemble.h"
+
+/*================================================================*/
+void free_list(node* list, data_pointers* dp)
+{
+  node *current,*prev;
+
+  for(int ind=0;ind<=dp->trig-dp->first;ind++)
+    {
+      current=list[ind].next;
+      while(current->next!=NULL)
+	      {
+	        prev=current;
+	        current=current->next;
+	        free(prev);
+	      }
+    }
+  
+  free(current);
+  free(list);
+  free(dp);
+}
 /*================================================================*/
 void insert_node(node* list,data_pointers* dp,Tig10_event *ptr,short* waveform)
 {
   node* newnode;
   size_t s;
   int pos=dp->trig-dp->first;
-  newnode=(node*)malloc(dp->son);
-  newnode->eptr=(Tig10_event*)malloc(dp->sot);
+  newnode=(node*)malloc(dp->son); //possible memory leak?
+  newnode->eptr=(Tig10_event*)malloc(dp->sot); //possible memory leak?
   memcpy(newnode->eptr,ptr,dp->sot);
   
   if(ptr->waveform_length>0)
@@ -188,7 +209,8 @@ int get_and_assemble_fragments(node* list, data_pointers* dp,tmap* map,int mapTS
       if( strcmp(bank_name,"WFDN") ){ continue; } /* ignore other banks */
       swapInt( (char *)bank_data, items*sizeof(int) );
       unpack_tig10_bank( bank_data, items, &tig10_event, process_waveforms,waveform,mapTS,t);
-      add_tig10_event( &tig10_event,waveform,list,dp,map);
+      if(mapTS>=0) //don't assemble to list if just generating timestamp table
+      	add_tig10_event( &tig10_event,waveform,list,dp,map);
    }
    return(-1); /* go to next event */
 }
@@ -209,8 +231,6 @@ void sort_and_assemble(char* inp_name,char* map_name)
   node*          list;
   ts_table*      tstable; //lookup table mapping trigger numbers to timestamps
   int i;
-  int num_trig; //the number of triggers
-
 	
  
  
@@ -248,10 +268,10 @@ void sort_and_assemble(char* inp_name,char* map_name)
   if(map.ts_order)
   	{
 			tstable=(ts_table*)malloc(sizeof(ts_table));
-			printf("-> Generating timestamp table ...\n");
+			printf("-> Generating timestamp table (may take some time) ...\n");
 			tstable->tableSize=0;
 			tstable->allocatedSize=5000000;
-			tstable->table=(int*)malloc(5000000*sizeof(int));
+			tstable->table=(unsigned long long int*)malloc(5000000*sizeof(unsigned long long int));
 			if(tstable->table==NULL)
 			{
 				printf("ERROR: Could not allocate memory for timestamp table!\n");
@@ -288,9 +308,7 @@ void sort_and_assemble(char* inp_name,char* map_name)
       break;
     case END_OF_FILE:
       fclose(input);
-      num_trig=dp->trig-dp->first;
-      printf("\n-> Total number of assembled fragments is %8ld, corresponding to %8ld triggers.\n",dp->proc,num_trig);
-      
+
       if(map.ts_order)
       	{
  					printf("-> Timestamp table generated, contains %8i unique timestamps.\n",tstable->tableSize);
@@ -302,13 +320,14 @@ void sort_and_assemble(char* inp_name,char* map_name)
  				}
  			else
  				{
+ 					printf("\n-> Total number of assembled fragments is %8ld, corresponding to %8ld triggers.\n",dp->proc,dp->trig-dp->first);
  					printf("-> Events are ordered based on trigger number.\n");
  					printf("-> Assembling SFU file ...\n");
-					for(int i=0;i<=num_trig;i++)
+					for(int i=0;i<=dp->trig-dp->first;i++)
 						{
 							assemble_event(i,list,dp,&map);
 							if(i%100==0)
-								printf("-> %f %% complete ( %i / %i triggers).\r", i/(0.01*num_trig), i, num_trig);
+								printf("-> %f %% complete ( %i / %i triggers).\r", i/(0.01*(dp->trig-dp->first)), i, dp->trig-dp->first);
 						}
  				}
  			stop=1;
@@ -357,7 +376,7 @@ void sort_and_assemble(char* inp_name,char* map_name)
 				  list[i].wptr=NULL;
 				}
 		 
-			printf("-> Getting and assembling fragments (trigger remapping pass) ...\n");
+			printf("-> Getting and assembling fragments ...\n");
 			while(stop==0){
 				switch(state){
 				case END_OF_RECORD:
@@ -375,14 +394,13 @@ void sort_and_assemble(char* inp_name,char* map_name)
 				  break;
 				case END_OF_FILE:
 				  fclose(input);
-				  num_trig=dp->trig-dp->first;
-      		printf("\n-> Total number of assembled fragments is %8ld, corresponding to %8ld triggers.\n",dp->proc,num_trig);
+      		printf("\n-> Total number of assembled fragments is %8ld, corresponding to %8ld triggers.\n",dp->proc,dp->trig-dp->first);
 				  printf("-> Assembling SFU file ...\n");
-					for(int i=0;i<=num_trig;i++)
+					for(int i=0;i<=dp->trig-dp->first;i++)
 						{
 							assemble_event(i,list,dp,&map);
 							if(i%100==0)
-								printf("-> %f %% complete ( %i / %i triggers).\r", i/(0.01*num_trig), i, num_trig);
+								printf("-> %f %% complete ( %i / %i triggers).\r", i/(0.01*(dp->trig-dp->first)), i, dp->trig-dp->first);
 						}
 				  stop=1;
 				  break;
@@ -412,7 +430,6 @@ void sort_and_assemble_list(char* inp_name,char* map_name)
   node*          list;
   ts_table*      tstable; //lookup table mapping trigger numbers to timestamps
   int i;
-  int num_trig; //the number of triggers
   
   tstable=(ts_table*)malloc(sizeof(ts_table));
  
@@ -460,10 +477,10 @@ void sort_and_assemble_list(char* inp_name,char* map_name)
  	if(map.ts_order)
   	{
 			tstable=(ts_table*)malloc(sizeof(ts_table));
-			printf("-> Generating timestamp table ...\n");
+			printf("-> Generating timestamp table (may take some time) ...\n");
 			tstable->tableSize=0;
 			tstable->allocatedSize=5000000;
-			tstable->table=(int*)malloc(5000000*sizeof(int));
+			tstable->table=(unsigned long long int*)malloc(5000000*sizeof(unsigned long long int));
 			if(tstable->table==NULL)
 			{
 				printf("ERROR: Could not allocate memory for timestamp table!\n");
@@ -500,7 +517,14 @@ void sort_and_assemble_list(char* inp_name,char* map_name)
       break;
     case END_OF_FILE:
       fclose(input);
-      printf("\n-> Fragments from file %s are assembled.  %10i fragments, %8i triggers constructed so far.\n",name,dp->proc,dp->trig-dp->first);
+      if(map.ts_order)
+      	{
+      		printf("\n-> Finished reading timestamps from file %s.\n",name);
+      	}
+      else
+      	{
+      		printf("\n-> Fragments from file %s are assembled.  %10i fragments, %8i triggers constructed so far.\n",name,dp->proc,dp->trig-dp->first);
+      	}
       /* read the name of the next input file */
       if(fscanf(midas_list,"%s",name)==EOF){ state = END_OF_SORT; }
       else
@@ -519,8 +543,6 @@ void sort_and_assemble_list(char* inp_name,char* map_name)
       /* close the midas list */
       fclose(midas_list);
       
-      num_trig=dp->trig-dp->first;
-      
       if(map.ts_order)
       	{
  					printf("-> Timestamp table generated, contains %8i unique timestamps.\n",tstable->tableSize);
@@ -534,11 +556,11 @@ void sort_and_assemble_list(char* inp_name,char* map_name)
  				{
  					printf("-> Events are ordered based on trigger number.\n");
  					printf("-> Assembling SFU file ...\n");
-					for(int i=0;i<=num_trig;i++)
+					for(int i=0;i<=dp->trig-dp->first;i++)
 						{
 							assemble_event(i,list,dp,&map);
 							if(i%100==0)
-								printf("-> %f %% complete ( %i / %i triggers).\r", i/(0.01*num_trig), i, num_trig);
+								printf("-> %f %% complete ( %i / %i triggers).\r", i/(0.01*(dp->trig-dp->first)), i, dp->trig-dp->first);
 						}
  				}
  				
@@ -599,7 +621,7 @@ void sort_and_assemble_list(char* inp_name,char* map_name)
 				  list[i].wptr=NULL;
 				}
 		 
-			printf("-> Getting and assembling fragments (trigger remapping pass) ...\n");
+			printf("-> Getting and assembling fragments ...\n");
 			while(stop==0){
 				switch(state){
 				case END_OF_RECORD:
@@ -636,15 +658,13 @@ void sort_and_assemble_list(char* inp_name,char* map_name)
 				  /* close the midas list */
 				  fclose(midas_list);
 				  
-				  num_trig=dp->trig-dp->first;
-				  
  					/* analyze the last data assembly buffer */
  					printf("-> Assembling SFU file ...\n");
-					for(int i=0;i<=num_trig;i++)
+					for(int i=0;i<=dp->trig-dp->first;i++)
 						{
 							assemble_event(i,list,dp,&map);
 							if(i%100==0)
-								printf("-> %f %% complete ( %i / %i triggers).\r", i/(0.01*num_trig), i, num_trig);
+								printf("-> %f %% complete ( %i / %i triggers).\r", i/(0.01*(dp->trig-dp->first)), i, dp->trig-dp->first);
 						}
 		 				
 				  stop=1;

@@ -19,6 +19,8 @@ TH1D *g;
 FILE* output;
 int enb[BUFFSIZE];
 
+int corr;
+
 calibration_parameters* cal_par;
 double low,high;
 #endif

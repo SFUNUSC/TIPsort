@@ -31,6 +31,10 @@ all:
 	(cd TigressCsITTCalDiffSAFE r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Separator_TigressCsITTCalDiffSAFE.
 	
+	echo Making Separator_TigressCsITTCalFirstHitDiff.
+	(cd TigressCsITTCalFirstHitDiff r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: Separator_TigressCsITTCalFirstHitDiff.
+	
 	#echo Making Separator_TigressCsITTCalDiff_firstEvent.
 	#(cd TigressCsITTCalDiff_firstEvent r && make -is clean && make && make -is clean && cd ..)
 	#echo DONE: Separator_TigressCsITTCalDiff_firstEvent.

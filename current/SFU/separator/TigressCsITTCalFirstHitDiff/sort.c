@@ -82,7 +82,7 @@ int analyze_data(raw_event *data)
   /* printf("tidff %f tlow %f thigh %f \n",tdiff,low,high); */
 
   h->Fill(tdiff);
-  if((tdiff>=low)&&(tdiff<=high))
+  if( ((corr==1)&&(tdiff>=low)&&(tdiff<=high)) || ((corr==0)&&( (tdiff<low)||(tdiff>high) ) ) )
     {
       /* printf("GOOD tidff %f tlow %f thigh %f \n",tdiff,low,high); */
       g->Fill(tdiff);
@@ -218,12 +218,13 @@ int main(int argc, char *argv[])
 
   if((argc!=4)&&(argc!=5))
     {
-      printf("\n ./separate_TigressCsIArray_TTCalDiff master_file_name low high\n");
+      printf("\n ./separate_TigressCsIArray_TTCalFirstHitDiff master_file_name low high\n");
       printf("\n Sorts events where the first gamma and the first particle detected come within the time window defined by 'low' and 'high' with respect to each other.\n");
+      printf("\n If 'low' is larger than 'high', the program will sort uncorrelated data (events outside the time gate).\n");
       printf("\n Add '1' as a fifth argument to show a plot of the gate (not required).\n");
       exit(-1);
     }
-  
+    
   h = new TH1D("Tigress Csiarray Time","Tigress Csiarray Time",S16K,-S8K,S8K);
   h->Reset();
 
@@ -232,10 +233,26 @@ int main(int argc, char *argv[])
 
   low=atof(argv[2]);
   high=atof(argv[3]);
+  
+  printf("Program sorts data separated on Tigress-CsIArray timing.\n");
+  corr=1;
+	if(low>high)
+		{
+			//swap values
+			double tmp=low;
+			low=high;
+			high=tmp;
+			//set correlation to not be used
+			corr=0;
+			printf("Uncorrelated data will be separated.\n");
+		}
+  
+  
   if(argc==5)
     plot_option=atoi(argv[4]);
+  if(plot_option==1)
+  	printf("Timing gate will be plotted.\n");
 
-  printf("Program sorts calibrated 2D histogram for TIGRESS/CSIARRAY timing \n");
   name=(input_names_type*)malloc(sizeof(input_names_type));
   memset(name,0,sizeof(input_names_type));
   cal_par=(calibration_parameters*)malloc(sizeof(calibration_parameters));

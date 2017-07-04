@@ -63,12 +63,18 @@ int analyze_data(raw_event *data)
 	                  {
                       thit=cev->tg.det[pos1].ge[col1].seg[0].T/cal_par->tg.contr_t;
                       //printf("thit=%f\n",thit);
-                      if (thit<=tgate) //check whether the hit is in the gate
+                      if ((corr==1)&&(thit<=tgate)) //check whether the hit is in the gate
                         {
                           id=pos1-1;
                           id_ge=id*NCOL+col1;
-                          flag_ge|=(one<<id_ge); //flag the hit for preservation
+                          flag_ge|=(one<<id_ge); //flag the correlated hit for preservation
                         }
+                      else if ((corr!=1)&&(thit>tgate))
+                      	{
+                      		id=pos1-1;
+                          id_ge=id*NCOL+col1;
+                          flag_ge|=(one<<id_ge); //flag the uncorrelated hit for preservation
+                      	}
                     }
 
     free(cev);
@@ -147,12 +153,21 @@ int main(int argc, char *argv[])
   //TCanvas *canvas;
   //TApplication *theApp;
 
-  if(argc!=2)
+  if((argc!=2)&&(argc!=3))
     {
-      printf("separate_Tigress_TTCalDiff master_file_name\n");
-      printf("\n Separates out gamma-gamma coincidences where the subsequent gammas arrive within (calibrated) time gate of gate_length.  Discards any gamma hits which arrive outside of the time gate (with respect to the first hit).\nThe time gate length is specified in the Tigress array calibration parameters file (under 'TIGRESS_TTCal_gate_length').\n");
+      printf("separate_Tigress_TTCalDiff master_file_name correlated\n");
+      printf("\n Separates out gamma-gamma coincidences where the subsequent gammas arrive within (calibrated) time gate of gate_length.  Discards any gamma hits which arrive outside of the time gate (with respect to the first hit).\nThe time gate length is specified in the Tigress array calibration parameters file (under 'TIGRESS_TTCal_gate_length').\n\nThe third argument should be set to 'no' to sort uncorrelated data (events outside the time gate), and 'yes' (or left empty) to sort correlated data.\n");
       exit(-1);
     }
+    
+  printf("Program sorts data separated on Tigress timing.\n");
+  corr=1;
+  if(argc==3)
+  	if(strcmp(argv[2],"no")==0)
+  		{
+  			corr=0;
+  			printf("Uncorrelated data will be separated.\n");
+  		}
   
   h = new TH1D("Tigress Time","Tigress Time",S16K,-S8K,S8K);
   h->Reset();
@@ -160,7 +175,8 @@ int main(int argc, char *argv[])
   g = new TH1D("Tigress Gate","Tigress Gate",S16K,-S8K,S8K);
   g->Reset();
   
-  printf("Program sorts calibrated 2D histogram for TIGRESS timing.\n");
+  gate_length=0;
+  
   name=(input_names_type*)malloc(sizeof(input_names_type));
   memset(name,0,sizeof(input_names_type));
   cal_par=(calibration_parameters*)malloc(sizeof(calibration_parameters));

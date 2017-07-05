@@ -15,9 +15,9 @@ all:
 	(cd TigressTTCalDiff r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Separator_TigressTTCalDiff.
 	
-	echo Making Separator_TigressTTCalDiff.
-	(cd TigressTTCalDiff r && make -is clean && make && make -is clean && cd ..)
-	echo DONE: Separator_TigressTTCalDiff.
+	echo Making Separator_TigressTTCalDiffCentralValue.
+	(cd TigressTTCalDiffCentralValue r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: Separator_TigressTTCalDiffCentralValue.
 	
 	echo Making Separator_TigressDropCore.
 	(cd TigressDropCore r && make -is clean && make && make -is clean && cd ..)
@@ -27,6 +27,10 @@ all:
 	(cd CsITTCalDiff r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Separator_CsITTCalDiff.
 	
+	echo Making Separator_CsITTCalDiffCentralValue.
+	(cd CsITTCalDiffCentralValue r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: Separator_CsITTCalDiffCentralValue.
+	
 	echo Making Separator_TigressCsITTCalDiffSAFE.
 	(cd TigressCsITTCalDiffSAFE r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Separator_TigressCsITTCalDiffSAFE.
@@ -34,6 +38,10 @@ all:
 	echo Making Separator_TigressCsITTCalFirstHitDiff.
 	(cd TigressCsITTCalFirstHitDiff r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Separator_TigressCsITTCalFirstHitDiff.
+	
+	echo Making Separator_TigressCsITTCalFirstHitDiffCentralValue.
+	(cd TigressCsITTCalFirstHitDiffCentralValue r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: Separator_TigressCsITTCalFirstHitDiffCentralValue.
 	
 	#echo Making Separator_TigressCsITTCalDiff_firstEvent.
 	#(cd TigressCsITTCalDiff_firstEvent r && make -is clean && make && make -is clean && cd ..)
@@ -72,9 +80,12 @@ clean:
 	(cd TrigBits            && make -is clean && cd ..)
 	(cd TigressCsITTCalDiff && make -is clean && cd ..)
 	(cd TigressCsITTCalFirstHitDiff && make -is clean && cd ..)
+	(cd TigressCsITTCalFirstHitDiffCentralValue && make -is clean && cd ..)
 	(cd TigressTTCalDiff    && make -is clean && cd ..)
+	(cd TigressTTCalDiffCentralValue    && make -is clean && cd ..)
 	(cd TigressDropCore    && make -is clean && cd ..)
 	(cd CsITTCalDiff        && make -is clean && cd ..)
+	(cd CsITTCalDiffCentralValue        && make -is clean && cd ..)
 	(cd CsIPIDER            && make -is clean && cd ..)
 	(cd CsIPIDER_Sum        && make -is clean && cd ..)
 	(cd CsIDeltaU           && make -is clean && cd ..)

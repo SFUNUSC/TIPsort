@@ -58,25 +58,25 @@ void initialize_CSIARRAY_calibration(CSIARRAY_calibration_parameters *CSIARRAY_c
 		read_CSIARRAY_ring_map(CSIARRAY_cal_par,str2);
 	      
 	      if(strcmp(str1,"Timing_from")==0)
-		{
-		  if(strcmp(str2,"fit_function")==0)
-		    CSIARRAY_cal_par->use_time_fit=1;
-		  if(strcmp(str2,"FIT_FUNCTION")==0)
-		    CSIARRAY_cal_par->use_time_fit=1;
-		  if(strcmp(str2,"Fit_function")==0)
-		    CSIARRAY_cal_par->use_time_fit=1;
-		  if(strcmp(str2,"Fit_Function")==0)
-		    CSIARRAY_cal_par->use_time_fit=1;
+					{
+						if(strcmp(str2,"fit_function")==0)
+							CSIARRAY_cal_par->use_time_fit=1;
+						if(strcmp(str2,"FIT_FUNCTION")==0)
+							CSIARRAY_cal_par->use_time_fit=1;
+						if(strcmp(str2,"Fit_function")==0)
+							CSIARRAY_cal_par->use_time_fit=1;
+						if(strcmp(str2,"Fit_Function")==0)
+							CSIARRAY_cal_par->use_time_fit=1;
 
-		  if(strcmp(str2,"fit_t0")==0)
-		    CSIARRAY_cal_par->use_time_fit=2;
-		  if(strcmp(str2,"FIT_T0")==0)
-		    CSIARRAY_cal_par->use_time_fit=2;
-		  if(strcmp(str2,"Fit_t0")==0)
-		    CSIARRAY_cal_par->use_time_fit=2;
-		  if(strcmp(str2,"Fit_T0")==0)
-		    CSIARRAY_cal_par->use_time_fit=2;
-		}
+						if(strcmp(str2,"fit_t0")==0)
+							CSIARRAY_cal_par->use_time_fit=2;
+						if(strcmp(str2,"FIT_T0")==0)
+							CSIARRAY_cal_par->use_time_fit=2;
+						if(strcmp(str2,"Fit_t0")==0)
+							CSIARRAY_cal_par->use_time_fit=2;
+						if(strcmp(str2,"Fit_T0")==0)
+							CSIARRAY_cal_par->use_time_fit=2;
+					}
 
 	      //For RFUnwrapping
               if(strcmp(str1,"RFUnwrapping_option")==0)
@@ -139,13 +139,13 @@ void read_CSIARRAY_e_cal_par(CSIARRAY_calibration_parameters *CSIARRAY_cal_par, 
   if(fgets(line,132,inp)!=NULL)
     {
       if(fgets(line,132,inp)!=NULL)
-	//while(fscanf(inp,"%d %lf %lf",&pos,&a[0],&a[1])!=EOF)               /* gain and offset calibration */
-	while(fscanf(inp,"%d %lf %lf %lf %lf",&pos,&a[0],&a[1],&a[2],&a[3])!=EOF) /* exponential calibration */
+	while(fscanf(inp,"%d %lf %lf",&pos,&a[0],&a[1])!=EOF)               /* gain and offset calibration */
+	//while(fscanf(inp,"%d %lf %lf %lf %lf",&pos,&a[0],&a[1],&a[2],&a[3])!=EOF) /* exponential calibration */
 	  if(pos>0&&pos<NCSI)
 	    {
 	      CSIARRAY_cal_par->ceflag[pos]=1;	      
-	      //for(i=0;i<2;i++) CSIARRAY_cal_par->ce[pos][i]=a[i];   /* gain and offset calibration */
-	      for(i=0;i<4;i++) CSIARRAY_cal_par->ce[pos][i]=a[i]; /* exponential calibration */
+	      for(i=0;i<2;i++) CSIARRAY_cal_par->ce[pos][i]=a[i];   /* gain and offset calibration */
+	      //for(i=0;i<4;i++) CSIARRAY_cal_par->ce[pos][i]=a[i]; /* exponential calibration */
 	    }
     }
   else
@@ -410,19 +410,19 @@ void summarize_CSIARRAY_calibration(CSIARRAY_calibration_parameters *CSIARRAY_ca
       }
 
   /* gain and offset calibration */
-  /*fprintf(out,"CSIARRAY energy calibration parameters\n");
+  fprintf(out,"CSIARRAY energy calibration parameters\n");
   fprintf(out,"  pos#       a0             a1\n");
   for(pos=1;pos<NCSI;pos++)
       if(CSIARRAY_cal_par->ceflag[pos]==1)
 	fprintf(out,"   %02d  %12.5e   %12.5e\n",pos,CSIARRAY_cal_par->ce[pos][0],CSIARRAY_cal_par->ce[pos][1]);
-*/
+
 
   /* exponential calibration */
-  fprintf(out,"CSIARRAY energy calibration parameters\n"); 
+  /*fprintf(out,"CSIARRAY energy calibration parameters\n"); 
   fprintf(out,"  pos#       a0             a1              a2              a3\n");
   for(pos=1;pos<NCSI;pos++)
     if(CSIARRAY_cal_par->ceflag[pos]==1)
-     fprintf(out,"   %02d  %12.5e   %12.5e   %12.5e   %12.5e\n",pos,CSIARRAY_cal_par->ce[pos][0],CSIARRAY_cal_par->ce[pos][1],CSIARRAY_cal_par->ce[pos][2],CSIARRAY_cal_par->ce[pos][3]);
+     fprintf(out,"   %02d  %12.5e   %12.5e   %12.5e   %12.5e\n",pos,CSIARRAY_cal_par->ce[pos][0],CSIARRAY_cal_par->ce[pos][1],CSIARRAY_cal_par->ce[pos][2],CSIARRAY_cal_par->ce[pos][3]);*/
      
   fprintf(out,"CSIARRAY time calibration parameters\n");
   fprintf(out,"  pos#  a0             a1 \n");
@@ -486,10 +486,10 @@ void calibrate_CSIARRAY(raw_event* rev, CSIARRAY_calibration_parameters *CSIARRA
   	      ren=rev->csiarray.csi[pos].charge+ran;
 
 	      /* gain and offset calibration */
-  	      //e=CSIARRAY_cal_par->ce[pos][0]+CSIARRAY_cal_par->ce[pos][1]*ren;
+  	      e=CSIARRAY_cal_par->ce[pos][0]+CSIARRAY_cal_par->ce[pos][1]*ren;
 	      
 	      /* exponential calibration - 1000x converts to 1keV/ch */
-  	      e=1000*(CSIARRAY_cal_par->ce[pos][0]*ren + CSIARRAY_cal_par->ce[pos][2]*(log(CSIARRAY_cal_par->ce[pos][1]*ren) + 1) + CSIARRAY_cal_par->ce[pos][3]); 
+  	      //e=1000*(CSIARRAY_cal_par->ce[pos][0]*ren + CSIARRAY_cal_par->ce[pos][2]*(log(CSIARRAY_cal_par->ce[pos][1]*ren) + 1) + CSIARRAY_cal_par->ce[pos][3]); 
 	      
 	      if(e>0)
 		if(e<S65K)

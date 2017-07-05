@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
   
   if(argc!=4)
     {
-      printf("TigressCsI_ECalABSuppDSReconstructed master_file_name supLow supHigh\n");
+      printf("TigressCsI_ECalABSuppDSReconstructedSum master_file_name supLow supHigh\n");
       printf("Program attempts to generate gamma ray spectra with all events Doppler unshifted.  Doesn't work for transitions with lifetimes long enough for the residual nucleus to slow.\n");
       printf("Relies on beam momentum and velocity values specified in calibration parameters (deltaU.par).\n");
       exit(-1);
@@ -211,10 +211,18 @@ int main(int argc, char *argv[])
   supLow = atof(argv[2]);
   supHigh = atof(argv[3]);
   
-  if(name->flag.inp_data!=1)
+  if(name->flag.cluster_file==1)
     {
-      printf("\nInput data file not defined\n");
-      exit(EXIT_FAILURE);
+      printf("Sorting ECalABSuppRingSum histograms for TIGRESS clovers and cores based upon the cluster file: %s\n",name->fname.cluster_file);
+      if((cluster=fopen(name->fname.cluster_file,"r"))==NULL)
+	{
+	  printf("ERROR!!! I can't open input file %s\n",name->fname.cluster_file);
+	  exit(-2);
+	}}
+  else
+    {
+      printf("ERROR!!! Cluster file not defined\n");
+      exit(-1);
     }
   
   if(name->flag.TIGRESS_cal_par==1)
@@ -239,7 +247,14 @@ int main(int argc, char *argv[])
       exit(EXIT_FAILURE);
     }
   
-  sort(name);
+  while(fscanf(cluster,"%s",DataFile) != EOF)
+    {
+      memset(name,0,sizeof(input_names_type));
+      strcpy(name->fname.inp_data,DataFile);
+      
+      printf("Sorting data from file %s\n", name);
+      sort(name);
+    }
   
   if((output=fopen("DS_ECalABSuppReconstructed.mca","w"))==NULL)
     {

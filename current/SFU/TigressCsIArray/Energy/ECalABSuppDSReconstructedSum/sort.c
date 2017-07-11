@@ -38,7 +38,7 @@ int analyze_data(raw_event *data)
   double eAddBack=0;
   int suppFlag=0;
   int take=0;
-  double ecsi;
+  double ecsi,pval;
   int csi;
   unsigned long long int one=1;
   
@@ -51,11 +51,11 @@ int analyze_data(raw_event *data)
   calibrate_TIGRESS(data,&cal_par->tg,&cev->tg);
   calibrate_CSIARRAY(data,&cal_par->csiarray,&cev->csiarray);
   
-  //get momentum and beta values from calibration (values specified in parameter file)
-  beam_p[2]=cal_par->csiarray.pp;
-  //beta=cal_par->csiarray.pbeta;
-  //beam_p[2]=sqrt(2.0*cal_par->csiarray.Ebeam*cal_par->csiarray.mproj); //momentum of incoming beam
-  //beta=sqrt(2.0*cal_par->csiarray.Ebeam/(cal_par->csiarray.mproj)); // v/c of incoming beam
+  
+  //get beam momentum value from calibration (energy specified in parameter file)
+  beam_p[2]=sqrt( ((cal_par->csiarray.Ebeam + cal_par->csiarray.mproj)*(cal_par->csiarray.Ebeam + cal_par->csiarray.mproj)) - (cal_par->csiarray.mproj*cal_par->csiarray.mproj) ); //momentum of incoming beam, relativistic, from KE = mc^2 + m0c^2, mc^2 = sqrt(p^2c^2 + m0^2c^4)
+  //printf("Beam p: %f\n",beam_p[2]);
+  //getc(stdin);
 
   
   //check the Ge fold
@@ -98,26 +98,28 @@ int analyze_data(raw_event *data)
 
                 eAddBack = cev->tg.det[pos].addback.E/cal_par->tg.contr_e;  
                 colAddBack = cev->tg.det[pos].addbackC;
+                ring = cev->tg.det[pos].ge[colAddBack].ring+NRING*suppFlag;
                 
                 if(eAddBack>=0 && eAddBack<S32K)
                   {
-                    //construct vectors
-                    for(int ind=0;ind<3;ind++)
-                      gamma_dir[ind]=cal_par->tg.tpos_xyz[pos][colAddBack][ind];
-                    vecMag=sqrt(gamma_dir[0]*gamma_dir[0] + gamma_dir[1]*gamma_dir[1] + gamma_dir[2]*gamma_dir[2]);
-                    for(int ind=0;ind<3;ind++)
-                      gamma_dir[ind]=gamma_dir[ind]/vecMag;//make unit vector
                     
                     if(cev->csiarray.h.FH>0)
                       for(csi=1;csi<NCSI;csi++)
                         if((cev->csiarray.h.HHP&(one<<csi))!=0)
                           {
+                          	for(int ind=0;ind<3;ind++)
+                              part_dir[csi][ind]=cal_par->csiarray.cpos_xyz[csi][ind];
+                            vecMag=sqrt(part_dir[csi][0]*part_dir[csi][0] + part_dir[csi][1]*part_dir[csi][1] + part_dir[csi][2]*part_dir[csi][2]);
                             for(int ind=0;ind<3;ind++)
-                              part_p[csi][ind]=cal_par->csiarray.cpos_xyz[csi][ind];
-                            vecMag=sqrt(part_p[csi][0]*part_p[csi][0] + part_p[csi][1]*part_p[csi][1] + part_p[csi][2]*part_p[csi][2]);
+                            	part_dir[csi][ind]=part_dir[csi][ind]/vecMag;//make vector unit length
+                            
                             ecsi=cev->csiarray.csi[csi].E/1000.; /* CsI energy in MeV */
-                            for(int ind=0;ind<3;ind++)
-                              part_p[csi][ind]=part_p[csi][ind]*(sqrt(2*ecsi*cal_par->csiarray.mp))/vecMag;//make vector proper length for momentum
+                            pval=sqrt( ((ecsi+cal_par->csiarray.mp)*(ecsi+cal_par->csiarray.mp)) - (cal_par->csiarray.mp*cal_par->csiarray.mp) ); //relativistic p (magnitude)
+                          	
+                          	for(int ind=0;ind<3;ind++)
+		                          part_p[csi][ind]=pval*part_dir[csi][ind];
+		                        
+		                        //printf("ecsi: %f MeV, pval: %f MeV/c, part_p: [%f %f %f] MeV/c\n",ecsi,pval,part_p[csi][0],part_p[csi][1],part_p[csi][2]);  getc(stdin);
                           }
               
                     //subtract detected particle momenta from beam momentum to get residual momentum
@@ -126,45 +128,60 @@ int analyze_data(raw_event *data)
                     for(csi=1;csi<NCSI;csi++)
                       for(int ind=0;ind<3;ind++)
                         res_p[ind]=res_p[ind]-part_p[csi][ind];
-                    //make momentum vector into direction vector  
                     for(int ind=0;ind<3;ind++)
-                      res_dir[ind]=res_p[ind]/sqrt(res_p[0]*res_p[0] + res_p[1]*res_p[1] + res_p[2]*res_p[2]);
+                      res_p[ind]=res_p[ind]*fudgeFactor;
+                    
                     //calculate speed of residual
-                    beta=sqrt(res_p[0]*res_p[0] + res_p[1]*res_p[1] + res_p[2]*res_p[2]);
-                    beta/=cal_par->csiarray.mr;
+                    pval=sqrt(res_p[0]*res_p[0] + res_p[1]*res_p[1] + res_p[2]*res_p[2]);
+                    beta=sqrt( 1.0 - ((cal_par->csiarray.mr*cal_par->csiarray.mr)/((pval*pval) + (cal_par->csiarray.mr*cal_par->csiarray.mr))) ); //relativistic calculation of beta
                     //printf("beta: %f\n",beta);
                     
-                    //calculate ds
-                    ds=sqrt(1-beta*beta) / (1-(beta*(res_dir[0]*gamma_dir[0] + res_dir[1]*gamma_dir[1] + res_dir[2]*gamma_dir[2])));
+                    //construct unit vectors for gamma and residual (source) nucleus
+                    for(int ind=0;ind<3;ind++)
+                      gamma_dir[ind]=cal_par->tg.tpos_xyz[pos][colAddBack][ind];
+                    vecMag=sqrt(gamma_dir[0]*gamma_dir[0] + gamma_dir[1]*gamma_dir[1] + gamma_dir[2]*gamma_dir[2]);
+                    for(int ind=0;ind<3;ind++)
+                      gamma_dir[ind]=gamma_dir[ind]/vecMag;//make unit vector for gamma ray
+                    vecMag=sqrt(res_p[0]*res_p[0] + res_p[1]*res_p[1] + res_p[2]*res_p[2]);
+                    for(int ind=0;ind<3;ind++)
+                      res_dir[ind]=res_p[ind]/vecMag;//make unit vector for residual nucleus
                     
-                    /*if(ds>1.04)
-                      {
-                        printf("ds: %f\n",ds);
-                        printf("Tigress pos: %i\n",pos);
-                        printf("beta: %f, gamma_dir: [%f %f %f]\n",beta,gamma_dir[0],gamma_dir[1],gamma_dir[2]);
-                        printf("res_p: [%f %f %f]\n",res_p[0],res_p[1],res_p[2]);
-                        printf("res_pdir: [%f %f %f]\n",res_dir[0],res_dir[1],res_dir[2]);
-                        printf("beam_p: [%f %f %f]\n",beam_p[0],beam_p[1],beam_p[2]);
-                        for(csi=1;csi<NCSI;csi++)
-                          if((part_p[csi][0]+part_p[csi][1]+part_p[csi][2])!=0)
-                            printf("In CsI # %i, part_p = [%f %f %f]\n",csi,part_p[csi][0],part_p[csi][1],part_p[csi][2]);
-                        getc(stdin);
-                      }*/
+                    //calculate ds
+                    ds=sqrt(1-(beta*beta)) / (1-(beta* (res_dir[0]*gamma_dir[0] + res_dir[1]*gamma_dir[1] + res_dir[2]*gamma_dir[2]) ));
+                    //ds=1+(beta* (res_dir[0]*gamma_dir[0] + res_dir[1]*gamma_dir[1] + res_dir[2]*gamma_dir[2]) );
+                    
+                    /*printf("ds: %f\n",ds);
+                    printf("Tigress pos: %i\n",pos);
+                    printf("beta: %f, gamma_dir: [%f %f %f]\n",beta,gamma_dir[0],gamma_dir[1],gamma_dir[2]);
+                    printf("res_p: [%f %f %f] MeV/c\n",res_p[0],res_p[1],res_p[2]);
+                    printf("res_pdir: [%f %f %f]\n",res_dir[0],res_dir[1],res_dir[2]);
+                    printf("beam_p: [%f %f %f] MeV/c\n",beam_p[0],beam_p[1],beam_p[2]);
+                    for(csi=1;csi<NCSI;csi++)
+                      if((part_p[csi][0]+part_p[csi][1]+part_p[csi][2])!=0)
+                        printf("In CsI # %i, part_p = [%f %f %f] MeV/c\n",csi,part_p[csi][0],part_p[csi][1],part_p[csi][2]);
+                    getc(stdin);*/
                     
                     if(ds!=ds)
                     	{
                     		printf("ERROR: Doppler shift is undefined!\nHave you properly specified all detector postions in the parameter files?\n");
+                    		printf("\nINFO DUMP\n---------\n");
+												printf("ds: %f\n",ds);
+												printf("Tigress pos: %i\n",pos1);
+												printf("beta: %f, gamma_dir: [%f %f %f]\n",beta,gamma_dir[0],gamma_dir[1],gamma_dir[2]);
+												printf("res_p: [%f %f %f] MeV/c\n",res_p[0],res_p[1],res_p[2]);
+												printf("res_pdir: [%f %f %f]\n",res_dir[0],res_dir[1],res_dir[2]);
+												printf("beam_p: [%f %f %f] MeV/c\n",beam_p[0],beam_p[1],beam_p[2]);
+												for(csi=1;csi<NCSI;csi++)
+													if((part_p[csi][0]+part_p[csi][1]+part_p[csi][2])!=0)
+														printf("In CsI # %i, part_p = [%f %f %f] MeV/c\n",csi,part_p[csi][0],part_p[csi][1],part_p[csi][2]);
+												printf("\n");
                     		exit(-1);
                     	}
                     
                     //printf("spectrum: %i, ch: %i\n",0+suppFlag,(int)(eAddBack/ds));
                     eAddBack=eAddBack/ds;
                     if(eAddBack>=0 && eAddBack<S32K)
-                    	hist[0+suppFlag][(int)(eAddBack)]++;
-                    
-                    /*for(int ind=0;ind<num_gates;ind++)
-                      if(valueInRange(ds,gates[ind],gates[ind+1]))
-                        hist[ind + NGATES*suppFlag][(int)(eAddBack)]++;*/
+                    	hist[ring][(int)(eAddBack)]++;
                     
                     //h->Fill(ds);
                   }
@@ -186,11 +203,12 @@ int main(int argc, char *argv[])
   input_names_type* name;
   char DataFile[132];
   
-  if(argc!=4)
+  if((argc!=4)&&(argc!=5))
     {
-      printf("TigressCsI_ECalABSuppDSReconstructedSum master_file_name supLow supHigh\n");
+      printf("TigressCsI_ECalABSuppDSReconstructedSum master_file_name supLow supHigh fudge_factor\n");
       printf("Program attempts to generate gamma ray spectra with all events Doppler unshifted.  Doesn't work for transitions with lifetimes long enough for the residual nucleus to slow.\n");
       printf("Relies on beam momentum and velocity values specified in calibration parameters (deltaU.par).\n");
+      printf("fudge_factor is a multiplicative factor which will be applied to the computed value of the residual nucleus momentum, in order to account for slowing of the beam/compound in the reaction target.  If left empty, a value of 1.0 will be used.\n");
       exit(-1);
     }
   
@@ -210,6 +228,10 @@ int main(int argc, char *argv[])
   
   supLow = atof(argv[2]);
   supHigh = atof(argv[3]);
+  if(argc==5)
+  	fudgeFactor = atof(argv[4]);
+  else
+  	fudgeFactor = 1.0;
   
   if(name->flag.cluster_file==1)
     {
@@ -247,12 +269,24 @@ int main(int argc, char *argv[])
       exit(EXIT_FAILURE);
     }
   
+  //print info
+  printf("\n");
+	printf("  Beam energy: %f MeV\n",cal_par->csiarray.Ebeam);
+	printf("  Projectile mass: %f MeV/c^2\n",cal_par->csiarray.mproj);
+	printf("  Particle mass: %f MeV/c^2\n",cal_par->csiarray.mp);
+	printf("  Residual mass: %f MeV/c^2\n",cal_par->csiarray.mr);
+  if(fudgeFactor>1.0)
+  	printf("  WARNING: using fudge factor greater than 1.  This implies that the beam/compound sppeds up in the target, which should not be possible.\n");
+  else if (fudgeFactor<1.0)
+  	printf("  Using fudge factor of %f\n",fudgeFactor);
+  printf("\n");
+  
   while(fscanf(cluster,"%s",DataFile) != EOF)
     {
       memset(name,0,sizeof(input_names_type));
       strcpy(name->fname.inp_data,DataFile);
       
-      printf("Sorting data from file %s\n", name);
+      printf("Sorting data from file %s\n", name->fname.inp_data);
       sort(name);
     }
   
@@ -261,7 +295,7 @@ int main(int argc, char *argv[])
       printf("ERROR!!! I cannot open the mca file!\n");
       exit(EXIT_FAILURE);
     }
-  fwrite(hist,2*S32K*sizeof(int),1,output);
+  fwrite(hist,2*NRING*S32K*sizeof(int),1,output);
   fclose(output);
   
   /*theApp=new TApplication("App", &argc, argv);

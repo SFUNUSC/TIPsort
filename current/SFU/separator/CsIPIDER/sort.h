@@ -24,5 +24,4 @@ int pGateFlag[NCSI] = { 0 };
 int pos,gate_np,gate_na;
 int useCharge;
 
-
 #endif

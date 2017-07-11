@@ -2,11 +2,12 @@
 
 int analyze_data(raw_event *data)
 {
-  unsigned long long int one=1;
+  long long int one=1,none=-1,kill;
   int np,na;
   double s,f,r,e;
   int type;
-  double chisq;
+  
+  long long int flag_csi;
   
   //if((data->h.setupHP&RF_BIT)==0) 
   //  return SEPARATOR_DISCARD;
@@ -14,59 +15,91 @@ int analyze_data(raw_event *data)
   if((data->h.setupHP&CsIArray_BIT)==0) 
     return SEPARATOR_DISCARD;
 
+  flag_csi=0;
+  
   np=0;
   na=0;
 
   for(pos=1;pos<NCSI;pos++)
     if((data->csiarray.h.THP&(one<<pos))!=0)
       {
-	type=data->csiarray.wfit[pos].type;
-	if(type==1)
-	  {
-	    e=data->csiarray.csi[pos].charge;
-	    //e=data->csiarray.wfit[pos].am[1];
-	    s=data->csiarray.wfit[pos].am[3];
-	    f=data->csiarray.wfit[pos].am[2];
-	    
-	    /* for(int i=1;i<=4;i++) */
-	    /* printf("amp[%d] %Lf\n",i,data->csiarray.wfit[pos].am[i]); */
-	    
-	    if(f==0)
-	      r=0;
-	    else
-	      r=s/f*100;
-	    
-	    r+=100;
+				type=data->csiarray.wfit[pos].type;
+				if(type==1)
+					{
+						if(useCharge==1)
+							e=data->csiarray.csi[pos].charge;
+						else
+							e=data->csiarray.wfit[pos].am[1];
+						s=data->csiarray.wfit[pos].am[3];
+						f=data->csiarray.wfit[pos].am[2];
+					
+						/* for(int i=1;i<=4;i++) */
+						/* printf("amp[%d] %Lf\n",i,data->csiarray.wfit[pos].am[i]); */
+					
+						if(f==0)
+							r=0;
+						else
+							r=s/f*100;
+					
+						r+=100;
 
-	    /* //for "rough" PID from 209Po */
-	    /* if(e>=0. && e<=2000.) */
-	    /*   if(r>100. && r<=300.) */
-	    /*     { */
-	    /*     na++; */
-	    /*     /\* printf("kept event e %10.3f r %10.3f\n",e,r); *\/ */
-	    /*     } */
-	    /* /\* getc(stdin); *\/ */
-	    
-	    if(pGateFlag[pos]==1)
-	      if(pGate[pos]->IsInside(e,r))
-		np++;
-	    if(aGateFlag[pos]==1)
-	      if(aGate[pos]->IsInside(e,r))
-		na++;
-	    
-	    /* if(np>0 || na>0) */
-	    /*   { */
-	    /*     printf("pos %d\n",pos); */
-	    /*     printf("e %10.3f r %10.3f\n",e,r); */
-	    /*     printf("na %d np %d\n",na,np); */
-	    /*     getc(stdin); */
-	    /*   } */
-	  }
+						/* //for "rough" PID from 209Po */
+						/* if(e>=0. && e<=2000.) */
+						/*   if(r>100. && r<=300.) */
+						/*     { */
+						/*     na++; */
+						/*     /\* printf("kept event e %10.3f r %10.3f\n",e,r); *\/ */
+						/*     } */
+						/* /\* getc(stdin); *\/ */
+					
+						if((pGateFlag[pos]==1)&&(pGate[pos]->IsInside(e,r)))
+							{
+								np++;
+								flag_csi|=(one<<pos); //flag the hit for preservation
+							}
+						else if((aGateFlag[pos]==1)&&(aGate[pos]->IsInside(e,r)))
+							{
+								na++;
+								flag_csi|=(one<<pos); //flag the hit for preservation
+							}
+					
+						/* if(np>0 || na>0) */
+						/*   { */
+						/*     printf("pos %d\n",pos); */
+						/*     printf("e %10.3f r %10.3f\n",e,r); */
+						/*     printf("na %d np %d\n",na,np); */
+						/*     getc(stdin); */
+						/*   } */
+					}
       }
   
 	if(np==gate_np)
 		if(na==gate_na)
 			{
+				//drop csi without that aren't flagged for preservation
+				//(ie. csi that aren't protons OR alphas)
+				for(pos=1;pos<NCSI;pos++)
+					if((data->csiarray.h.TSHP&(one<<pos))!=0)
+						if((flag_csi&(one<<pos))==0)
+							{
+								memset(&data->csiarray.csi[pos],0,sizeof(channel));
+								memset(&data->csiarray.wfit[pos],0,sizeof(ShapePar));
+								memset(&data->csiarray.t0[pos],0,sizeof(double));
+								data->csiarray.h.Efold--;
+								data->csiarray.h.Tfold--;	  
+								data->csiarray.h.TSfold--;
+								kill=none-(one<<pos);
+								data->csiarray.h.TSHP&=kill;
+								data->csiarray.h.EHP&=kill;
+								data->csiarray.h.THP&=kill;
+							}
+				if(data->csiarray.h.TSfold<=0)
+					{
+						kill=none-CsIArray_BIT; 
+						data->h.setupHP&=kill;
+						memset(&data->csiarray,0,sizeof(CsIArray));
+					}
+    
 				encode(data,output,enb);
 				//printf("Event encoded with np %d na %d\n\nEND OF EVENT\n",np,na);
 			}
@@ -79,11 +112,13 @@ int main(int argc, char *argv[])
   FILE *cluster,*gateNameFile;
   TFile* f;
   char aGateName[132],pGateName[132],det[132],DataFile[132];
+  useCharge=0;
 
-  if(argc!=4)
+  if((argc!=4)&&(argc!=5))
     {
-      printf("\n ./separate_CsIArray_PID_ER_Sum master_file_name np na\n");
+      printf("\n ./separate_CsIArray_PID_ER_Sum master_file_name np na useCharge\n");
       printf("\n Master file should specify a cluster file containing .sfu filenames to sort, a gate file, and a gate names file.\n");
+      printf("\nuseCharge is an optional parameter, set to 1 if charge is to be used instead of fitted amplitude, otherwise leave blank.\n");
       exit(-1);
     }
  
@@ -95,6 +130,8 @@ int main(int argc, char *argv[])
   read_master(argv[1],name);
   gate_np=atoi(argv[2]);
   gate_na=atoi(argv[3]);
+  if(argc>4)
+  	useCharge=atoi(argv[4]);
 
   if(name->flag.cluster_file!=1)
     {

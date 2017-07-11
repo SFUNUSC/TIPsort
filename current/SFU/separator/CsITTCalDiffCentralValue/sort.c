@@ -39,7 +39,7 @@ int analyze_data(raw_event *data)
       if((cev->csiarray.h.THP&(one<<pos1))!=0) //is there a hit in the detector?
         {
           thit=cev->csiarray.csi[pos1].T/cal_par->csiarray.contr_t;
-          if(abs(thit-csiTVal)<=gate_length)//check whether hit is near central value
+          if(abs(thit-csiTVal)<=half_gate_length)//check whether hit is near central value
           	{
 				      if (first_hit == true)
 				        {
@@ -55,18 +55,20 @@ int analyze_data(raw_event *data)
 
   //Open a gate after the first hit, if the subsequent hits fall within the time window 
   //flag them to be preserved.
-  tgate=t1+gate_length; //time at the end of the gate
-  	if(abs(tgate-csiTVal)<=gate_length)//check whether time is near central value
-		  if(cev->csiarray.h.FT>0)
-		    for(pos1=1;pos1<NCSI;pos1++) //look at each CsI position
-		      if((cev->csiarray.h.THP&(one<<pos1))!=0) //is there a hit in the detector?
-		        {
-		          thit=cev->csiarray.csi[pos1].T/cal_par->csiarray.contr_t;
-		          if ((corr==1)&&(thit<=tgate)) //check whether the hit is in the gate
-		            flag_csi|=(one<<pos1); //flag the correlated hit for preservation
-		          else if ((corr!=1)&&(thit>tgate))
-		          	flag_csi|=(one<<pos1); //flag the uncorrelated hit for preservation
-		        }
+  tgate=t1+gate_length; //time at the end of the gatee
+	  if(cev->csiarray.h.FT>0)
+	    for(pos1=1;pos1<NCSI;pos1++) //look at each CsI position
+	      if((cev->csiarray.h.THP&(one<<pos1))!=0) //is there a hit in the detector?
+	        {
+	          thit=cev->csiarray.csi[pos1].T/cal_par->csiarray.contr_t;
+	          if(abs(thit-csiTVal)<=half_gate_length)//check whether hit is near central value
+	          	{
+					      if ((corr==1)&&(thit<=tgate)) //check whether the hit is in the gate
+					        flag_csi|=(one<<pos1); //flag the correlated hit for preservation
+					      else if ((corr!=1)&&(thit>tgate))
+					      	flag_csi|=(one<<pos1); //flag the uncorrelated hit for preservation
+	          	}
+	        }
 
   free(cev);
   
@@ -180,6 +182,7 @@ int main(int argc, char *argv[])
   enb[1]++;
   enb[1]++;
   gate_length=cal_par->csiarray.TTCal_gate_length;
+  half_gate_length=gate_length/2.;
   printf("Gate length is %f\n",gate_length);
   
   sort(name);

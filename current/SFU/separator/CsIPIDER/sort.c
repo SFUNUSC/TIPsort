@@ -2,11 +2,12 @@
 
 int analyze_data(raw_event *data)
 {
-  unsigned long long int one=1;
+  long long int one=1,none=-1,kill;
   int np,na;
   double s,f,r,e;
   int type;
-  double chisq;
+  
+  long long int flag_csi;
   
   //if((data->h.setupHP&RF_BIT)==0) 
   //  return SEPARATOR_DISCARD;
@@ -14,6 +15,8 @@ int analyze_data(raw_event *data)
   if((data->h.setupHP&CsIArray_BIT)==0) 
     return SEPARATOR_DISCARD;
 
+	flag_csi=0;
+	
   np=0;
   na=0;
 
@@ -51,12 +54,16 @@ int analyze_data(raw_event *data)
 						//printf("e %10.3f r %10.3f\n",e,r);
 						//getc(stdin);
 
-						if(pGateFlag[pos]==1)
-							if(pGate[pos]->IsInside(e,r))
+						if((pGateFlag[pos]==1)&&(pGate[pos]->IsInside(e,r)))
+							{
 								np++;
-						if(aGateFlag[pos]==1)
-							if(aGate[pos]->IsInside(e,r))
+								flag_csi|=(one<<pos); //flag the hit for preservation
+							}
+						else if((aGateFlag[pos]==1)&&(aGate[pos]->IsInside(e,r)))
+							{
 								na++;
+								flag_csi|=(one<<pos); //flag the hit for preservation
+							}
 					
 						/* if(np>0 || na>0) */
 						/*   { */
@@ -74,6 +81,30 @@ int analyze_data(raw_event *data)
 	if(np==gate_np)
 		if(na==gate_na)
 			{
+				//drop csi without that aren't flagged for preservation
+				//(ie. csi that aren't protons OR alphas)
+				for(pos=1;pos<NCSI;pos++)
+					if((data->csiarray.h.TSHP&(one<<pos))!=0)
+						if((flag_csi&(one<<pos))==0)
+							{
+								memset(&data->csiarray.csi[pos],0,sizeof(channel));
+								memset(&data->csiarray.wfit[pos],0,sizeof(ShapePar));
+								memset(&data->csiarray.t0[pos],0,sizeof(double));
+								data->csiarray.h.Efold--;
+								data->csiarray.h.Tfold--;	  
+								data->csiarray.h.TSfold--;
+								kill=none-(one<<pos);
+								data->csiarray.h.TSHP&=kill;
+								data->csiarray.h.EHP&=kill;
+								data->csiarray.h.THP&=kill;
+							}
+				if(data->csiarray.h.TSfold<=0)
+					{
+						kill=none-CsIArray_BIT; 
+						data->h.setupHP&=kill;
+						memset(&data->csiarray,0,sizeof(CsIArray));
+					}
+    
 				encode(data,output,enb);
 				//printf("Event encoded with np %d na %d\n\nEND OF EVENT\n",np,na);
 			}

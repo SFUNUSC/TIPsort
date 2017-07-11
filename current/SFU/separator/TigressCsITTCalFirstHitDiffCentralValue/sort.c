@@ -264,7 +264,7 @@ int main(int argc, char *argv[])
   
   tigTVal=atoi(argv[4]);
   csiTVal=atoi(argv[5]);
-  gate_length=abs(high-low);
+  gate_length=abs(high-low)/2.;
   
   if(argc==7)
     plot_option=atoi(argv[6]);

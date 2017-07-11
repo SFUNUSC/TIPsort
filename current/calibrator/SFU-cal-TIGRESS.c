@@ -365,23 +365,23 @@ void read_TIGRESS_detector_positions(TIGRESS_calibration_parameters *TIGRESS_cal
   if(fgets(line,132,inp)!=NULL)
     {
       if(fgets(line,132,inp)!=NULL)
-	while(fscanf(inp,"%d %d %lf %lf %lf",&pos,&col,&x,&y,&z)!=EOF)
-	  if(pos>0&&pos<NPOSTIGR)
-	    if(col>=0&&col<NCOL)
-	    {
-	      TIGRESS_cal_par->tposflag[pos][col]=1;
+				while(fscanf(inp,"%d %d %lf %lf %lf",&pos,&col,&x,&y,&z)!=EOF)
+					if(pos>0&&pos<NPOSTIGR)
+						if(col>=0&&col<NCOL)
+							{
+								TIGRESS_cal_par->tposflag[pos][col]=1;
 
-	      R = sqrt(x*x+y*y+z*z);
-	      theta = acos(z/R);
-	      phi = atan2(y,x);
-	      
-	      TIGRESS_cal_par->tpos[pos][col][0]=R;
-	      TIGRESS_cal_par->tpos[pos][col][1]=theta;
-	      TIGRESS_cal_par->tpos[pos][col][2]=phi;
-        TIGRESS_cal_par->tpos_xyz[pos][col][0]=x;
-	      TIGRESS_cal_par->tpos_xyz[pos][col][1]=y;
-	      TIGRESS_cal_par->tpos_xyz[pos][col][2]=z;
-	    }
+								R = sqrt(x*x+y*y+z*z);
+								theta = acos(z/R);
+								phi = atan2(y,x);
+							
+								TIGRESS_cal_par->tpos[pos][col][0]=R;
+								TIGRESS_cal_par->tpos[pos][col][1]=theta;
+								TIGRESS_cal_par->tpos[pos][col][2]=phi;
+								TIGRESS_cal_par->tpos_xyz[pos][col][0]=x;
+								TIGRESS_cal_par->tpos_xyz[pos][col][1]=y;
+								TIGRESS_cal_par->tpos_xyz[pos][col][2]=z;
+							}
     }
   else
     {
@@ -472,7 +472,7 @@ void calibrate_TIGRESS(raw_event *raw_event, TIGRESS_calibration_parameters *TIG
   long int a;
   int tigPos,tigCol,bgoPos,bgoCol,bgoSup;
 
-   memset(TIGRESS_cal_ev,0,sizeof(cTIGRESS));
+  memset(TIGRESS_cal_ev,0,sizeof(cTIGRESS));
 
   /* TIGRESS core energy calibration */
   if(raw_event->tg.h.Gefold>0)

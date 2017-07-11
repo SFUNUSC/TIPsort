@@ -52,8 +52,13 @@ int analyze_data(raw_event *data)
   calibrate_CSIARRAY(data,&cal_par->csiarray,&cev->csiarray);
   
   //get momentum and beta values from calibration (values specified in parameter file)
-  beam_p[2]=cal_par->csiarray.pp;
-  beta=cal_par->csiarray.pbeta;
+  //beam_p[2]=cal_par->csiarray.pp;
+  //beta=cal_par->csiarray.pbeta;
+  //beam_p[2]=sqrt(2.0*cal_par->csiarray.Ebeam*cal_par->csiarray.mproj); //momentum of incoming beam
+  beam_p[2]=sqrt( ((cal_par->csiarray.Ebeam + cal_par->csiarray.mproj)*(cal_par->csiarray.Ebeam + cal_par->csiarray.mproj)) - (cal_par->csiarray.mproj*cal_par->csiarray.mproj) ); //momentum of incoming beam, relativistic, from KE = mc^2 + m0c^2, mc^2 = sqrt(p^2c^2 + m0^2c^4)
+  //printf("Beam p: %f\n",beam_p[2]);
+  //getc(stdin);
+  //beta=sqrt(2.0*cal_par->csiarray.Ebeam/(cal_par->csiarray.mproj)); // v/c of incoming beam
 
   
   //check the Ge fold
@@ -115,7 +120,10 @@ int analyze_data(raw_event *data)
                             vecMag=sqrt(part_p[csi][0]*part_p[csi][0] + part_p[csi][1]*part_p[csi][1] + part_p[csi][2]*part_p[csi][2]);
                             ecsi=cev->csiarray.csi[csi].E/1000.; /* CsI energy in MeV */
                             for(int ind=0;ind<3;ind++)
-                              part_p[csi][ind]=part_p[csi][ind]*(sqrt(2*ecsi*cal_par->csiarray.mp))/vecMag;//make vector proper length for momentum
+                              {
+		                          	part_p[csi][ind]=part_p[csi][ind]*(sqrt( ((ecsi+cal_par->csiarray.mp)*(ecsi+cal_par->csiarray.mp)) - (cal_par->csiarray.mp*cal_par->csiarray.mp) )); //relativistic p
+		                          	part_p[csi][ind]/=vecMag;//make vector proper length for momentum
+                              }
                           }
               
                     //subtract detected particle momenta from beam momentum to get residual momentum
@@ -127,6 +135,12 @@ int analyze_data(raw_event *data)
                     //make momentum vector into direction vector  
                     for(int ind=0;ind<3;ind++)
                       res_dir[ind]=res_p[ind]/sqrt(res_p[0]*res_p[0] + res_p[1]*res_p[1] + res_p[2]*res_p[2]);
+                      
+                    //calculate speed of residual
+                    beta=sqrt(res_p[0]*res_p[0] + res_p[1]*res_p[1] + res_p[2]*res_p[2]);
+                    beta/=cal_par->csiarray.mr;
+                    //printf("beta: %f\n",beta);
+                    
                     //calculate ds
                     TData.ds=sqrt(1-beta*beta) / (1-(beta*(res_dir[0]*gamma_dir[0] + res_dir[1]*gamma_dir[1] + res_dir[2]*gamma_dir[2])));
                     

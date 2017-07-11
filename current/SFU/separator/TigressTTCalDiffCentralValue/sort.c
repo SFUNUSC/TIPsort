@@ -37,7 +37,7 @@ int analyze_data(raw_event *data)
 		            if((cev->tg.det[pos1].ge[col1].h.THP&1)!=0)
 		              {
                     thit=cev->tg.det[pos1].ge[col1].seg[0].T/cal_par->tg.contr_t;
-                    if(abs(thit-tigTVal)<=gate_length)//check whether hit is near central value
+                    if(abs(thit-tigTVal)<=half_gate_length)//check whether hit is near central value
                     	{
 				                if (first_hit == true)
 				                  {
@@ -55,7 +55,6 @@ int analyze_data(raw_event *data)
   //Open a gate after the first hit, if the second hit falls within the time window 
   //flag both hits to be preserved.
   tgate=t1+gate_length; //time at the end of the gate
-		if(abs(tgate-tigTVal)<=gate_length)//check whether time is near central value
 		  if(cev->tg.h.FT>0)
 		    for(pos1=1;pos1<NPOSTIGR;pos1++)
 		      if((cev->tg.h.THP&(1<<(pos1-1)))!=0)
@@ -67,17 +66,20 @@ int analyze_data(raw_event *data)
 			                {
 		                    thit=cev->tg.det[pos1].ge[col1].seg[0].T/cal_par->tg.contr_t;
 		                    //printf("thit=%f\n",thit);
-		                    if ((corr==1)&&(thit<=tgate)) //check whether the hit is in the gate
-		                      {
-		                        id=pos1-1;
-		                        id_ge=id*NCOL+col1;
-		                        flag_ge|=(one<<id_ge); //flag the correlated hit for preservation
-		                      }
-		                    else if ((corr!=1)&&(thit>tgate))
+		                    if(abs(thit-tigTVal)<=half_gate_length)//check whether hit is near central value
 		                    	{
-		                    		id=pos1-1;
-		                        id_ge=id*NCOL+col1;
-		                        flag_ge|=(one<<id_ge); //flag the uncorrelated hit for preservation
+						                if ((corr==1)&&(thit<=tgate)) //check whether the hit is in the gate
+						                  {
+						                    id=pos1-1;
+						                    id_ge=id*NCOL+col1;
+						                    flag_ge|=(one<<id_ge); //flag the correlated hit for preservation
+						                  }
+						                else if ((corr!=1)&&(thit>tgate))
+						                	{
+						                		id=pos1-1;
+						                    id_ge=id*NCOL+col1;
+						                    flag_ge|=(one<<id_ge); //flag the uncorrelated hit for preservation
+						                	}
 		                    	}
 		                  }
 
@@ -224,6 +226,7 @@ int main(int argc, char *argv[])
   enb[1]++;
   
   gate_length=cal_par->tg.TTCal_gate_length;
+  half_gate_length=gate_length/2.;
   printf("Gate length is %f\n",gate_length);
 
   sort(name);

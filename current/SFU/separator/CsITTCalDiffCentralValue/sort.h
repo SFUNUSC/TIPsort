@@ -23,5 +23,5 @@ int corr;
 double csiTVal;
 
 calibration_parameters* cal_par;
-double gate_length;
+double gate_length,half_gate_length;
 #endif

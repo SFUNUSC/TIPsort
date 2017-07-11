@@ -53,7 +53,8 @@ typedef struct
   int    ringflag[NPOSTIGR][NCOL];
   float  ce[NPOSTIGR][NCOL][3];
   double tpos[NPOSTIGR][NCOL][3];  //Tigress detector positions [# detectors][# crystals][# parameters/detector (R,theta,phi)]
-  double tpos_xyz[NPOSTIGR][NCOL][3];  //CsI detector positions [# detectors][# crystals][# parameters/detector (x,y,z)]
+  double tpos_xyz[NPOSTIGR][NCOL][3];  //Tigress detector positions [# detectors][# crystals][# parameters/detector (x,y,z)]
+  double tsegpos_xyz[NPOSTIGR][NCOL][NSEGTIGR][3]; //Tigress segment positions [# detectors][# crystals][# segments][# parameters/detector (x,y,z)]
   float  ct[NPOSTIGR][NCOL][2];
   float  contr_e;
   float  contr_t;

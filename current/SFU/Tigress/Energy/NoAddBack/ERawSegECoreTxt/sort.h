@@ -6,13 +6,9 @@
 #include "SFU-decoder.h"
 #include "SFU-cal.h"
 
-#include "TH2D.h"
-#include "TStyle.h"
-#include "TCanvas.h"
-#include "TFile.h"
-#include "TApplication.h"
-
-TH2D *h[NPOSTIGR*NCOL*8];
 calibration_parameters* cal_par;
+
+FILE * output[NPOSTIGR-1][NCOL][8];
+double ecorelow,ecorehigh,eseglow,eseghigh;
 
 #endif

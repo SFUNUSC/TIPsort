@@ -11,6 +11,8 @@ int analyze_data(raw_event *data)
   cev=(cal_event*)malloc(sizeof(cal_event));
   memset(cev,0,sizeof(cal_event));
   calibrate_TIGRESS(data,&cal_par->tg,&cev->tg);
+  //printf("cntr: %f\n",cal_par->tg.contr_e);
+  //getc(stdin);
   
   //check the Ge fold
   if(cev->tg.h.FA>0)

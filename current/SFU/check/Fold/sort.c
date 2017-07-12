@@ -64,13 +64,15 @@ int main(int argc, char *argv[])
   detectorSubsystem=atoi(argv[2]);
   sort(name); 
 
+	printf("Fold distribution:\n");
+  for(int i=0;i<10;i++)
+  	printf("Fold %i events: %li\n",i,foldHist[i]);
+
   theApp=new TApplication("App", &argc, argv);
   canvas = new TCanvas(title,title,10,10, 500, 300);
   gPad->SetLogy(1);
   h->Draw();
   theApp->Run(kTRUE);
   
-  printf("Fold distribution:\n");
-  for(int i=0;i<10;i++)
-  	printf("Fold %i events: %li\n",i,foldHist[i]);
+  
 }

@@ -166,7 +166,7 @@ int analyze_data(raw_event *data)
                     		printf("ERROR: Doppler shift is undefined!\nHave you properly specified all detector postions in the parameter files?\n");
                     		printf("\nINFO DUMP\n---------\n");
 												printf("ds: %f\n",ds);
-												printf("Tigress pos: %i\n",pos1);
+												printf("Tigress pos: %i\n",pos);
 												printf("beta: %f, gamma_dir: [%f %f %f]\n",beta,gamma_dir[0],gamma_dir[1],gamma_dir[2]);
 												printf("res_p: [%f %f %f] MeV/c\n",res_p[0],res_p[1],res_p[2]);
 												printf("res_pdir: [%f %f %f]\n",res_dir[0],res_dir[1],res_dir[2]);

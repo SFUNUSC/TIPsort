@@ -12,17 +12,17 @@ int analyze_data(raw_event *data)
   if(cev->tg.h.FE>0)
     for(pos=1;pos<NPOSTIGR;pos++)
       if((cev->tg.h.EHP&(1<<(pos-1)))!=0)
-  	if(cev->tg.det[pos].hge.FE>0)
-  	  for(col=0;col<NCOL;col++)
-  	    if((cev->tg.det[pos].hge.EHP&(1<<col))!=0)
-  	      if(cev->tg.det[pos].ge[col].h.FE>0)
-  		if((cev->tg.det[pos].ge[col].h.EHP&1)!=0)
-  		  {
-  		    e=cev->tg.det[pos].ge[col].seg[0].E/cal_par->tg.contr_e;
+				if(cev->tg.det[pos].hge.FE>0)
+					for(col=0;col<NCOL;col++)
+					  if((cev->tg.det[pos].hge.EHP&(1<<col))!=0)
+					    if(cev->tg.det[pos].ge[col].h.FE>0)
+								if((cev->tg.det[pos].ge[col].h.EHP&1)!=0)
+									{
+										e=cev->tg.det[pos].ge[col].seg[0].E/cal_par->tg.contr_e;
 
-		    if(e>=0 && e<S32K) hist[pos][col][(int)(e)]++;
-		    else hist[pos][col][S32K-10]++;
-		  }
+										if(e>=0 && e<S32K) hist[pos][col][(int)(e)]++;
+										else hist[pos][col][S32K-10]++;
+									}
   free(cev);
   return SEPARATOR_DISCARD;
 }

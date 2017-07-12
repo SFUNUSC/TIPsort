@@ -54,7 +54,6 @@ typedef struct
   float  ce[NPOSTIGR][NCOL][3];
   double tpos[NPOSTIGR][NCOL][3];  //Tigress detector positions [# detectors][# crystals][# parameters/detector (R,theta,phi)]
   double tpos_xyz[NPOSTIGR][NCOL][3];  //Tigress detector positions [# detectors][# crystals][# parameters/detector (x,y,z)]
-  double tsegpos_xyz[NPOSTIGR][NCOL][NSEGTIGR][3]; //Tigress segment positions [# detectors][# crystals][# segments][# parameters/detector (x,y,z)]
   float  ct[NPOSTIGR][NCOL][2];
   float  contr_e;
   float  contr_t;
@@ -72,6 +71,7 @@ typedef struct
   int    DoRFUnwrapping;
   int    sup_map[NPOSTIGR][NCOL][NPOSTIGR][NCOL][NSUP];
   int    TTCal_gate_length; //gate length for use in Tigress_TTCal separator code
+  //double tsegpos_xyz[NPOSTIGR][NCOL][NSEGTIGR][3]; //Tigress segment positions [# detectors][# crystals][# segments][# parameters/detector (x,y,z)]
 } TIGRESS_calibration_parameters;
 
 void initialize_TIGRESS_calibration(TIGRESS_calibration_parameters*, char *);

@@ -21,22 +21,26 @@ int analyze_data(raw_event *data)
 									{
 										e=cev->tg.det[pos].ge[col].seg[0].E/cal_par->tg.contr_e; //core energy
 										for(sgm=1;sgm<9;sgm++)//loop over real segments
-											if((data->tg.det[pos].ge[col].h.EHP&(1<<sgm))!=0)
-											//if((data->tg.det[pos].ge[col].h.EHP&1)!=0)
-												{
-													eseg=data->tg.det[pos].ge[col].seg[sgm].charge; //segment energy
+											{
+												if((data->tg.det[pos].ge[col].h.EHP&(1<<sgm))!=0)
+												//if((data->tg.det[pos].ge[col].h.EHP&1)!=0)
+													{
+														eseg=data->tg.det[pos].ge[col].seg[sgm].charge; //segment energy
 													
-													if(e>=ecorelow && e<ecorehigh)
-														if(eseg>=eseglow && eseg<eseghigh)
-															{
-																//print data to ASCII file(s)
-																fprintf(output[pos-1][col][sgm-1],"%f %f\n",eseg,e);
-															}
+														if(e>=ecorelow && e<ecorehigh)
+															if(eseg>=eseglow && eseg<eseghigh)
+																{
+																	//print data to ASCII file(s)
+																	fprintf(output[pos-1][col][sgm-1],"%f %f\n",eseg,e);
+																}
 													
-													
-													//printf("e: %f, eseg: %f\n",e,eseg);
-													//getc(stdin);
-												}
+														if(pos==1)
+															if(col==3)
+																if(sgm==2){
+																	printf("e: %f, eseg: %f\n",e,eseg);
+																	getc(stdin);}
+													}
+											}
 									}
 								
 	free(cev);
@@ -91,7 +95,7 @@ int main(int argc, char *argv[])
 		for(col=0;col<NCOL;col++)
 			for(sgm=1;sgm<9;sgm++)
 				{
-					sprintf(OutName,"ESegECore_pos%02d_col%1d_seg%1d.txt",pos,col,sgm);
+					sprintf(OutName,"ESegECore_pos%1d_col%1d_seg%1d.txt",pos,col,sgm);
 					if((output[pos-1][col][sgm-1]=fopen(OutName,"w"))==NULL)
 						{
 							printf("ERROR: cannot open the output file %s\n",OutName);
@@ -99,8 +103,11 @@ int main(int argc, char *argv[])
 						}
 					else
 						{
-							fprintf(output[pos-1][col][sgm-1],"FIT  par1\n"); //for fitting in the gridlock code
+							//write header for fitting in the gridlock code
+							fprintf(output[pos-1][col][sgm-1],"FIT  par1\n");
 							fprintf(output[pos-1][col][sgm-1],"PLOT  1d\n");
+							fprintf(output[pos-1][col][sgm-1],"LINEAR_FILTER 0.3\n");
+							fprintf(output[pos-1][col][sgm-1],"COEFFICIENTS\n");
 						}
 				}
 
@@ -111,6 +118,5 @@ int main(int argc, char *argv[])
 		for(col=0;col<NCOL;col++)
 			for(sgm=1;sgm<9;sgm++)
 				fclose(output[pos-1][col][sgm-1]);
-  //theApp->Run(kTRUE); 
 
 }

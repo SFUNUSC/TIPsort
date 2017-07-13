@@ -24,7 +24,7 @@ int analyze_data(raw_event *data)
 											if((data->tg.det[pos].ge[col].h.EHP&(1<<sgm))!=0)
 											//if((data->tg.det[pos].ge[col].h.EHP&1)!=0)
 												{
-													specNum=(pos-1)*NPOSTIGR + col*NCOL + (sgm-1);
+													specNum=(pos-1)*NCOL*8 + col*8 + (sgm-1);
 													eseg=data->tg.det[pos].ge[col].seg[sgm].charge; //segment energy
 												
 													if(e>=0 && e<S32K)
@@ -33,7 +33,11 @@ int analyze_data(raw_event *data)
 																h[specNum]->Fill(e,eseg);//segment on y axis
 															}
 													
-													
+													if(pos==1)
+														if(col==3)
+															if(sgm==2){
+																printf("e: %f, eseg: %f\n",e,eseg);
+																getc(stdin);}
 													//printf("e: %f, eseg: %f\n",e,eseg);
 													//getc(stdin);
 												}
@@ -64,7 +68,7 @@ int main(int argc, char *argv[])
 		for(col=0;col<NCOL;col++)
 			for(sgm=1;sgm<9;sgm++)
 				{
-					specNum=(pos-1)*NPOSTIGR + col*NCOL + (sgm-1);
+					specNum=(pos-1)*NCOL*8 + col*8 + (sgm-1);
 				  sprintf(HistName,"ESegECore_pos%02d_col%1d_seg%1d",pos,col,sgm);
 				  h[specNum] = new TH2D(HistName,HistName,S1K,0,S32K,S1K,0,S32K);
 				  h[specNum]->Reset();
@@ -106,7 +110,7 @@ int main(int argc, char *argv[])
 		for(col=0;col<NCOL;col++)
 			for(sgm=1;sgm<9;sgm++)
 				{
-					specNum=(pos-1)*NPOSTIGR + col*NCOL + (sgm-1);
+					specNum=(pos-1)*NCOL*8 + col*8 + (sgm-1);
 				  sprintf(HistName,"ESegECore_pos%02d_col%1d_seg%1d",pos,col,sgm);
 				  h[specNum]->Draw("COLZ");
 				  h[specNum]->Write(HistName);

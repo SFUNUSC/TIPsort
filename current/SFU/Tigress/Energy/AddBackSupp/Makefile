@@ -3,6 +3,10 @@ all:
 	(cd ECalABSupp r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Tigress_ECalABSupp.
 	
+	echo Making Tigress_ECalABSuppSeg.
+	(cd ECalABSuppSeg r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: Tigress_ECalABSuppSeg.
+	
 	echo Making Tigress_ECalABSuppRing.
 	(cd ECalABSuppRing r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Tigress_ECalABSuppRing.
@@ -77,6 +81,7 @@ all:
 
 clean:
 	(cd ECalABSupp               	    && make -is clean && cd ..)
+	(cd ECalABSuppSeg               	&& make -is clean && cd ..)
 	(cd ECalABSuppRing           	    && make -is clean && cd ..)
 	(cd ECalABSuppRingDopplerCorrected     && make -is clean && cd ..)
 	#(cd ECalABSuppTester             && make -is clean && cd ..)

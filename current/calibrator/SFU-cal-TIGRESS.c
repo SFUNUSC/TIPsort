@@ -35,6 +35,9 @@ void initialize_TIGRESS_calibration(TIGRESS_calibration_parameters *TIGRESS_cal_
 	      
 	      if(strcmp(str1,"Core_energy_calibration_parameters")==0)
 		read_TIGRESS_core_e_cal_par(TIGRESS_cal_par,str2);
+		
+				if(strcmp(str1,"Segment_energy_calibration_parameters")==0)
+		read_TIGRESS_core_s_cal_par(TIGRESS_cal_par,str2);
 	      
 	      if(strcmp(str1,"Core_time_calibration_parameters")==0)
 		read_TIGRESS_core_t_cal_par(TIGRESS_cal_par,str2);
@@ -159,6 +162,42 @@ void read_TIGRESS_core_e_cal_par(TIGRESS_calibration_parameters *TIGRESS_cal_par
 	      printf("Aborting sort\n");
 	      exit(1);
 	    }
+  fclose(inp);
+  
+}
+/***********************************************************************/
+void read_TIGRESS_core_s_cal_par(TIGRESS_calibration_parameters *TIGRESS_cal_par, char *filename)
+{
+  FILE *inp;
+  char line[132];
+  int  pos,col,sgm,i;
+  double a[3];
+
+  if((inp=fopen(filename,"r"))==NULL)
+      {
+         printf("\nI can't open file %s\n",filename);
+         exit(EXIT_FAILURE);
+      }
+  printf("\nSegment energy calibration parameters read from the file:\n %s\n",filename);
+
+  if(fgets(line,132,inp)!=NULL)
+    {
+      if(fgets(line,132,inp)!=NULL)
+				while(fscanf(inp,"%d %d %d %lf %lf %lf",&pos,&col,&sgm,&a[0],&a[1],&a[2])!=EOF)
+					if(pos>0&&pos<NPOSTIGR)
+						if(col>=0&&col<NCOL)
+							if(sgm>0&&sgm<NSEGTIGR)
+								{
+									TIGRESS_cal_par->seflag[pos][col][sgm]=1;
+									for(i=0;i<3;i++) TIGRESS_cal_par->se[pos][col][sgm][i]=a[i];
+								}
+		}
+	else
+		{
+			printf("Wrong structure of file %s\n",filename);
+			printf("Aborting sort\n");
+			exit(1);
+    }
   fclose(inp);
   
 }
@@ -463,7 +502,7 @@ void calibrate_TIGRESS(raw_event *raw_event, TIGRESS_calibration_parameters *TIG
 {
 
   long long int one=1;
-  int pos,col,sup,addback_n;
+  int pos,col,sgm,sup,addback_n;
   double ran,ren,e,t;
   double addback_e,addback_t,addback_max;
   int    addback_c,addback_r;
@@ -478,30 +517,61 @@ void calibrate_TIGRESS(raw_event *raw_event, TIGRESS_calibration_parameters *TIG
   if(raw_event->tg.h.Gefold>0)
     for(pos=1;pos<NPOSTIGR;pos++)
       if((raw_event->tg.h.GeHP&(one<<(pos-1)))!=0)
-	if(raw_event->tg.det[pos].h.Gefold>0)
-	  for(col=0;col<NCOL;col++)
-	    if(TIGRESS_cal_par->ceflag[pos][col]==1)
-	      if(((raw_event->tg.det[pos].h.GeHP)&(one<<col))!=0)
-		if(raw_event->tg.det[pos].ge[col].h.Efold>0)
-		  if((raw_event->tg.det[pos].ge[col].h.EHP&1)!=0)
-		    {
-		      ran=(double)rand()/(double)RAND_MAX-0.5;
-		      ren=raw_event->tg.det[pos].ge[col].seg[0].charge+ran;
-		      e=TIGRESS_cal_par->ce[pos][col][0]+TIGRESS_cal_par->ce[pos][col][1]*ren+TIGRESS_cal_par->ce[pos][col][2]*ren*ren;
-		      if(e>0)
-			if(e<S65K)
-			  {
-			    TIGRESS_cal_ev->det[pos].ge[col].seg[0].E=e;
-			    TIGRESS_cal_ev->det[pos].ge[col].h.FE++;
-			    TIGRESS_cal_ev->det[pos].ge[col].h.EHP|=1;
-			    TIGRESS_cal_ev->det[pos].ge[col].ring=TIGRESS_cal_par->ring_map[pos][col];
-			    TIGRESS_cal_ev->det[pos].hge.FE++;
-			    TIGRESS_cal_ev->det[pos].hge.EHP|=(one<<col);
-			    TIGRESS_cal_ev->h.FE++;
-			    TIGRESS_cal_ev->h.EHP|=(one<<(pos-1));
-			  }
-		    }
+				if(raw_event->tg.det[pos].h.Gefold>0)
+					for(col=0;col<NCOL;col++)
+						if(TIGRESS_cal_par->ceflag[pos][col]==1)
+							if(((raw_event->tg.det[pos].h.GeHP)&(one<<col))!=0)
+								if(raw_event->tg.det[pos].ge[col].h.Efold>0)
+									if((raw_event->tg.det[pos].ge[col].h.EHP&1)!=0)
+										{
+											ran=(double)rand()/(double)RAND_MAX-0.5;
+											ren=raw_event->tg.det[pos].ge[col].seg[0].charge+ran;
+											e=TIGRESS_cal_par->ce[pos][col][0]+TIGRESS_cal_par->ce[pos][col][1]*ren+TIGRESS_cal_par->ce[pos][col][2]*ren*ren;
+											if(e>0)
+												if(e<S65K)
+													{
+														TIGRESS_cal_ev->det[pos].ge[col].seg[0].E=e;
+														TIGRESS_cal_ev->det[pos].ge[col].h.FE++;
+														TIGRESS_cal_ev->det[pos].ge[col].h.EHP|=1;
+														TIGRESS_cal_ev->det[pos].ge[col].ring=TIGRESS_cal_par->ring_map[pos][col];
+														TIGRESS_cal_ev->det[pos].hge.FE++;
+														TIGRESS_cal_ev->det[pos].hge.EHP|=(one<<col);
+														TIGRESS_cal_ev->h.FE++;
+														TIGRESS_cal_ev->h.EHP|=(one<<(pos-1));
+													}
+										}
   /* end TIGRESS core energy calibration */
+  
+  
+  /* TIGRESS segment energy calibration */
+  if(raw_event->tg.h.Gefold>0)
+    for(pos=1;pos<NPOSTIGR;pos++)
+      if((raw_event->tg.h.GeHP&(one<<(pos-1)))!=0)
+				if(raw_event->tg.det[pos].h.Gefold>0)
+					for(col=0;col<NCOL;col++)
+						if(((raw_event->tg.det[pos].h.GeHP)&(one<<col))!=0)
+							if(raw_event->tg.det[pos].ge[col].h.Efold>0)
+								if((raw_event->tg.det[pos].ge[col].h.EHP&1)!=0)
+									for(sgm=1;sgm<9;sgm++)//loop over real segments
+										if(TIGRESS_cal_par->seflag[pos][col][sgm]==1)
+											if((raw_event->tg.det[pos].ge[col].h.EHP&(1<<sgm))!=0)
+												{
+													
+													ran=(double)rand()/(double)RAND_MAX-0.5;
+													ren=raw_event->tg.det[pos].ge[col].seg[sgm].charge+ran;
+													e=TIGRESS_cal_par->se[pos][col][sgm][2]+TIGRESS_cal_par->se[pos][col][sgm][1]*ren+TIGRESS_cal_par->se[pos][col][sgm][0]*ren*ren;//note reverse order of coefficients!!
+													//printf("pos=%i, col=%i, sgm=%i\n",pos,col,sgm);
+													//printf("a0=%f, a1=%f, a2=%f\n",TIGRESS_cal_par->se[pos][col][sgm][0],TIGRESS_cal_par->se[pos][col][sgm][1],TIGRESS_cal_par->se[pos][col][sgm][2]);
+													//printf("ran=%f, ren=%f, e=%f\n",ran,ren,e);
+													if(e>0)
+														if(e<S65K)
+															{
+																TIGRESS_cal_ev->det[pos].ge[col].seg[sgm].E=e;
+																TIGRESS_cal_ev->det[pos].ge[col].h.EHP|=(one<<sgm);
+															}
+												}
+  /* end TIGRESS segment energy calibration */
+  
 
   /* TIGRESS core time calibration from the DAQ CFD */
   if(TIGRESS_cal_par->use_time_fit_tgr==0)

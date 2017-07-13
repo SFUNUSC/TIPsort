@@ -32,12 +32,7 @@ int analyze_data(raw_event *data)
 															{
 																h[specNum]->Fill(e,eseg);//segment on y axis
 															}
-													
-													if(pos==1)
-														if(col==3)
-															if(sgm==2){
-																printf("e: %f, eseg: %f\n",e,eseg);
-																getc(stdin);}
+															
 													//printf("e: %f, eseg: %f\n",e,eseg);
 													//getc(stdin);
 												}

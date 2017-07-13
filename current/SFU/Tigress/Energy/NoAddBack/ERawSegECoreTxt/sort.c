@@ -33,12 +33,6 @@ int analyze_data(raw_event *data)
 																	//print data to ASCII file(s)
 																	fprintf(output[pos-1][col][sgm-1],"%f %f\n",eseg,e);
 																}
-													
-														if(pos==1)
-															if(col==3)
-																if(sgm==2){
-																	printf("e: %f, eseg: %f\n",e,eseg);
-																	getc(stdin);}
 													}
 											}
 									}

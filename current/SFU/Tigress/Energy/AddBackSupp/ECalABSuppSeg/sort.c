@@ -80,13 +80,18 @@ int analyze_data(raw_event *data)
 										if(maxESeg!=0)
 											{
 												if(eAddBack>=0 && eAddBack<S32K)
-													hist[pos][col][maxESeg-1][(int)(eAddBack)]++;
+													{
+														hist[pos][col][maxESeg][(int)(eAddBack)]++;//make segment energy spectrum
+														hist[pos][col][0][(int)(eAddBack)]++;//make core energy spectrum
+													}
 												else
 													{
 														//printf("eAddback %f\n",eAddBack);
-														hist[pos][col][maxESeg-1][S32K-1000]++;
+														hist[pos][col][maxESeg][S32K-1000]++;
+														hist[pos][col][0][S32K-1000]++;
 													}
 											}
+											
 									}
 							}
       }
@@ -154,7 +159,7 @@ int main(int argc, char *argv[])
 						exit(EXIT_FAILURE);
 					}
 		    
-		    for(sgm=1;sgm<9;sgm++) fwrite(hist[pos][col][sgm-1],S32K*sizeof(int),1,output);
+		    for(sgm=0;sgm<9;sgm++) fwrite(hist[pos][col][sgm],S32K*sizeof(int),1,output);
 		    fclose(output);
 		  }
 }

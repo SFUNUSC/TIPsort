@@ -127,6 +127,10 @@ all:
 	(cd  ECosThetaCalABSuppSum_Sheared r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: ECosThetaCalABSuppSum_Sheared.
 	
+	echo Making EECalABSuppSumDSReconstructedSum.
+	(cd  EECalABSuppSumDSReconstructedSum r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: EECalABSuppSumDSReconstructedSum.
+	
 	echo Making FusEvap_ResE.
 	(cd  FusEvap_ResE r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: FusEvap_ResE.
@@ -165,6 +169,7 @@ clean:
 	(cd ECalABSuppDSReconstructedSumEGated  && make -is clean && cd ..)
 	(cd ECalABSuppSegDSReconstructedSum  && make -is clean && cd ..)
 	(cd ECosThetaCalABSuppSum_Sheared  && make -is clean && cd ..)
+	(cd EECalABSuppSumDSReconstructedSum  && make -is clean && cd ..)
 	(cd FusEvap_ResE  && make -is clean && cd ..)
 
 	rm -f *~

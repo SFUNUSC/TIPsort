@@ -4,9 +4,10 @@ int analyze_data(raw_event *data)
 {
   cal_event* cev;
   int pos,col;
-  int pos1,col1,pos2,col2;
-  double thit1,thit2;
-  bool inGate=false;
+  int pos1,col1;
+  double thit,tgate;
+  bool first_hit = true;
+  double t1=0;
   
   long long int one=1,none=-1,kill;
   int id,id_ge;
@@ -24,9 +25,8 @@ int analyze_data(raw_event *data)
 
   flag_ge=0;
 
-  //For each TIGRESS hit, see if there are other TIGRESS hits
-  //within a single gate-length of the hit, and preserve the
-  //hit if true
+  //Given any number of TIGRESS detector hits during the event, find the time at which 
+  //the first and second hits occur.
   if(cev->tg.h.FT>0)
     for(pos1=1;pos1<NPOSTIGR;pos1++)
       if((cev->tg.h.THP&(1<<(pos1-1)))!=0)
@@ -36,37 +36,46 @@ int analyze_data(raw_event *data)
 	            if(cev->tg.det[pos1].ge[col1].h.FT>0)
 		            if((cev->tg.det[pos1].ge[col1].h.THP&1)!=0)
 		              {
-                    thit1=cev->tg.det[pos1].ge[col1].seg[0].T/cal_par->tg.contr_t;
-                    
-                    //compare this hit to other hits
-                    inGate=false;
-                    for(pos2=1;pos2<NPOSTIGR;pos2++)
-											if((cev->tg.h.THP&(1<<(pos2-1)))!=0)
-												if(cev->tg.det[pos2].hge.FT>0)
-													for(col2=0;col2<NCOL;col2++)
-														if((cev->tg.det[pos2].hge.THP&(1<<col2))!=0)
-															if(cev->tg.det[pos2].ge[col2].h.FT>0)
-																if((cev->tg.det[pos2].ge[col2].h.THP&1)!=0)
-																	if((pos2!=pos1)&&(col2!=col1))//check that hits are not the same
-																		{
-																			thit2=cev->tg.det[pos2].ge[col2].seg[0].T/cal_par->tg.contr_t;
-																			if(abs(thit2-thit1)<=gate_length)
-																				inGate=true;
-																		}
-                    
-                    if ((corr==1)&&(inGate)) //check whether the hit is in the gate
+                    thit=cev->tg.det[pos1].ge[col1].seg[0].T/cal_par->tg.contr_t;
+                    if (first_hit == true)
                       {
-                        id=pos1-1;
-                        id_ge=id*NCOL+col1;
-                        flag_ge|=(one<<id_ge); //flag the correlated hit for preservation
+                        first_hit = false;
+                        t1=thit;
                       }
-                    else if ((corr!=1)&&(inGate==false))
-                    	{
-                    		id=pos1-1;
-                        id_ge=id*NCOL+col1;
-                        flag_ge|=(one<<id_ge); //flag the uncorrelated hit for preservation
-                    	}
+                    else if (t1>thit)
+                      {
+                        t1=thit; //assign the time of the first hit
+                      }
                   }
+  //printf("t1=%f\n",t1);
+
+  //Open a gate after the first hit, if the second hit falls within the time window 
+  //flag both hits to be preserved.
+  tgate=t1+gate_length; //time at the end of the gate
+    if(cev->tg.h.FT>0)
+      for(pos1=1;pos1<NPOSTIGR;pos1++)
+        if((cev->tg.h.THP&(1<<(pos1-1)))!=0)
+          if(cev->tg.det[pos1].hge.FT>0)
+            for(col1=0;col1<NCOL;col1++)
+              if((cev->tg.det[pos1].hge.THP&(1<<col1))!=0)
+                if(cev->tg.det[pos1].ge[col1].h.FT>0)
+	                if((cev->tg.det[pos1].ge[col1].h.THP&1)!=0)
+	                  {
+                      thit=cev->tg.det[pos1].ge[col1].seg[0].T/cal_par->tg.contr_t;
+                      //printf("thit=%f\n",thit);
+                      if ((corr==1)&&(thit<=tgate)) //check whether the hit is in the gate
+                        {
+                          id=pos1-1;
+                          id_ge=id*NCOL+col1;
+                          flag_ge|=(one<<id_ge); //flag the correlated hit for preservation
+                        }
+                      else if ((corr!=1)&&(thit>tgate))
+                      	{
+                      		id=pos1-1;
+                          id_ge=id*NCOL+col1;
+                          flag_ge|=(one<<id_ge); //flag the uncorrelated hit for preservation
+                      	}
+                    }
 
     free(cev);
     
@@ -129,7 +138,7 @@ int analyze_data(raw_event *data)
     //if((data->h.setupHP&RF_BIT)==0)
     //  return SEPARATOR_DISCARD; 
     
-    //check that there are at least 2 Tigress events 
+    //check that there are 2 Tigress events 
 		if(data->tg.h.Gefold<2)
 			return SEPARATOR_DISCARD;
     
@@ -146,7 +155,7 @@ int main(int argc, char *argv[])
 
   if((argc!=2)&&(argc!=3))
     {
-      printf("separate_Tigress_TTCalDiff master_file_name correlated\n");
+      printf("separate_Tigress_TTCalDiffFirstHit master_file_name correlated\n");
       printf("\n Separates out gamma-gamma coincidences where the subsequent gammas arrive within (calibrated) time gate of gate_length.  Discards any gamma hits which arrive outside of the time gate (with respect to the first hit).\nThe time gate length is specified in the Tigress array calibration parameters file (under 'TIGRESS_TTCal_gate_length').\n\nThe third argument should be set to 'no' to sort uncorrelated data (events outside the time gate), and 'yes' (or left empty) to sort correlated data.\n");
       exit(-1);
     }

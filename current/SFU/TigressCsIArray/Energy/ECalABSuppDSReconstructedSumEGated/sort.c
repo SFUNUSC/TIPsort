@@ -213,6 +213,7 @@ int main(int argc, char *argv[])
   input_names_type* name;
   char DataFile[132],FileName[132];
   double avgGateE;
+  double gateWidth;
   
   if((argc!=6)&&(argc!=7))
     {
@@ -256,6 +257,7 @@ int main(int argc, char *argv[])
   	}
   	
   avgGateE=(gateELow+gateEHigh)/2.;
+  gateWidth=gateEHigh-gateELow;
   
   if(name->flag.cluster_file==1)
     {
@@ -317,7 +319,7 @@ int main(int argc, char *argv[])
   
   printf("\n");
   
-  sprintf(FileName,"DS_ECalABSuppReconstructed_%.0fgated.mca",avgGateE);
+  sprintf(FileName,"DS_ECalABSuppReconstructed_c%.0f_w%.0fgated.mca",avgGateE,gateWidth);
   if((output=fopen(FileName,"w"))==NULL)
     {
       printf("ERROR!!! I cannot open the mca file!\n");
@@ -327,7 +329,7 @@ int main(int argc, char *argv[])
   fclose(output);
   printf("Gated spectrum saved to file: %s\n",FileName);
   
-  sprintf(FileName,"DS_ECalABSuppReconstructed_%.0fgate.mca",avgGateE);
+  sprintf(FileName,"DS_ECalABSuppReconstructed_c%.0f_w%.0fgate.mca",avgGateE,gateWidth);
   if((output=fopen(FileName,"w"))==NULL)
     {
       printf("ERROR!!! I cannot open the mca file!\n");
@@ -337,7 +339,7 @@ int main(int argc, char *argv[])
   fclose(output);
   printf("Gate spectrum saved to file: %s\n",FileName);
   
-  sprintf(FileName,"DS_ECalABSuppReconstructed_%.0fproj.mca",avgGateE);
+  sprintf(FileName,"DS_ECalABSuppReconstructed_c%.0f_w%.0fproj.mca",avgGateE,gateWidth);
   if((output=fopen(FileName,"w"))==NULL)
     {
       printf("ERROR!!! I cannot open the mca file!\n");

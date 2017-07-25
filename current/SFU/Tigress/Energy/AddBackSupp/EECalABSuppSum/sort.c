@@ -25,7 +25,7 @@ int analyze_data(raw_event *data)
   //printf("FH = %d FA= %d\n",cev->tg.h.FH,cev->tg.h.FA);
   //getc(stdin);
   
-  if(cev->tg.h.FA==3)
+  if(cev->tg.h.FA>0) //addback fold>0
     //look through each Tigress position
     for(pos1=1;pos1<NPOSTIGR;pos1++)
       {

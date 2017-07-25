@@ -3,9 +3,10 @@
 int analyze_data(raw_event *data)
 {
   cal_event* cev;
-  int csi,pos1,pos2;
-  double thit1,thit2;
-  bool inGate=false;
+  int csi,pos1;
+  double thit,tgate;
+  bool first_hit = true;
+  double t1=0;
 
   long long int one=1,none=-1,kill;
   long long int flag_csi;
@@ -31,31 +32,37 @@ int analyze_data(raw_event *data)
   if(numHits<2)
   	return SEPARATOR_DISCARD; //don't keep events without enough hits
 
-  //For each CsI hit, see if there are other CsI hits
-  //within a single gate-length of the hit, and preserve the
-  //hit if true
+  //Given any number of CsI detector hits during the event, find the time at which 
+  //the first and second hits occur.
   if(cev->csiarray.h.FT>0)
     for(pos1=1;pos1<NCSI;pos1++) //look at each CsI position
       if((cev->csiarray.h.THP&(one<<pos1))!=0) //is there a hit in the detector?
         {
-          thit1=cev->csiarray.csi[pos1].T/cal_par->csiarray.contr_t;
-          
-          //compare this hit to other hits
-          inGate=false;
-          for(pos2=1;pos2<NCSI;pos2++) //look at each CsI position
-          	if(pos2!=pos1)//check that hits are not the same
-      				if((cev->csiarray.h.THP&(one<<pos2))!=0) //is there a hit in the detector?
-      					{
-      						thit2=cev->csiarray.csi[pos2].T/cal_par->csiarray.contr_t;
-      						if(abs(thit2-thit1)<=gate_length)
-										inGate=true;
-      					}
-          
-          if ((corr==1)&&(inGate)) //check whether the hit is in the gate
-            flag_csi|=(one<<pos1); //flag the correlated hit for preservation
-          else if ((corr!=1)&&(inGate==false))
-          	flag_csi|=(one<<pos1); //flag the uncorrelated hit for preservation
+          thit=cev->csiarray.csi[pos1].T/cal_par->csiarray.contr_t;
+          if (first_hit == true)
+            {
+              first_hit = false;
+              t1=thit;
+            }
+          else if (t1>thit)
+            {
+              t1=thit; //assign the time of the first hit
+            }
         }
+
+  //Open a gate after the first hit, if the subsequent hits fall within the time window 
+  //flag them to be preserved.
+  tgate=t1+gate_length; //time at the end of the gate
+    if(cev->csiarray.h.FT>0)
+      for(pos1=1;pos1<NCSI;pos1++) //look at each CsI position
+        if((cev->csiarray.h.THP&(one<<pos1))!=0) //is there a hit in the detector?
+          {
+            thit=cev->csiarray.csi[pos1].T/cal_par->csiarray.contr_t;
+            if ((corr==1)&&(thit<=tgate)) //check whether the hit is in the gate
+              flag_csi|=(one<<pos1); //flag the correlated hit for preservation
+            else if ((corr!=1)&&(thit>tgate))
+            	flag_csi|=(one<<pos1); //flag the uncorrelated hit for preservation
+          }
 
   free(cev);
   
@@ -106,7 +113,7 @@ int main(int argc, char *argv[])
   
   if((argc!=2)&&(argc!=3))
     {
-      printf("\n ./separate_CsIArray_TTCalDiff master_file_name correlated\n");
+      printf("\n ./separate_CsIArray_TTCalDiffFirstHit master_file_name correlated\n");
       printf("\n Separates out particle-particle coincidences where the subsequent particles arrive within a (calibrated) time gate.  Discards any particle hits which arrive outside of the time gate (with respect to the first hit).\nThe time gate length is specified in the CsI array calibration parameters file (under 'CSIARRAY_TTCal_gate_length').\n\nThe third argument should be set to 'no' to sort uncorrelated data (events outside the time gate), and 'yes' (or left empty) to sort correlated data.\n");
       exit(-1);
     }

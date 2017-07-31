@@ -180,21 +180,22 @@ int analyze_data(raw_event *data)
       if((energy[i]>=0)&&(energy[i]<S32K))
         if(energy[i]>=gateELow/cal_par->tg.contr_e)
 	        if(energy[i]<=gateEHigh/cal_par->tg.contr_e)
-	          if((ring[i]>0)&&(ring[i]<NRING))
-              {
-                //add all gammas in the event that aren't the gamma that fell into the gate
-                for(j=0;j<cev->tg.h.FA;j++)
-                	{
-		                if(j!=i)
-		                  if(energy[j]>=0)
-		                    if(energy[j]<S32K)
-		                      if(ring[j]>0)
-		                        if(ring[j]<NRING)
-		                          hist[ring[j]][(int)(energy[j])]++;
-                  }
-                gatehist[ring[i]][(int)(energy[i])]++;
-                break;//don't double count
-              }
+	          if(ring[i]>0)
+	          	if(ring[i]<NRING)
+		            {
+		              //add all gammas in the event that aren't the gamma that fell into the gate
+		              for(j=0;j<cev->tg.h.FA;j++)
+		              	{
+				              if(j!=i)
+				                if(energy[j]>=0)
+				                  if(energy[j]<S32K)
+				                    if(ring[j]>0)
+				                      if(ring[j]<NRING)
+				                        hist[ring[j]][(int)(energy[j])]++;
+		                }
+		              gatehist[ring[i]][(int)(energy[i])]++;
+		              break;//don't double count
+		            }
     }
   
   free(cev);
@@ -227,7 +228,7 @@ int main(int argc, char *argv[])
   //h = new TH1D("DSHistogram","DsHistogram",100,0.95,1.05);
   //h->Reset();
   
-  printf("Program attempts to generate gamma ray spectra with all events Doppler unshifted.\n");
+  printf("Program attempts to generate energy gated gamma ray spectra with all events Doppler unshifted.\n");
   
   name=(input_names_type*)malloc(sizeof(input_names_type));
   memset(name,0,sizeof(input_names_type));
@@ -347,7 +348,7 @@ int main(int argc, char *argv[])
     }
   fwrite(projhist,2*NRING*S32K*sizeof(int),1,output);
   fclose(output);
-   printf("Projection spectrum saved to file: %s\n",FileName);
+  printf("Projection spectrum saved to file: %s\n",FileName);
   
   /*theApp=new TApplication("App", &argc, argv);
   canvas = new TCanvas("DS","DS",10,10, 500, 300);

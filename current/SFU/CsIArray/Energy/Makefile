@@ -23,6 +23,10 @@ all:
 	(cd ECalRing r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: ECALRING.
 	
+	echo Making ECalTotalEventSum.
+	(cd ECalTotalEventSum r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: ECALTotalEventSUM.
+	
 	echo Making ECal_CsIPIDr.
 	(cd ECal_CsIPIDr r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: ECAL_CSIPIDR.
@@ -66,6 +70,7 @@ clean:
 	(cd ECal 				&& make -is clean && cd ..)
 	(cd ECalSum 				&& make -is clean && cd ..)
 	(cd ECalRing 				&& make -is clean && cd ..)
+	(cd ECalTotalEventSum 				&& make -is clean && cd ..)
 	(cd ECal_CsIPIDr 			&& make -is clean && cd ..)
 	(cd ECalSum_CsIPIDr 			&& make -is clean && cd ..)
 	(cd ECalPosSum_CsIPIDr 			&& make -is clean && cd ..)

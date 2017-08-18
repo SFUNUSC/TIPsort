@@ -83,7 +83,7 @@ int analyze_data(raw_event *data)
 	                        if(energy[j]<S32K)
 		                        if(ring[j]>0)
 		                          if(ring[j]<NRING)
-		                            hist[ring[i]][ring[j]][(int)(energy[j])]++;
+		                            hist[ring[j]][(int)(energy[j])]++;
 		                break;//don't double count
 		              }        
 	      
@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
   char n[132];
   char mcaFile[132];
   int ring1=0;
-  int ring2=0;
+  double avgGateE;
 
   if(argc!=4)
     {
@@ -172,17 +172,26 @@ int main(int argc, char *argv[])
     }
 
   if(name->flag.TIGRESS_cal_par==1)
-        {
-          printf("\nTIGRESS calibration read from the file:\n %s\n",name->fname.TIGRESS_cal_par);
-          initialize_TIGRESS_calibration(&cal_par->tg,name->fname.TIGRESS_cal_par);
-	  
-        }
-      else
-        {
-          printf("\nTIGRESS calibration parameters not defined\n");
-          exit(EXIT_FAILURE);
-        }
+    {
+      printf("\nTIGRESS calibration read from the file:\n %s\n",name->fname.TIGRESS_cal_par);
+      initialize_TIGRESS_calibration(&cal_par->tg,name->fname.TIGRESS_cal_par);
+
+    }
+  else
+    {
+      printf("\nTIGRESS calibration parameters not defined\n");
+      exit(EXIT_FAILURE);
+    }
   
+  printf("\nTIGRESS Ring gates:\n");
+  for(int i=0;i<NRING;i++)
+  	{
+  		printf("Ring %i: %f keV to %f keV\n",i,cal_par->tg.relow[i],cal_par->tg.rehigh[i]);
+  	}
+  printf("\n");
+  
+  avgGateE = (cal_par->tg.rehigh[1] + cal_par->tg.relow[6])/2.;
+    
   name->flag.inp_data=1; 
   while(fscanf(cluster,"%s",n)!=EOF)
     {
@@ -192,20 +201,19 @@ int main(int argc, char *argv[])
 
   fclose(cluster);
 
-  for(ring1=1;ring1<NRING*2;ring1++)
-    {
-      sprintf(mcaFile,"Ring%d_ECalABSuppSumEGatedByRing.mca",ring1);
-      if((output=fopen(mcaFile,"w"))==NULL)
-      	{
-      	  printf("ERROR!!! I cannot open the mca file!\n");
-      	  exit(EXIT_FAILURE);
-      	}
-      
-      for(ring2=0;ring2<NRING;ring2++) 
-	      fwrite(hist[ring1][ring2],S32K*sizeof(int),1,output);
+	sprintf(mcaFile,"Ring_ECalABSuppSumEGated_c%.0f.mca",avgGateE);
+  if((output=fopen(mcaFile,"w"))==NULL)
+  	{
+  	  printf("ERROR!!! I cannot open the output file: %s\n",mcaFile);
+  	  exit(EXIT_FAILURE);
+  	}
 
-      fclose(output);
+  for(ring1=0;ring1<NRING*2;ring1++)
+    {
+    	fwrite(hist[ring1],S32K*sizeof(int),1,output);   
     }
+  fclose(output);
+  printf("Spectrum written to file: %s\n",mcaFile);
 }
 
   

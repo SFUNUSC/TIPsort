@@ -47,6 +47,10 @@ all:
 	(cd TigressCsITTCalFirstHitDiff r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Separator_TigressCsITTCalFirstHitDiff.
 	
+	echo Making Separator_TigressCsITTCalAnyHitDiff.
+	(cd TigressCsITTCalAnyHitDiff r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: Separator_TigressCsITTCalAnyHitDiff.
+	
 	echo Making Separator_TigressCsITTCalFirstHitDiffCentralValue.
 	(cd TigressCsITTCalFirstHitDiffCentralValue r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Separator_TigressCsITTCalFirstHitDiffCentralValue.
@@ -92,6 +96,7 @@ clean:
 	(cd TrigBits            && make -is clean && cd ..)
 	(cd TigressCsITTCalDiff && make -is clean && cd ..)
 	(cd TigressCsITTCalFirstHitDiff && make -is clean && cd ..)
+	(cd TigressCsITTCalAnyHitDiff && make -is clean && cd ..)
 	(cd TigressCsITTCalFirstHitDiffCentralValue && make -is clean && cd ..)
 	(cd TigressTTCalDiff    && make -is clean && cd ..)
 	(cd TigressTTCalDiffFirstHit    && make -is clean && cd ..)

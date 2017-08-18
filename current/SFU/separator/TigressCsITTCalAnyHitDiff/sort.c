@@ -5,15 +5,12 @@ int analyze_data(raw_event *data)
   cal_event* cev;
   int pos,col,csi;
   double tdiff;
-  double thit;
-  bool first_hit;
+  double thitc,thitt;
+  bool keep;
   
   long long int one=1,none=-1,kill;
   int id,id_ge;
   long long int flag_ge,flag_csi,drop;
-
-  double ttg1=10E10;
-  double tcsi1=-10E10;
 
   /* printf("init bits:\n  Tigress: %d\n  CsI: %d\n  RF: %d\n",data->h.setupHP&TIGRESS_BIT,data->h.setupHP&CsIArray_BIT,data->h.setupHP&RF_BIT); */
   /* getc(stdin); */
@@ -35,9 +32,8 @@ int analyze_data(raw_event *data)
   flag_ge=0;
   flag_csi=0;
 
-  //Given any number of TIGRESS detector hits during the event, find the time at which 
-  //the first hit occurs.
-  first_hit = true;
+  //Find the time at which each TIGRESS hit occurs.
+  keep = false;
   if(cev->tg.h.FT>0)
     for(pos=1;pos<NPOSTIGR;pos++)
       if((cev->tg.h.THP&(1<<(pos-1)))!=0)
@@ -47,42 +43,23 @@ int analyze_data(raw_event *data)
 	            if(cev->tg.det[pos].ge[col].h.FT>0)
 		            if((cev->tg.det[pos].ge[col].h.THP&1)!=0)
 		              {
-                    thit=cev->tg.det[pos].ge[col].seg[0].T/cal_par->tg.contr_t;
-                    if (first_hit == true)
-                      {
-                        first_hit = false;
-                        ttg1=thit;
-                      }
-                    else if (ttg1>thit)
-                      {
-                        ttg1=thit; //assign the time of the first hit
-                      }
+                    thitt=cev->tg.det[pos].ge[col].seg[0].T/cal_par->tg.contr_t;
+                    //Find the time at which each CsI hit occurs.
+										if(cev->csiarray.h.FT>0)
+											for(pos=1;pos<NCSI;pos++) //look at each CsI position
+												if((cev->csiarray.h.THP&(one<<pos))!=0) //is there a hit in the detector?
+													{
+														thitc=cev->csiarray.csi[pos].T/cal_par->csiarray.contr_t;
+														tdiff=thitc-thitt; //time difference between the particle and gamma
+														if( ((corr==1)&&(tdiff>=low)&&(tdiff<=high)) || ((corr==0)&&( (tdiff<low)||(tdiff>high) ) ) )
+    													{
+    														keep=true;
+    													}
+													}
                   }
 
-  //Given any number of CsI detector hits during the event, find the time at which 
-  //the first hit occurs.
-  first_hit = true;
-  if(cev->csiarray.h.FT>0)
-    for(pos=1;pos<NCSI;pos++) //look at each CsI position
-      if((cev->csiarray.h.THP&(one<<pos))!=0) //is there a hit in the detector?
-        {
-          thit=cev->csiarray.csi[pos].T/cal_par->csiarray.contr_t;
-          if (first_hit == true)
-            {
-              first_hit = false;
-              tcsi1=thit;
-            }
-          else if (tcsi1>thit)
-            {
-              tcsi1=thit; //assign the time of the first hit
-            }
-        }
-
-  tdiff=tcsi1-ttg1; //time difference between the first particle and first gamma
-  /* printf("tidff %f tlow %f thigh %f \n",tdiff,low,high); */
-
-  h->Fill(tdiff);
-  if( ((corr==1)&&(tdiff>=low)&&(tdiff<=high)) || ((corr==0)&&( (tdiff<low)||(tdiff>high) ) ) )
+  //h->Fill(tdiff);
+  if(keep)
     {
       /* printf("GOOD tidff %f tlow %f thigh %f \n",tdiff,low,high); */
       g->Fill(tdiff);
@@ -218,8 +195,8 @@ int main(int argc, char *argv[])
 
   if((argc!=4)&&(argc!=5))
     {
-      printf("\n ./separate_TigressCsIArray_TTCalFirstHitDiff master_file_name low high\n");
-      printf("\n Sorts events where the first gamma and the first particle detected come within the time window defined by 'low' and 'high' with respect to each other.\n");
+      printf("\n ./separate_TigressCsIArray_TTCalAnyHitDiff master_file_name low high\n");
+      printf("\n Sorts events where the any one of the gammas and particles detected come within the time window defined by 'low' and 'high' with respect to each other.\n");
       printf("\n If 'low' is larger than 'high', the program will sort uncorrelated data (events outside the time gate).\n");
       printf("\n Add '1' as a fifth argument to show a plot of the gate (not required).\n");
       exit(-1);

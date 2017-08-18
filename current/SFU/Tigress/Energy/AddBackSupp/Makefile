@@ -27,6 +27,10 @@ all:
 	(cd ECalABSuppRingSum r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Tigress_ECalABSuppRingSum.
 	
+	echo Making Tigress_ECalABSuppRing_2SuppGammas.
+	(cd ECalABSuppRing_2SuppGammas r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: Tigress_ECalABSuppRing_2SuppGammas.
+	
 	echo Making Tigress_ECalABSuppRingSumRingDopplerCorrected.
 	(cd ECalABSuppRingSumRingDopplerCorrected r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Tigress_ECalABSuppRingSumRingDopplerCorrected.
@@ -91,6 +95,7 @@ clean:
 	#(cd ECalABSuppTester             && make -is clean && cd ..)
 	(cd ECalABSuppSum            	    && make -is clean && cd ..)
 	(cd ECalABSuppRingSum             && make -is clean && cd ..)
+	(cd ECalABSuppRing_2SuppGammas    && make -is clean && cd ..)
 	(cd ECalABSuppRingSumRingDopplerCorrected     && make -is clean && cd ..)
 	(cd ECalABSuppRingEGated       && make -is clean && cd ..)
 	(cd ECalABSuppRingSumEGated       && make -is clean && cd ..)

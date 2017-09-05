@@ -283,6 +283,7 @@ int main(int argc, char *argv[])
     }
   fwrite(hist,2*NRING*S32K*sizeof(int),1,output);
   fclose(output);
+  printf("Data saved to file: DS_ECalABSuppReconstructed.mca\n");
   
   /*theApp=new TApplication("App", &argc, argv);
   canvas = new TCanvas("DS","DS",10,10, 500, 300);

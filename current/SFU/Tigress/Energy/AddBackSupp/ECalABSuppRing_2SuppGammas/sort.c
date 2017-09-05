@@ -173,11 +173,12 @@ int main(int argc, char *argv[])
   
   sort(name);
   
-  if((output=fopen("Ring_ECalABSupp.mca","w"))==NULL)
+  if((output=fopen("Ring_ECalAB2SuppGammas.mca","w"))==NULL)
     {
       printf("ERROR!!! I cannot open the mca file!\n");
       exit(EXIT_FAILURE);
     }
   fwrite(hist,2*NRING*S32K*sizeof(int),1,output);
   fclose(output);
+  printf("Data saved to file: Ring_ECalAB2SuppGammas.mca\n");
 }

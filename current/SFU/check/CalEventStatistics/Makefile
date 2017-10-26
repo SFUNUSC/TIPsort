@@ -15,7 +15,7 @@ SORT= sort.o\
       $(TIPsort)/current/utils/utils.a
 
 sort:$(SORT)
-	$(CC) -o $(BIN)/check_EventStatistics $(SORT) $(CFLAGS) $(ROOT) -lm -ldl
+	$(CC) -o $(BIN)/check_CalEventStatistics $(SORT) $(CFLAGS) $(ROOT) -lm -ldl
 
 sort.o:sort.c sort.h
 	$(CC) -c -o sort.o sort.c $(CFLAGS) $(INC)

@@ -7,9 +7,9 @@ all:
 	(cd EventTimeDifference r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: CHECK_EventTimeDifference.
 	
-	echo Making check_EventStatistics.
-	(cd EventStatistics r && make -is clean && make && make -is clean && cd ..)
-	echo DONE: CHECK_EventStatistics.
+	echo Making check_CalEventStatistics.
+	(cd CalEventStatistics r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: CHECK_CalEventStatistics.
 	
 	echo Making check_TrigBits.
 	(cd TrigBits r && make -is clean && make && make -is clean && cd ..)
@@ -73,7 +73,7 @@ all:
 
 clean:
 	(cd EventTimeDifference && make -is clean && cd ..)
-	(cd EventStatistics     && make -is clean && cd ..)
+	(cd CalEventStatistics     && make -is clean && cd ..)
 	(cd Rate                && make -is clean && cd ..)
 	(cd TimeStamps          && make -is clean && cd ..)
 	(cd Triggers            && make -is clean && cd ..)

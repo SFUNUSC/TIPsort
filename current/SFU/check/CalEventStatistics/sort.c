@@ -61,12 +61,12 @@ int main(int argc, char *argv[])
   
   if(argc!=2)
     {
-      printf("check_EventStatistics master_file_name\n");
-      printf("Program prints statistics for the SFU file(s) specified under input_data or cluster_file in the given master file.\n");
+      printf("check_CalEventStatistics master_file_name\n");
+      printf("Program prints statistics for calibrated events in the SFU file(s) specified under input_data or cluster_file in the given master file.\n");
       exit(-1);
     }
     
-  printf("Program prints statistics for the SFU file(s) specified under input_data or cluster_file in the given master file.\n");
+  printf("Program prints statistics for calibrated events in the SFU file(s) specified under input_data or cluster_file in the given master file.\n");
   name=(input_names_type*)malloc(sizeof(input_names_type));
   memset(name,0,sizeof(input_names_type));
   

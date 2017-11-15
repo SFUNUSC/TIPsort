@@ -33,11 +33,7 @@ all:
 	
 	echo Making check_FoldSum.
 	(cd FoldSum r && make -is clean && make && make -is clean && cd ..)
-	echo DONE: CHECK_FOLDSUM.
-	
-	echo Making check_SegmentFold.
-	(cd SegmentFold r && make -is clean && make && make -is clean && cd ..)
-	echo DONE: CHECK_SegmentFOLD.
+	echo DONE: CHECK_FOLDSUM
 	
 	echo Making check_EventTimeDifference.
 	(cd EventTimeDifference r && make -is clean && make && make -is clean && cd ..)
@@ -83,7 +79,6 @@ clean:
 	(cd Fold2D_PIDER        && make -is clean && cd ..)
 	(cd Fold2D_PIDERSum     && make -is clean && cd ..)
 	(cd FoldSum             && make -is clean && cd ..)
-	(cd SegmentFold         && make -is clean && cd ..)
 	(cd TimeStampDifference && make -is clean && cd ..)
 	(cd TimeStampDeltaFraction && make -is clean && cd ..)
 	(cd TimeStampDeltaFractionPerDetector && make -is clean && cd ..)

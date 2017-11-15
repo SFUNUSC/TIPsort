@@ -119,8 +119,9 @@ int main(int argc, char *argv[])
   printf("ringhit1 ringhit2  N\n");
   for(Int_t i=0;i<5;i++)
     for(Int_t j=i;j<5;j++)
-      printf("%i        %i        %lf\n",i+1,j+1,h->GetBinContent(i+2,j+2));
-  printf("Wall detectors in rings 3-5 all have higher detector index than ring 1-2 detectors, which is why some bins are empty.\n");
+    	if(h->GetBinContent(i+1,j+1)>0)
+      	printf("%i        %i        %lf\n",i,j,h->GetBinContent(i+1,j+1)); //GetBinContent starts at index 1 (0 is an 'underflow bin' according to ROOT documentation)
+  printf("If using CsI wall, some detectors in rings 3-5 all have higher detector index than ring 1-2 detectors, which is why some bins are omitted.\nRings are indexed according to the ring map parameter file used.\n");
   h->Draw();
   theApp->Run(kTRUE);
 }

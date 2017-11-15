@@ -211,7 +211,7 @@ int main(int argc, char *argv[])
   low=atof(argv[2]);
   high=atof(argv[3]);
   
-  printf("Program sorts data separated on Tigress-CsIArray timing.\n");
+  printf("Program sorts data separated on Tigress-CsIArray timing (separate_TigressCsIArray_TTCalAnyHitDiff).\n");
   corr=1;
 	if(low>high)
 		{

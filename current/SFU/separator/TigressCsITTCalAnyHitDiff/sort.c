@@ -46,10 +46,10 @@ int analyze_data(raw_event *data)
                     thitt=cev->tg.det[pos].ge[col].seg[0].T/cal_par->tg.contr_t;
                     //Find the time at which each CsI hit occurs.
 										if(cev->csiarray.h.FT>0)
-											for(pos=1;pos<NCSI;pos++) //look at each CsI position
-												if((cev->csiarray.h.THP&(one<<pos))!=0) //is there a hit in the detector?
+											for(csi=1;csi<NCSI;csi++) //look at each CsI position
+												if((cev->csiarray.h.THP&(one<<csi))!=0) //is there a hit in the detector?
 													{
-														thitc=cev->csiarray.csi[pos].T/cal_par->csiarray.contr_t;
+														thitc=cev->csiarray.csi[csi].T/cal_par->csiarray.contr_t;
 														tdiff=thitc-thitt; //time difference between the particle and gamma
 														if( ((corr==1)&&(tdiff>=low)&&(tdiff<=high)) || ((corr==0)&&( (tdiff<low)||(tdiff>high) ) ) )
     													{

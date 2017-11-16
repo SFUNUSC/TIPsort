@@ -93,13 +93,13 @@ int analyze_data(raw_event *data)
       /* printf("GOOD tidff %f tlow %f thigh %f \n",tdiff,low,high); */
       g->Fill(tdiff);
       if(cev->csiarray.h.FT>0)
-        for(pos=1;pos<NCSI;pos++) //look at each CsI position
+        for(csi=1;csi<NCSI;csi++) //look at each CsI position
         	{
-		        if((cev->csiarray.h.THP&(one<<pos))!=0) //is there a hit in the detector?
+		        if((cev->csiarray.h.THP&(one<<csi))!=0) //is there a hit in the detector?
 		        	{
-		        		thit=cev->csiarray.csi[pos].T/cal_par->csiarray.contr_t;
+		        		thit=cev->csiarray.csi[csi].T/cal_par->csiarray.contr_t;
 		        		if(abs(thit-csiTVal)<=gate_length)//check whether hit is near central value
-		          		flag_csi|=(one<<pos); //flag the hit for preservation
+		          		flag_csi|=(one<<csi); //flag the hit for preservation
 		          }
           }
       if(cev->tg.h.FT>0)

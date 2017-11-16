@@ -63,10 +63,10 @@ int analyze_data(raw_event *data)
   //the first hit occurs.
   first_hit = true;
   if(cev->csiarray.h.FT>0)
-    for(pos=1;pos<NCSI;pos++) //look at each CsI position
+    for(csi=1;csi<NCSI;csi++) //look at each CsI position
       if((cev->csiarray.h.THP&(one<<pos))!=0) //is there a hit in the detector?
         {
-          thit=cev->csiarray.csi[pos].T/cal_par->csiarray.contr_t;
+          thit=cev->csiarray.csi[csi].T/cal_par->csiarray.contr_t;
           if (first_hit == true)
             {
               first_hit = false;

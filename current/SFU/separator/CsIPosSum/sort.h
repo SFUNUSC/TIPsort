@@ -4,9 +4,10 @@
 #include "SFU-common.h"
 #include "SFU-format.h"
 #include "SFU-decoder.h"
-#include "SFU-cal.h"
+#include "SFU-encoder.h"
 
+FILE* output;
+int enb[BUFFSIZE];
 
-long int ringHP[10][10];
-calibration_parameters* cal_par;
+int posLow,posHigh;
 #endif

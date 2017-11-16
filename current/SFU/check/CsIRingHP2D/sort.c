@@ -19,28 +19,32 @@ int analyze_data(raw_event *data)
           for(pos2=pos1;pos2<NCSI;pos2++)
             if((cev->csiarray.h.EHP&(one<<pos2))!=0)
               {
-                if(pos2!=pos1)
-                  {
-                    if(cev->csiarray.ring[pos1]<cev->csiarray.ring[pos2])
-                      h->Fill(cev->csiarray.ring[pos1],cev->csiarray.ring[pos2]);
-                    else
-                      h->Fill(cev->csiarray.ring[pos2],cev->csiarray.ring[pos1]);
-                  }
-                else
-                  {
-                    //check that there are no events in all other detectors
-                    //(ie. all events are in one) before adding to histogram
-                    allow=true;
-                    for(int i=1;i<NCSI;i++)
-                      if(i!=pos1)
-                        if((cev->csiarray.h.EHP&(one<<i))!=0)
-                          {
-                            allow=false;
-                            break;
-                          }
-                    if(allow==true)
-                      h->Fill(cev->csiarray.ring[pos1],cev->csiarray.ring[pos2]);
-                  }
+              	if((cev->csiarray.ring[pos1]>=0)&&(cev->csiarray.ring[pos1]<10))
+              		if((cev->csiarray.ring[pos2]>=0)&&(cev->csiarray.ring[pos2]<10))
+              			{
+						          if(pos2!=pos1)
+						            {
+						              if(cev->csiarray.ring[pos1]<cev->csiarray.ring[pos2])
+						                ringHP[cev->csiarray.ring[pos1]][cev->csiarray.ring[pos2]]++;
+						              else
+						                ringHP[cev->csiarray.ring[pos2]][cev->csiarray.ring[pos1]]++;
+						            }
+						          else
+						            {
+						              //check that there are no events in all other detectors
+						              //(ie. all events are in one) before adding to histogram
+						              allow=true;
+						              for(int i=1;i<NCSI;i++)
+						                if(i!=pos1)
+						                  if((cev->csiarray.h.EHP&(one<<i))!=0)
+						                    {
+						                      allow=false;
+						                      break;
+						                    }
+						              if(allow==true)
+						                ringHP[cev->csiarray.ring[pos1]][cev->csiarray.ring[pos2]]++;
+						            }
+				            }
               }
 
   free(cev);
@@ -51,9 +55,7 @@ int main(int argc, char *argv[])
 {
   input_names_type* name;
   FILE *cluster;
-  TCanvas *canvas;
-  TApplication *theApp;
-  char title[132],DataFile[132];
+  char DataFile[132];
 
 
   if(argc!=2)
@@ -62,9 +64,6 @@ int main(int argc, char *argv[])
       printf("Displays 2D hit pattern histogram summed over multiple runs for the CsI detector ring.\n");     
       exit(-1);
     }
-  
-  h = new TH2D("FoldHistogram","FoldHistogram",10,0,10,10,0,10);
-  h->Reset();
   
   printf("Program sorts 2D fold histogram.\n");
   
@@ -106,22 +105,10 @@ int main(int argc, char *argv[])
     }
   
   
-  
-  theApp=new TApplication("App", &argc, argv);
-  canvas = new TCanvas(title,title,10,10, 500, 300);
-  h->GetXaxis()->SetTitle("CsI Ring (hit 1)");
-  h->GetXaxis()->CenterTitle(true);
-  h->GetYaxis()->SetTitle("CsI Ring (hit 2)");
-  h->GetYaxis()->CenterTitle(true);
-  h->SetOption("COLZ");
-  
-  
   printf("ringhit1 ringhit2  N\n");
-  for(Int_t i=0;i<5;i++)
-    for(Int_t j=i;j<5;j++)
-    	if(h->GetBinContent(i+1,j+1)>0)
-      	printf("%i        %i        %lf\n",i,j,h->GetBinContent(i+1,j+1)); //GetBinContent starts at index 1 (0 is an 'underflow bin' according to ROOT documentation)
+  for(int i=0;i<10;i++)
+    for(int j=i;j<10;j++)
+    	if(ringHP[i][j]>0)
+      	printf("%i        %i        %li\n",i,j,ringHP[i][j]);
   printf("If using CsI wall, some detectors in rings 3-5 all have higher detector index than ring 1-2 detectors, which is why some bins are omitted.\nRings are indexed according to the ring map parameter file used.\n");
-  h->Draw();
-  theApp->Run(kTRUE);
 }

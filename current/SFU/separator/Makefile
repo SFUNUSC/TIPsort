@@ -11,6 +11,10 @@ all:
 	(cd CsIPos r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: CsIPos.
 	
+	echo Making CsIPosSum.
+	(cd CsIPosSum r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: CsIPosSum.
+	
 	echo Making Separator_TigressCsITTCalDiff.
 	(cd TigressCsITTCalDiff r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Separator_TigressCsITTCalDiff.
@@ -95,6 +99,7 @@ clean:
 	(cd AngleBetweenHits            && make -is clean && cd ..)
 	(cd TrigBits            && make -is clean && cd ..)
 	(cd CsIPos            && make -is clean && cd ..)
+	(cd CsIPosSum            && make -is clean && cd ..)
 	(cd TigressCsITTCalDiff && make -is clean && cd ..)
 	(cd TigressCsITTCalFirstHitDiff && make -is clean && cd ..)
 	(cd TigressCsITTCalAnyHitDiff && make -is clean && cd ..)

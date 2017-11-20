@@ -22,6 +22,8 @@ int analyze_data(raw_event *data)
               	if((cev->csiarray.ring[pos1]>=0)&&(cev->csiarray.ring[pos1]<10))
               		if((cev->csiarray.ring[pos2]>=0)&&(cev->csiarray.ring[pos2]<10))
               			{
+              				//if(cev->csiarray.ring[pos1]==0)
+              				//	printf("Pos: %i, ring: %i\n",pos1,cev->csiarray.ring[pos1]);
 						          if(pos2!=pos1)
 						            {
 						              if(cev->csiarray.ring[pos1]<cev->csiarray.ring[pos2])

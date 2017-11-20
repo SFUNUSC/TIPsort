@@ -368,8 +368,7 @@ void read_CSIARRAY_ring_map(CSIARRAY_calibration_parameters *CSIARRAY_cal_par, c
   FILE *inp;
   char line[132];
   int  pos,i;
- 
-
+	
   if((inp=fopen(filename,"r"))==NULL)
       {
          printf("\nI can't open file %s\n",filename);
@@ -380,12 +379,12 @@ void read_CSIARRAY_ring_map(CSIARRAY_calibration_parameters *CSIARRAY_cal_par, c
   if(fgets(line,132,inp)!=NULL)
     {
       if(fgets(line,132,inp)!=NULL)
-	while(fscanf(inp,"%d %d",&pos,&i)!=EOF)
-	  if(pos>0 && pos<NCSI)
-	      {
-		CSIARRAY_cal_par->ringflag[pos]=1;
-		CSIARRAY_cal_par->ring_map[pos]=i;
-	      }
+				while(fscanf(inp,"%d %d",&pos,&i)!=EOF)
+					if(pos>0 && pos<NCSI)
+							{
+								CSIARRAY_cal_par->ringflag[pos]=1;
+								CSIARRAY_cal_par->ring_map[pos]=i;
+							}
     }
   
   else
@@ -479,175 +478,181 @@ void calibrate_CSIARRAY(raw_event* rev, CSIARRAY_calibration_parameters *CSIARRA
   if(rev->csiarray.h.Efold>0)
     for(pos=1;pos<NCSI;pos++)
       if(CSIARRAY_cal_par->ceflag[pos]==1)
-	if((rev->csiarray.h.THP&(one<<pos))!=0)
-	  if(rev->csiarray.wfit[pos].am[1]>0)
-  	    {
-  	      ran=(double)rand()/(double)RAND_MAX-0.5;
-  	      ren=rev->csiarray.csi[pos].charge+ran;
+      	if(CSIARRAY_cal_par->ringflag[pos]==1)
+					if((rev->csiarray.h.THP&(one<<pos))!=0)
+						if(rev->csiarray.wfit[pos].am[1]>0)
+							{
+								ran=(double)rand()/(double)RAND_MAX-0.5;
+								ren=rev->csiarray.csi[pos].charge+ran;
 
-	      /* gain and offset calibration */
-  	      e=CSIARRAY_cal_par->ce[pos][0]+CSIARRAY_cal_par->ce[pos][1]*ren;
-	      
-	      /* exponential calibration - 1000x converts to 1keV/ch */
-  	      //e=1000*(CSIARRAY_cal_par->ce[pos][0]*ren + CSIARRAY_cal_par->ce[pos][2]*(log(CSIARRAY_cal_par->ce[pos][1]*ren) + 1) + CSIARRAY_cal_par->ce[pos][3]); 
-	      
-	      if(e>0)
-		if(e<S65K)
-		  {
-		    cp->csi[pos].E=e;
-		    cp->h.EHP|=(one<<pos);
-		    cp->h.FE++;
-		    cp->ring[pos]=CSIARRAY_cal_par->ring_map[pos];
+							/* gain and offset calibration */
+								e=CSIARRAY_cal_par->ce[pos][0]+CSIARRAY_cal_par->ce[pos][1]*ren;
+						
+							/* exponential calibration - 1000x converts to 1keV/ch */
+								//e=1000*(CSIARRAY_cal_par->ce[pos][0]*ren + CSIARRAY_cal_par->ce[pos][2]*(log(CSIARRAY_cal_par->ce[pos][1]*ren) + 1) + CSIARRAY_cal_par->ce[pos][3]); 
+						
+							if(e>0)
+								if(e<S65K)
+									{
+										cp->csi[pos].E=e;
+										cp->h.EHP|=(one<<pos);
+										cp->h.FE++;
+										cp->ring[pos]=CSIARRAY_cal_par->ring_map[pos];
+										/*printf("pos: %i, ring %i\n",pos,CSIARRAY_cal_par->ring_map[pos]);
+										getc(stdin);*/
 
-		    /* printf("for pos %d parameters g = %.4f b = %.4f a = %.4f\n",pos,CSIARRAY_cal_par->ce[pos][0],CSIARRAY_cal_par->ce[pos][1], CSIARRAY_cal_par->ce[pos][2]); */
-		    /* printf("energy is %f for charge %f\n",e,ren); */
-		    /* getc(stdin); */
-		  }
- 	    }
+										/* printf("for pos %d parameters g = %.4f b = %.4f a = %.4f\n",pos,CSIARRAY_cal_par->ce[pos][0],CSIARRAY_cal_par->ce[pos][1], CSIARRAY_cal_par->ce[pos][2]); */
+										/* printf("energy is %f for charge %f\n",e,ren); */
+										/* getc(stdin); */
+									}
+			 	    }
 
   /* DAQ CFD time calibration */
   if(CSIARRAY_cal_par->use_time_fit==0)
       if(rev->csiarray.h.Tfold>0)
 	for(pos=1;pos<NCSI;pos++)
 	  if(CSIARRAY_cal_par->ctflag[pos]==1)
-	    if((rev->csiarray.h.THP&(one<<pos))!=0)
-	      if(rev->csiarray.csi[pos].cfd>0)
-		{
-		  /* t=tcfd-ts */
-		  t=rev->csiarray.csi[pos].cfd&0x00ffffff;
-		  t-=(rev->csiarray.csi[pos].timestamp*16)&0x00ffffff;
+	  	if(CSIARRAY_cal_par->ringflag[pos]==1)
+			  if((rev->csiarray.h.THP&(one<<pos))!=0)
+			    if(rev->csiarray.csi[pos].cfd>0)
+						{
+							/* t=tcfd-ts */
+							t=rev->csiarray.csi[pos].cfd&0x00ffffff;
+							t-=(rev->csiarray.csi[pos].timestamp*16)&0x00ffffff;
 
-		  if((rev->h.setupHP&RF_BIT)!=0)
-		    {
-		      //For RFUnwrapping
-		      trf=rev->rf.sin.t0;
-		      if(CSIARRAY_cal_par->DoRFUnwrapping==1)
-			{
-			  
-			  func=(1.000*trf)-(RFphase+CSIARRAY_cal_par->offset);
-			  a=fmod(t+CSIARRAY_cal_par->shift,RFphase);
-			  if(a>func) trf+=RFphase;
-			}
-		    }
-		  else
-		    trf=0.;
+							if((rev->h.setupHP&RF_BIT)!=0)
+								{
+									//For RFUnwrapping
+									trf=rev->rf.sin.t0;
+									if(CSIARRAY_cal_par->DoRFUnwrapping==1)
+							{
+					
+								func=(1.000*trf)-(RFphase+CSIARRAY_cal_par->offset);
+								a=fmod(t+CSIARRAY_cal_par->shift,RFphase);
+								if(a>func) trf+=RFphase;
+							}
+								}
+							else
+								trf=0.;
 
-		  /* overwrite rf time for test defined by CP */
-		  //trf=0.;
+							/* overwrite rf time for test defined by CP */
+							//trf=0.;
 
-		  /* t=tcfd-ts-trf+offset */
-		  t-=trf;
-		  t+=S16K;
+							/* t=tcfd-ts-trf+offset */
+							t-=trf;
+							t+=S16K;
 
-		  /* printf("traw: %d ts: %d trf: %f t-ts-trf+16K: %f\n",rev->csiarray.csi[pos].cfd&0x00ffffff,(rev->csiarray.csi[pos].timestamp*16)&0x00ffffff,trf,t); */
-		  /* getc(stdin); */
+							/* printf("traw: %d ts: %d trf: %f t-ts-trf+16K: %f\n",rev->csiarray.csi[pos].cfd&0x00ffffff,(rev->csiarray.csi[pos].timestamp*16)&0x00ffffff,trf,t); */
+							/* getc(stdin); */
 
-		  ran=(double)rand()/(double)RAND_MAX-0.5;
-		  ren=t+ran;		
-		  t=CSIARRAY_cal_par->ct[pos][0]+CSIARRAY_cal_par->ct[pos][1]*ren;
-		  if(t>0)
-		    if(t<S65K)
-		      {
-			cp->csi[pos].T=t;
-			cp->h.THP|=(one<<pos);
-			cp->h.FT++;
-			cp->ring[pos]=CSIARRAY_cal_par->ring_map[pos];
-		      }
-		}
+							ran=(double)rand()/(double)RAND_MAX-0.5;
+							ren=t+ran;		
+							t=CSIARRAY_cal_par->ct[pos][0]+CSIARRAY_cal_par->ct[pos][1]*ren;
+							if(t>0)
+								if(t<S65K)
+									{
+										cp->csi[pos].T=t;
+										cp->h.THP|=(one<<pos);
+										cp->h.FT++;
+										cp->ring[pos]=CSIARRAY_cal_par->ring_map[pos];
+									}
+						}
 
   /* fit function time calibration */
   /* t from intersection of the risetime fit with the baseline */
   if(CSIARRAY_cal_par->use_time_fit==1)
     for(pos=1;pos<NCSI;pos++)
       if(CSIARRAY_cal_par->ctflag[pos]==1)
-	if((rev->csiarray.h.TSHP&(one<<pos))!=0)
-	  {
-	    /* t=tfit*16 (in ADC units) */
-	    t=rev->csiarray.wfit[pos].t[0]*16;
-	    //t=rev->csiarray.wfit[pos].t[0];
-	    
-	    if((rev->h.setupHP&RF_BIT)!=0)
-	      {
-		//For RFUnwrapping
-		trf=rev->rf.sin.t0;
-		if(CSIARRAY_cal_par->DoRFUnwrapping==1)
-		  {
-		    func=(1.000*trf)-(RFphase+CSIARRAY_cal_par->offset);
-		    a=fmod(t+CSIARRAY_cal_par->shift,RFphase);
-		    if(a>func) trf+=RFphase;
-		  }
-	      }
-	    else
-	      trf=0.;
+      	if(CSIARRAY_cal_par->ringflag[pos]==1)
+					if((rev->csiarray.h.TSHP&(one<<pos))!=0)
+						{
+							/* t=tfit*16 (in ADC units) */
+							t=rev->csiarray.wfit[pos].t[0]*16;
+							//t=rev->csiarray.wfit[pos].t[0];
+					
+							if((rev->h.setupHP&RF_BIT)!=0)
+								{
+									//For RFUnwrapping
+									trf=rev->rf.sin.t0;
+									if(CSIARRAY_cal_par->DoRFUnwrapping==1)
+										{
+											func=(1.000*trf)-(RFphase+CSIARRAY_cal_par->offset);
+											a=fmod(t+CSIARRAY_cal_par->shift,RFphase);
+											if(a>func) trf+=RFphase;
+										}
+								}
+							else
+								trf=0.;
 
-	    /* t=tfit-trf+offset */
-	    t-=trf;
-	    t+=S16K;
+							/* t=tfit-trf+offset */
+							t-=trf;
+							t+=S16K;
 
-	    /* printf("WAVEFORM: tfit %Lf traw: %Lf trf: %f t-trf+16K: %f\n",rev->csiarray.wfit[pos].t[0],rev->csiarray.wfit[pos].t[0]*16,trf,t); */
-	    /* getc(stdin); */
-	    
-	    ran=(double)rand()/(double)RAND_MAX-0.5;
-	    ren=t+ran;		
-	    t=CSIARRAY_cal_par->ct[pos][0]+CSIARRAY_cal_par->ct[pos][1]*ren;
+							/* printf("WAVEFORM: tfit %Lf traw: %Lf trf: %f t-trf+16K: %f\n",rev->csiarray.wfit[pos].t[0],rev->csiarray.wfit[pos].t[0]*16,trf,t); */
+							/* getc(stdin); */
+					
+							ran=(double)rand()/(double)RAND_MAX-0.5;
+							ren=t+ran;		
+							t=CSIARRAY_cal_par->ct[pos][0]+CSIARRAY_cal_par->ct[pos][1]*ren;
 
-	    /* printf("calibrator CsI time: %.4f for raw time %.4f\n",t,ren); */
-	    /* getc(stdin); */
+							/* printf("calibrator CsI time: %.4f for raw time %.4f\n",t,ren); */
+							/* getc(stdin); */
 
-	    if(t>0)
-	      if(t<S65K)
-		{
-		  cp->csi[pos].T=t;
-		  cp->h.THP|=(one<<pos);
-		  cp->h.FT++;
-		  cp->ring[pos]=CSIARRAY_cal_par->ring_map[pos];
-		}
-	  }
+							if(t>0)
+								if(t<S65K)
+									{
+										cp->csi[pos].T=t;
+										cp->h.THP|=(one<<pos);
+										cp->h.FT++;
+										cp->ring[pos]=CSIARRAY_cal_par->ring_map[pos];
+									}
+						}
   
   /* fit t0 time calibration */
   /* t from a local fit of the intersection and risetime */
   if(CSIARRAY_cal_par->use_time_fit==2)
-      for(pos=1;pos<NCSI;pos++)
-	if(CSIARRAY_cal_par->ctflag[pos]==1)
-	  if((rev->csiarray.h.TSHP&(one<<pos))!=0)
-	    {
-	      /* t=tfit*16 (in ADC units) */
-	      t=rev->csiarray.t0[pos]*16;
+    for(pos=1;pos<NCSI;pos++)
+			if(CSIARRAY_cal_par->ctflag[pos]==1)
+				if(CSIARRAY_cal_par->ringflag[pos]==1)
+					if((rev->csiarray.h.TSHP&(one<<pos))!=0)
+						{
+							/* t=tfit*16 (in ADC units) */
+							t=rev->csiarray.t0[pos]*16;
 
-	      if((rev->h.setupHP&RF_BIT)!=0)
-		{
-		  //For RFUnwrapping
-		  trf=rev->rf.sin.t0;
-		  if(CSIARRAY_cal_par->DoRFUnwrapping==1)
-		    {
-		      func=(1.000*trf)-(RFphase+CSIARRAY_cal_par->offset);
-		      a=fmod(t+CSIARRAY_cal_par->shift,RFphase);
-		      if(a>func) trf+=RFphase;
-		    }
-		}
-	      else
-		trf=0.;
-	      
-	      /* t=tfit-trf+offset */
-              t-=trf;
-	      t+=S16K;
-	      
-	      /* printf("LOCAL: tfit %f traw: %f trf: %f t-trf+16K: %f\n",rev->csiarray.t0[pos],rev->csiarray.t0[pos]*16,trf,t); */
-	      /* getc(stdin); */
+							if((rev->h.setupHP&RF_BIT)!=0)
+								{
+									//For RFUnwrapping
+									trf=rev->rf.sin.t0;
+									if(CSIARRAY_cal_par->DoRFUnwrapping==1)
+										{
+											func=(1.000*trf)-(RFphase+CSIARRAY_cal_par->offset);
+											a=fmod(t+CSIARRAY_cal_par->shift,RFphase);
+											if(a>func) trf+=RFphase;
+										}
+								}
+							else
+								trf=0.;
+						
+							/* t=tfit-trf+offset */
+							      t-=trf;
+							t+=S16K;
+						
+							/* printf("LOCAL: tfit %f traw: %f trf: %f t-trf+16K: %f\n",rev->csiarray.t0[pos],rev->csiarray.t0[pos]*16,trf,t); */
+							/* getc(stdin); */
 
-	      ran=(double)rand()/(double)RAND_MAX-0.5;
-	      ren=t+ran;		
-	      t=CSIARRAY_cal_par->ct[pos][0]+CSIARRAY_cal_par->ct[pos][1]*ren;
+							ran=(double)rand()/(double)RAND_MAX-0.5;
+							ren=t+ran;		
+							t=CSIARRAY_cal_par->ct[pos][0]+CSIARRAY_cal_par->ct[pos][1]*ren;
 
-	      if(t>0)
-		if(t<S65K)
-		  {
-		    cp->csi[pos].T=t;
-		    cp->h.THP|=(one<<pos);
-		    cp->h.FT++;
-		    cp->ring[pos]=CSIARRAY_cal_par->ring_map[pos];
-		  }
-	    }
+							if(t>0)
+								if(t<S65K)
+									{
+										cp->csi[pos].T=t;
+										cp->h.THP|=(one<<pos);
+										cp->h.FT++;
+										cp->ring[pos]=CSIARRAY_cal_par->ring_map[pos];
+									}
+						}
   
   if(cp->h.FE>0)
     if(cp->h.FT>0)

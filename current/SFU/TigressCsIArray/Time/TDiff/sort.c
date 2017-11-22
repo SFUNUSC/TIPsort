@@ -3,13 +3,13 @@
 int analyze_data(raw_event *data)
 {
 
- cal_event* cev;
+  cal_event* cev;
   int pos,col,csi;
   double ttg,tcsi,tdiff;
   
-  long long int one=1,none=-1,kill;
+  int64_t one=1,none=-1,kill;
   int id,id_ge;
-  long long int flag_ge,flag_csi,drop;
+  int64_t flag_ge,drop;
   int    flag_pos;
 
   double tmin=10E10;
@@ -31,7 +31,6 @@ int analyze_data(raw_event *data)
 
   flag_pos=0;
   flag_ge=0;
-  flag_csi=0;
 
   //printf("HPGe fold %d CsI fold %d\n",cev->tg.h.FT,cev->csiarray.h.FT);
 
@@ -53,7 +52,7 @@ int analyze_data(raw_event *data)
 
 
   for(csi=1;csi<NCSI;csi++)
-    if((cev->csiarray.h.THP&(one<<csi))!=0)
+    if((cev->csiarray.h.THP[csi/64]&(one<<csi%64))!=0)
       {
 	tcsi=cev->csiarray.csi[csi].T/cal_par->csiarray.contr_t;
 	//Find tmin second looking at CsI
@@ -87,17 +86,12 @@ int analyze_data(raw_event *data)
 		    }
 
  for(csi=1;csi<NCSI;csi++)
-   if((cev->csiarray.h.THP&(one<<csi))!=0)
+   if((cev->csiarray.h.THP[csi/64]&(one<<csi%64))!=0)
      {
        tcsi=cev->csiarray.csi[csi].T/cal_par->csiarray.contr_t;
        tdiff=tcsi-tmin;
        //printf("tcsi = %f ----> tdiff_csi = %f\n",tcsi,tdiff);
        h_csiTDiff->Fill(tdiff);
-       
-       /* if(tdiff<=high) */
-       /* 	 { */
-       /* 	  flag_csi|=(one<<csi); */
-       /* 	 } */
      }
 
   free(cev);

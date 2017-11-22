@@ -60,18 +60,18 @@ int analyze_data(raw_event *data)
 
   if(cev->csiarray.h.FE>0)
     for(pos=1;pos<NCSI;pos++)
-      if((cev->csiarray.h.EHP&(one<<pos))!=0)
-	{
-	  e=cev->csiarray.csi[pos].E/cal_par->csiarray.contr_e;
-	  
-	  if(e<0)
-	    e=S32K-1000;
-	  if(e>S32K-10) 
-	    e=S32K-2000;
-	  
-	  //hist[sp][(int)(e)]++;
-	  hist[pos][sp][(int)(e)]++;
-	}
+      if((cev->csiarray.h.EHP[pos/64]&(one<<pos%64))!=0)
+				{
+					e=cev->csiarray.csi[pos].E/cal_par->csiarray.contr_e;
+			
+					if(e<0)
+						e=S32K-1000;
+					if(e>S32K-10) 
+						e=S32K-2000;
+			
+					//hist[sp][(int)(e)]++;
+					hist[pos][sp][(int)(e)]++;
+				}
 
 
   free(cev);

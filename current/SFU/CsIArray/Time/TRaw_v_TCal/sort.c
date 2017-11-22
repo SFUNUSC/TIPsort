@@ -13,7 +13,7 @@ int analyze_data(raw_event *data)
   
  if(cev->csiarray.h.FT>0)
     for(pos=1;pos<NCSI;pos++)
-      if((cev->csiarray.h.THP&(1<<pos))!=0)
+      if((cev->csiarray.h.THP[pos/64]&(1<<pos%64))!=0)
 	{
 	  traw=data->csiarray.csi[pos].cfd&0x00ffffff;
 	  traw-=(data->csiarray.csi[pos].timestamp*16)&0x00ffffff;

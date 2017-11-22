@@ -3,7 +3,7 @@
 int analyze_data(raw_event *data)
 {
   cal_event* cev;
-  unsigned long long int one=1;
+  uint64_t one=1;
   int pos,col,csi;
   double ttg,tcsi,tdiff;
   double ttg1,tcsi1,thit;
@@ -56,7 +56,7 @@ int analyze_data(raw_event *data)
   first_hit = true;
   if(cev->csiarray.h.FT>0)
     for(pos=1;pos<NCSI;pos++) //look at each CsI position
-      if((cev->csiarray.h.THP&(one<<pos))!=0) //is there a hit in the detector?
+      if((cev->csiarray.h.THP[pos/64]&(one<<pos%64))!=0) //is there a hit in the detector?
         {
           thit=cev->csiarray.csi[pos].T/cal_par->csiarray.contr_t;
           if (first_hit == true)
@@ -84,7 +84,7 @@ int analyze_data(raw_event *data)
 		      if(ttg==ttg1)//check whether the tigress hit is the first hit
                         {
 		        for(csi=1;csi<NCSI;csi++)
-			  if((cev->csiarray.h.THP&(one<<csi))!=0)
+			  if((cev->csiarray.h.THP[csi/64]&(one<<csi%64))!=0)
 			    {
 			      type=cev->csiarray.type[csi];
 			      chisq=cev->csiarray.chisq[csi];

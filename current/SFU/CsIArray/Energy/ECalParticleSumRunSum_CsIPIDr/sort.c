@@ -58,25 +58,25 @@ int analyze_data(raw_event *data)
   if(sp == 3 || sp == 6)
   if(cev->csiarray.h.FE>0)
     for(pos_i=1;pos_i<NCSI;pos_i++)
-      if((cev->csiarray.h.EHP&(one<<pos_i))!=0)
-	for(pos_j=pos_i+1;pos_j<NCSI;pos_j++)
-	  if((cev->csiarray.h.EHP&(one<<pos_j))!=0)
-	    {
-	      e=(cev->csiarray.csi[pos_i].E+cev->csiarray.csi[pos_j].E)/cal_par->csiarray.contr_e;
-  
-	      /* if(sp==6) */
-	      /*   { */
-	      /*     printf("event type = %d, position = %d, energy = %.2f, energy sum = %.2f\n",sp,pos,cev->csiarray.csi[pos].E/cal_par->csiarray.contr_e,e); */
-	      /*     getc(stdin); */
-	      /*   } */
-	      
-	      if(e<0)
-		e=S32K-1000;
-	      if(e>S32K-10) 
-		e=S32K-2000;
-	      
-	      hist[sp][(int)(e)]++;
-	    }
+      if((cev->csiarray.h.EHP[pos_i/64]&(one<<pos_i%64))!=0)
+				for(pos_j=pos_i+1;pos_j<NCSI;pos_j++)
+					if((cev->csiarray.h.EHP[pos_j/64]&(one<<pos_j%64))!=0)
+						{
+							e=(cev->csiarray.csi[pos_i].E+cev->csiarray.csi[pos_j].E)/cal_par->csiarray.contr_e;
+		
+							/* if(sp==6) */
+							/*   { */
+							/*     printf("event type = %d, position = %d, energy = %.2f, energy sum = %.2f\n",sp,pos,cev->csiarray.csi[pos].E/cal_par->csiarray.contr_e,e); */
+							/*     getc(stdin); */
+							/*   } */
+							
+							if(e<0)
+					e=S32K-1000;
+							if(e>S32K-10) 
+					e=S32K-2000;
+							
+							hist[sp][(int)(e)]++;
+						}
   
   free(cev);
   return SEPARATOR_DISCARD;

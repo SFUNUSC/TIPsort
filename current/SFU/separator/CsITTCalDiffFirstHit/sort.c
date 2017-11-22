@@ -27,7 +27,7 @@ int analyze_data(raw_event *data)
 	int numHits=0;
 	if(cev->csiarray.h.FT>0)
     for(pos1=1;pos1<NCSI;pos1++) //look at each CsI position
-      if((cev->csiarray.h.THP&(one<<pos1))!=0) //is there a hit in the detector?
+      if((cev->csiarray.h.THP[pos1/64]&(one<<pos1%64))!=0) //is there a hit in the detector?
       	numHits++;
   if(numHits<2)
   	return SEPARATOR_DISCARD; //don't keep events without enough hits
@@ -36,7 +36,7 @@ int analyze_data(raw_event *data)
   //the first and second hits occur.
   if(cev->csiarray.h.FT>0)
     for(pos1=1;pos1<NCSI;pos1++) //look at each CsI position
-      if((cev->csiarray.h.THP&(one<<pos1))!=0) //is there a hit in the detector?
+      if((cev->csiarray.h.THP[pos1/64]&(one<<pos1%64))!=0) //is there a hit in the detector?
         {
           thit=cev->csiarray.csi[pos1].T/cal_par->csiarray.contr_t;
           if (first_hit == true)
@@ -55,7 +55,7 @@ int analyze_data(raw_event *data)
   tgate=t1+gate_length; //time at the end of the gate
     if(cev->csiarray.h.FT>0)
       for(pos1=1;pos1<NCSI;pos1++) //look at each CsI position
-        if((cev->csiarray.h.THP&(one<<pos1))!=0) //is there a hit in the detector?
+        if((cev->csiarray.h.THP[pos1/64]&(one<<pos1%64))!=0) //is there a hit in the detector?
           {
             thit=cev->csiarray.csi[pos1].T/cal_par->csiarray.contr_t;
             if ((corr==1)&&(thit<=tgate)) //check whether the hit is in the gate

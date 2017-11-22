@@ -5,7 +5,7 @@
 int analyze_data(raw_event *data)
 {
   cal_event* cev;
-  unsigned long long int one=1;
+  uint64_t one=1;
   double eAddBack=0.;
   int suppFlag;
   int take=0;
@@ -69,7 +69,7 @@ int analyze_data(raw_event *data)
 	      colAddBack = cev->tg.det[pos].addbackC;
 	      
 	      for(csi=1;csi<NCSI;csi++)
-					if((cev->csiarray.h.HHP&(one<<csi))!=0)
+					if((cev->csiarray.h.HHP[csi/64]&(one<<csi%64))!=0)
 						{
 					  	ring = cev->csiarray.ring[csi]+10*suppFlag;
 					  	if(ring<20)

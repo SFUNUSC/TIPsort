@@ -501,7 +501,7 @@ void calibrate_CSIARRAY(raw_event* rev, CSIARRAY_calibration_parameters *CSIARRA
 								if(e<S65K)
 									{
 										cp->csi[pos].E=e;
-										cp->h.EHP|=(one<<pos);
+										cp->h.EHP[pos/64]|=(one<<pos%64);
 										cp->h.FE++;
 										cp->ring[pos]=CSIARRAY_cal_par->ring_map[pos];
 										/*printf("pos: %i, ring %i\n",pos,CSIARRAY_cal_par->ring_map[pos]);
@@ -558,7 +558,7 @@ void calibrate_CSIARRAY(raw_event* rev, CSIARRAY_calibration_parameters *CSIARRA
 								if(t<S65K)
 									{
 										cp->csi[pos].T=t;
-										cp->h.THP|=(one<<pos);
+										cp->h.THP[pos/64]|=(one<<pos%64);
 										cp->h.FT++;
 										cp->ring[pos]=CSIARRAY_cal_par->ring_map[pos];
 									}
@@ -608,7 +608,7 @@ void calibrate_CSIARRAY(raw_event* rev, CSIARRAY_calibration_parameters *CSIARRA
 								if(t<S65K)
 									{
 										cp->csi[pos].T=t;
-										cp->h.THP|=(one<<pos);
+										cp->h.THP[pos/64]|=(one<<pos%64);
 										cp->h.FT++;
 										cp->ring[pos]=CSIARRAY_cal_par->ring_map[pos];
 									}
@@ -654,7 +654,7 @@ void calibrate_CSIARRAY(raw_event* rev, CSIARRAY_calibration_parameters *CSIARRA
 								if(t<S65K)
 									{
 										cp->csi[pos].T=t;
-										cp->h.THP|=(one<<pos);
+										cp->h.THP[pos/64]|=(one<<pos%64);
 										cp->h.FT++;
 										cp->ring[pos]=CSIARRAY_cal_par->ring_map[pos];
 									}
@@ -663,12 +663,12 @@ void calibrate_CSIARRAY(raw_event* rev, CSIARRAY_calibration_parameters *CSIARRA
   if(cp->h.FE>0)
     if(cp->h.FT>0)
       for(pos=1;pos<NCSI;pos++)
-	if((cp->h.EHP&(one<<pos))!=0)
-	  if((cp->h.THP&(one<<pos))!=0)
-	    {
-	      cp->h.HHP|=(one<<pos);
-	      cp->h.FH++;
-	    }
+				if((cp->h.EHP[pos/64]&(one<<pos%64))!=0)
+					if((cp->h.THP[pos/64]&(one<<pos%64))!=0)
+						{
+							cp->h.HHP[pos/64]|=(one<<pos%64);
+							cp->h.FH++;
+						}
   
   /* /\* Calculation of change of center of mass energy during evaporation *\/ */
   /* /\* initialize the excitation energy change U = -1 *\/ */
@@ -691,9 +691,9 @@ void calibrate_CSIARRAY(raw_event* rev, CSIARRAY_calibration_parameters *CSIARRA
   /* change in U for fold 2 events based on energies and positions */
   if(cp->h.FH==2)
       for(pos1=1;pos1<NCSI;pos1++)
-  	if((cp->h.THP&(one<<pos1))!=0)
+  	if((cp->h.THP[pos1/64]&(one<<pos1%64))!=0)
   	  for(pos2=pos1+1;pos2<NCSI;pos2++)
-  	    if((cp->h.THP&(one<<pos2))!=0)
+  	    if((cp->h.THP[pos2/64]&(one<<pos2%64))!=0)
   	      {
   	      if(CSIARRAY_cal_par->cposflag[pos1]==1)
   		if(CSIARRAY_cal_par->cposflag[pos2]==1)

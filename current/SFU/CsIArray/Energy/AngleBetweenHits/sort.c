@@ -3,7 +3,7 @@
 int analyze_data(raw_event *data)
 {
   cal_event* cev;
-  unsigned long long int one=1;
+  uint64_t one=1;
   int pos1;
   
   
@@ -22,7 +22,7 @@ int analyze_data(raw_event *data)
 	double angle=0.;
   if(cev->csiarray.h.FE>0)
     for(pos1=1;pos1<NCSI;pos1++)
-      if((cev->csiarray.h.EHP&(one<<pos1))!=0)
+      if((cev->csiarray.h.EHP[pos1/64]&(one<<pos1%64))!=0)
 				{
 					//printf("Hit found...\n");
 					if(csiHitIndex<2)

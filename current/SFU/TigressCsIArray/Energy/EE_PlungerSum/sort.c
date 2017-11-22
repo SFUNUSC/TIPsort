@@ -3,7 +3,7 @@
 int analyze_data(raw_event *data)
 {
   cal_event* cev;
-  unsigned long long int one=1;
+  uint64_t one=1;
   int pos,col,ring,csi;
   double etig,etig_corr,ecsi;
 
@@ -33,7 +33,7 @@ int analyze_data(raw_event *data)
 	      ring=cev->tg.det[pos].addbackR;
 
 		for(csi=1;csi<NCSI;csi++)
-		  if((cev->csiarray.h.HHP&(one<<csi))!=0)
+		  if((cev->csiarray.h.HHP[csi/64]&(one<<csi%64))!=0)
 		    {
 		      ecsi=cev->csiarray.csi[csi].E/1000.; /* CsI energy in MeV */
 		    

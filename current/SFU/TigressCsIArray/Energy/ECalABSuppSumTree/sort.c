@@ -39,7 +39,7 @@ int analyze_data(raw_event *data)
   int take=0;
   double ecsi;
   int csi;
-  unsigned long long int one=1;
+  uint64_t one=1;
   
   TData.CsIfold=0;
   cev=(cal_event*)malloc(sizeof(cal_event));
@@ -113,7 +113,7 @@ int analyze_data(raw_event *data)
                     
                     if(cev->csiarray.h.FH>0)
                       for(csi=1;csi<NCSI;csi++)
-                        if((cev->csiarray.h.HHP&(one<<csi))!=0)
+                        if((cev->csiarray.h.HHP[csi/64]&(one<<csi%64))!=0)
                           {
                             for(int ind=0;ind<3;ind++)
                               part_p[csi][ind]=cal_par->csiarray.cpos_xyz[csi][ind];

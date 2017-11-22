@@ -3,7 +3,7 @@
 int analyze_data(raw_event *data)
 {
   cal_event* cev;
-  unsigned long long int one=1;
+  uint64_t one=1;
   int pos,col,ring,csi;
   double etig,ecsi;
 
@@ -33,7 +33,7 @@ int analyze_data(raw_event *data)
 
 	      if(cev->csiarray.h.FH>0)
 		for(csi=1;csi<NCSI;csi++)
-		  if((cev->csiarray.h.HHP&(one<<csi))!=0)
+		  if((cev->csiarray.h.HHP[csi/64]&(one<<csi%64))!=0)
 		    {
 		      ecsi=cev->csiarray.csi[csi].E/cal_par->csiarray.contr_e; /* CsI energy in keV/4 */
 		      //printf("etig %f ecsi %f\n",etig,ecsi);

@@ -64,7 +64,7 @@ int analyze_data(raw_event *data)
   /* work out number and type of particles identified in the good energy event */
   if(cev->csiarray.h.FE>0)
     for(posCsI1=1;posCsI1<NCSI;posCsI1++)
-      if((cev->csiarray.h.EHP&(one<<posCsI1))!=0)
+      if((cev->csiarray.h.EHP[posCsI1/64]&(one<<posCsI1%64))!=0)
 	if(take==0)
   	{
 	  //get CsI 1 energy
@@ -84,7 +84,7 @@ int analyze_data(raw_event *data)
 		if((np+na)>1)
 		  {
 		    for(posCsI2=posCsI1+1;posCsI2<NCSI;posCsI2++)
-		      if((cev->csiarray.h.EHP&(one<<posCsI2))!=0)
+		      if((cev->csiarray.h.EHP[posCsI2/64]&(one<<posCsI2%64))!=0)
 			if(take==0)
 			  {
 			    //get CsI 2 energy

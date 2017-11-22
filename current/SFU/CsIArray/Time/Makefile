@@ -14,6 +14,10 @@ all:
 	echo Making TFitCFD.
 	(cd TFitCFD r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: TFITCFD.
+	
+	echo Making TFitCFDChannel.
+	(cd TFitCFDChannel r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: TFITCFDChannel.
 
 	echo Making TRaw.
 	(cd TRaw r && make -is clean && make && make -is clean && cd ..)
@@ -28,6 +32,7 @@ clean:
 	(cd TvsRFPhase && make -is clean && cd ..)
 	(cd TTCal      && make -is clean && cd ..)
 	(cd TFitCFD    && make -is clean && cd ..)
+	(cd TFitCFDChannel    && make -is clean && cd ..)
 	(cd TRaw       && make -is clean && cd ..)
 	(cd TRaw_v_TCal       && make -is clean && cd ..)
 

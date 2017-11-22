@@ -11,7 +11,7 @@
 
 typedef struct cCSIARRAY
 {
-  lheader h;
+  llheader h;
   hit     csi[NCSI];
   int     ring[NCSI];
   double  U; /* center of mass energy change */

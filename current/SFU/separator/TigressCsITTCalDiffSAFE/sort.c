@@ -43,7 +43,7 @@ int analyze_data(raw_event *data)
 		    {
 		      ttg=cev->tg.det[pos].ge[col].seg[0].T/cal_par->tg.contr_t;
 		      for(csi=1;csi<NCSI;csi++)
-			if((cev->csiarray.h.THP&(one<<csi))!=0)
+			if((cev->csiarray.h.THP[csi/64]&(one<<csi%64))!=0)
 			  {
 			    tcsi=cev->csiarray.csi[csi].T/cal_par->csiarray.contr_t;
 			    tdiff=ttg-tcsi;

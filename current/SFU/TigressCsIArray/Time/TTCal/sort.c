@@ -3,7 +3,7 @@
 int analyze_data(raw_event *data)
 {
   cal_event* cev;
-  unsigned long long int one=1;
+  uint64_t one=1;
   int pos,col,csi;
   double ttg,tcsi,tdiff;
   //double etg;
@@ -38,7 +38,7 @@ int analyze_data(raw_event *data)
 		      ttg=cev->tg.det[pos].ge[col].seg[0].T/cal_par->tg.contr_t;
 		      
 		      for(csi=1;csi<NCSI;csi++)
-			if((cev->csiarray.h.THP&(one<<csi))!=0)
+			if((cev->csiarray.h.THP[csi/64]&(one<<csi%64))!=0)
 			  {
 			    type=cev->csiarray.type[csi];
 			    chisq=cev->csiarray.chisq[csi];

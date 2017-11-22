@@ -3,7 +3,7 @@
 int analyze_data(raw_event *data)
 {
   cal_event* cev;
-  unsigned long long int one=1;
+  uint64_t one=1;
   int pos;
   double t;
   int tt;
@@ -14,7 +14,7 @@ int analyze_data(raw_event *data)
   
   if(cev->csiarray.h.FT>0)
     for(pos=1;pos<NCSI;pos++)
-      if((cev->csiarray.h.THP&(one<<pos))!=0)
+      if((cev->csiarray.h.THP[pos/64]&(one<<pos%64))!=0)
 	{
 	  //In CFD units, then scaled by contraction
 	  t=cev->csiarray.csi[pos].T/cal_par->csiarray.contr_t;

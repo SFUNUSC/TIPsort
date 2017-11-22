@@ -3,7 +3,7 @@
 int analyze_data(raw_event *data)
 {
   cal_event* cev;
-  unsigned long long int one=1;
+  uint64_t one=1;
   int pos;
   double e;
 
@@ -20,7 +20,7 @@ int analyze_data(raw_event *data)
 
   if(cev->csiarray.h.FE>0)
     for(pos=1;pos<NCSI;pos++)
-      if((cev->csiarray.h.EHP&(one<<pos))!=0)
+      if((cev->csiarray.h.EHP[pos/64]&(one<<pos%64))!=0)
 	{
 	  e=cev->csiarray.csi[pos].E/cal_par->csiarray.contr_e;
 	  /* printf("CsIArray pos %d ene = %f\n",pos,e); */

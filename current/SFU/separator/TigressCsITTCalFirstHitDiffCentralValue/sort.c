@@ -68,7 +68,7 @@ int analyze_data(raw_event *data)
   first_hit = true;
   if(cev->csiarray.h.FT>0)
     for(pos=1;pos<NCSI;pos++) //look at each CsI position
-      if((cev->csiarray.h.THP&(one<<pos))!=0) //is there a hit in the detector?
+      if((cev->csiarray.h.THP[pos/64]&(one<<pos%64))!=0) //is there a hit in the detector?
         {
           thit=cev->csiarray.csi[pos].T/cal_par->csiarray.contr_t;
           if(abs(thit-csiTVal)<=gate_length)//check whether hit is near central value
@@ -96,7 +96,7 @@ int analyze_data(raw_event *data)
       if(cev->csiarray.h.FT>0)
         for(csi=1;csi<NCSI;csi++) //look at each CsI position
         	{
-		        if((cev->csiarray.h.THP&(one<<csi))!=0) //is there a hit in the detector?
+		        if((cev->csiarray.h.THP[csi/64]&(one<<csi%64))!=0) //is there a hit in the detector?
 		        	{
 		        		thit=cev->csiarray.csi[csi].T/cal_par->csiarray.contr_t;
 		        		if(abs(thit-csiTVal)<=gate_length)//check whether hit is near central value

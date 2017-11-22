@@ -16,7 +16,7 @@ int analyze_data(raw_event *data)
 
   if(cev->csiarray.h.FT>0)
     for(pos=1;pos<NCSI;pos++)
-      if((cev->csiarray.h.THP&(one<<pos))!=0)
+      if((cev->csiarray.h.THP[pos/64]&(one<<pos%64))!=0)
 	{
 	  type=data->csiarray.wfit[pos].type;
 	  chi=data->csiarray.wfit[pos].chisq;

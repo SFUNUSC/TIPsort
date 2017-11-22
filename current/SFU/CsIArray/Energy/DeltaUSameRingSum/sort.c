@@ -3,7 +3,7 @@
 int analyze_data(raw_event *data)
 {
   cal_event* cev;
-  unsigned long long int one=1;
+  uint64_t one=1;
   int pos1,pos2,ring;
   double u;
   
@@ -14,18 +14,18 @@ int analyze_data(raw_event *data)
   if(cev->csiarray.h.FE==2)
     if(cev->csiarray.h.FT==2)
       for(pos1=1;pos1<NCSI;pos1++)
-        if((cev->csiarray.h.EHP&(one<<pos1))!=0)
+        if((cev->csiarray.h.EHP[pos1/64]&(one<<pos1%64))!=0)
           {
             ring=cev->csiarray.ring[pos1];//check the ring position of the first hit
             for(pos2=pos1+1;pos2<NCSI;pos2++)
-	      if((cev->csiarray.h.THP&(one<<pos2))!=0)
+	      			if((cev->csiarray.h.THP[pos2/64]&(one<<pos2%64))!=0)
                 if(ring==cev->csiarray.ring[pos2])//check that the 2 hits are in the same ring
                   {
-	            u=cev->csiarray.U;
-	            //printf("CsIArray ene = %f\n",u);
-                    //getc(stdin);
-	            if(u>=0 && u<S32K)
-	              hist[ring][(int)rint(u)]++;
+								    u=cev->csiarray.U;
+								    //printf("CsIArray ene = %f\n",u);
+							            //getc(stdin);
+								    if(u>=0 && u<S32K)
+								      hist[ring][(int)rint(u)]++;
                   }
           }
   free(cev);

@@ -3,7 +3,7 @@
 int analyze_data(raw_event *data)
 {
   cal_event* cev;
-  unsigned long long int one=1;
+  uint64_t one=1;
   int pos1,pos2;
   bool allow;
   
@@ -15,9 +15,9 @@ int analyze_data(raw_event *data)
   if(cev->csiarray.h.FE>0)
     if(data->csiarray.h.TSfold==2)
       for(pos1=1;pos1<NCSI;pos1++)
-        if((cev->csiarray.h.EHP&(one<<pos1))!=0)
+        if((cev->csiarray.h.EHP[pos1/64]&(one<<pos1%64))!=0)
           for(pos2=pos1;pos2<NCSI;pos2++)
-            if((cev->csiarray.h.EHP&(one<<pos2))!=0)
+            if((cev->csiarray.h.EHP[pos2/64]&(one<<pos2%64))!=0)
               {
               	if((cev->csiarray.ring[pos1]>=0)&&(cev->csiarray.ring[pos1]<10))
               		if((cev->csiarray.ring[pos2]>=0)&&(cev->csiarray.ring[pos2]<10))
@@ -38,7 +38,7 @@ int analyze_data(raw_event *data)
 						              allow=true;
 						              for(int i=1;i<NCSI;i++)
 						                if(i!=pos1)
-						                  if((cev->csiarray.h.EHP&(one<<i))!=0)
+						                  if((cev->csiarray.h.EHP[i/64]&(one<<i%64))!=0)
 						                    {
 						                      allow=false;
 						                      break;

@@ -48,7 +48,7 @@ int analyze_data(raw_event *data)
                     //Find the time at which each CsI hit occurs.
 										if(cev->csiarray.h.FT>0)
 											for(csi=1;csi<NCSI;csi++) //look at each CsI position
-												if((cev->csiarray.h.THP&(one<<csi))!=0) //is there a hit in the detector?
+												if((cev->csiarray.h.THP[csi/64]&(one<<csi%64))!=0) //is there a hit in the detector?
 													{
 														thitc=cev->csiarray.csi[csi].T/cal_par->csiarray.contr_t;
 														tdiff=thitc-thitt; //time difference between the particle and gamma
@@ -67,7 +67,7 @@ int analyze_data(raw_event *data)
       if(cev->csiarray.h.FT>0)
         for(pos=1;pos<NCSI;pos++) //look at each CsI position
         	{
-		        if((cev->csiarray.h.THP&(one<<pos))!=0) //is there a hit in the detector?
+		        if((cev->csiarray.h.THP[pos/64]&(one<<pos%64))!=0) //is there a hit in the detector?
 		          flag_csi[pos/64]|=(one<<pos%64); //flag the hit for preservation
           }
       if(cev->tg.h.FT>0)

@@ -25,14 +25,14 @@ int analyze_data(raw_event *data)
   if(cev->csiarray.h.FE==2)
     if(cev->csiarray.h.FT==2)
       for(pos1=1;pos1<NCSI;pos1++)
-        if((cev->csiarray.h.EHP&(one<<pos1))!=0)
+        if((cev->csiarray.h.EHP[pos1/64]&(one<<pos1%64))!=0)
           {
             ring=cev->csiarray.ring[pos1];//check the ring position of the first hit
             for(pos2=pos1+1;pos2<NCSI;pos2++)
-	      if((cev->csiarray.h.THP&(one<<pos2))!=0)
+	      			if((cev->csiarray.h.THP[pos2/64]&(one<<pos2%64))!=0)
                 if((ring==cev->csiarray.ring[pos2])||(same_ring!=1))//check that the 2 hits are in the same ring
                   {
-	            u=cev->csiarray.U;
+	            			u=cev->csiarray.U;
                     if(u>=low)
                       if(u<=high)
                         {

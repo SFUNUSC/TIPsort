@@ -10,7 +10,6 @@
 #include "get_sin_par.h"
 #include "waveform_analyzer.h"
 
-#define NCSIMAP 30
 typedef struct tmap
 {
 int tigr_css_min;
@@ -56,7 +55,7 @@ double rf_period;
 int  tigr_ge_map[NPOSTIGR];
 int  grif_ge_map[NPOSGRIF];
 int  pinarray_map[60];
-int  csiarray_map[NCSIMAP];
+int  csiarray_map[2*NCSI]; //allow more space in case detector ports are skipped over on the DAQ
 int  s3_sec[5][10];
 int  s3_ring[4][10];
 int  s3_gid[10];

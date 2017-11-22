@@ -8,9 +8,10 @@ int analyze_data(raw_event *data)
   double thit;
   bool first_hit;
   
-  long long int one=1,none=-1,kill;
+  int64_t one=1,none=-1,kill;
   int id,id_ge;
-  long long int flag_ge,flag_csi,drop;
+  long long int flag_ge,drop;
+  int64_t flag_csi[4];
 
   double ttg1=10E10;
   double tcsi1=-10E10;
@@ -33,7 +34,7 @@ int analyze_data(raw_event *data)
   calibrate_CSIARRAY(data,&cal_par->csiarray,&cev->csiarray);
 
   flag_ge=0;
-  flag_csi=0;
+  memset(flag_csi,0,sizeof(flag_csi));
 
   //Given any number of TIGRESS detector hits during the event, find the time at which 
   //the first hit occurs.
@@ -90,7 +91,7 @@ int analyze_data(raw_event *data)
         for(pos=1;pos<NCSI;pos++) //look at each CsI position
         	{
 		        if((cev->csiarray.h.THP&(one<<pos))!=0) //is there a hit in the detector?
-		          flag_csi|=(one<<pos); //flag the hit for preservation
+		          flag_csi[pos/64]|=(one<<pos%64); //flag the hit for preservation
           }
       if(cev->tg.h.FT>0)
         for(pos=1;pos<NPOSTIGR;pos++) //look at each Tigress position
@@ -168,8 +169,8 @@ int analyze_data(raw_event *data)
   
   //drop csi out of the time limits
   for(csi=1;csi<NCSI;csi++)
-    if((data->csiarray.h.TSHP&(one<<csi))!=0)
-      if((flag_csi&(one<<csi))==0)
+    if((data->csiarray.h.TSHP[csi/64]&(one<<csi%64))!=0)
+      if((flag_csi[csi/64]&(one<<csi%64))==0)
 	      {
 	        memset(&data->csiarray.csi[csi],0,sizeof(channel));
 	        memset(&data->csiarray.wfit[csi],0,sizeof(ShapePar));
@@ -177,10 +178,10 @@ int analyze_data(raw_event *data)
 	        data->csiarray.h.Efold--;
 	        data->csiarray.h.Tfold--;	  
 	        data->csiarray.h.TSfold--;
-	        kill=none-(one<<csi);
-	        data->csiarray.h.TSHP&=kill;
-	        data->csiarray.h.EHP&=kill;
-	        data->csiarray.h.THP&=kill;
+	        kill=none-(one<<csi%64);
+	        data->csiarray.h.TSHP[csi/64]&=kill;
+	        data->csiarray.h.EHP[csi/64]&=kill;
+	        data->csiarray.h.THP[csi/64]&=kill;
 	      }
   
   if(data->csiarray.h.TSfold<=0)

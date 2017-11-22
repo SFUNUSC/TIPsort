@@ -2,7 +2,7 @@
 
 int analyze_data(raw_event *data)
 {
-	unsigned long long int one=1;
+	uint64_t one=1;
 	unsigned long long int min,max;
 	int diff = verify_ts(data,&min,&max);
 	
@@ -20,11 +20,15 @@ int analyze_data(raw_event *data)
 						numEvents[pos][col]++;
 					}
 	
+	//printf("Fold: %i, HP: %64.64llx%64.64llx\n",data->csiarray.h.TSfold,data->csiarray.h.TSHP[0],data->csiarray.h.TSHP[1]);
+	//getc(stdin);
+	
 	//look through each CsI position				
 	for(csi=1;csi<NCSI;csi++)
 		//check if the position is in the hit pattern
-		if((data->csiarray.h.THP&(one<<csi))!=0)
+		if((data->csiarray.h.THP[csi/64]&(one<<csi%64))!=0)
 			{
+				//printf("Hit in pos: %i\n",csi);
 				if(diff>delta)
 					numBadCsIEvents[csi]++;
 				numCsIEvents[csi]++;

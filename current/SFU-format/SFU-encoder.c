@@ -197,13 +197,15 @@ int encode(raw_event* data, FILE* encoded_output,int* enb)
 	{
 	  memset(pck,0,sizeof(pck));
 	  pck[0]=CsIArray_TAG;
-	  pck[1]=2+sizeof(pheader)/sizeof(int);
-	  memcpy(&pck[2],&data->csiarray.h,sizeof(pheader));
+	  pck[1]=2+sizeof(caheader)/sizeof(int);
+	  memcpy(&pck[2],&data->csiarray.h,sizeof(caheader));
 	
 	  if(data->csiarray.h.TSfold>0)
 	    for(int pos=1;pos<NCSI;pos++)
-	      if((data->csiarray.h.TSHP&(one<<pos))!=0)
+	      if((data->csiarray.h.TSHP[pos/64]&(one<<pos%64))!=0)
 		{
+			//printf("Hit in pos: %i, packing csi array...\n",pos);
+			//getc(stdin);
 		  pck[pck[1]]=CHANNEL_TAG;
 		  pck[1]++;
 		  pck[pck[1]]=pos;

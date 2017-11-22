@@ -6,9 +6,10 @@ int analyze_data(raw_event *data)
   int pos,col,csi;
   double ttg,tcsi,tdiff,tdiff_ttg;
   
-  long long int one=1,none=-1,kill;
+  int64_t one=1,none=-1,kill;
   int id,id_ge;
-  long long int flag_ge,flag_csi,drop;
+  long long int flag_ge,drop;
+  int64_t flag_csi[4];
   //int    flag_pos;
 
   //double tmin=10E10;
@@ -34,7 +35,7 @@ int analyze_data(raw_event *data)
 
   //flag_pos=0;
   flag_ge=0;
-  flag_csi=0;
+  memset(flag_csi,0,sizeof(flag_csi));
 
   /* printf("tig fold %d csi fold %d\n",cev->tg.h.FT,cev->csiarray.h.FT); */
   /* getc(stdin); */
@@ -149,7 +150,7 @@ int analyze_data(raw_event *data)
 	      if(tdiff<=high)
 		      if(tcsi>tmin_ttg)
 		        {
-		          flag_csi|=(one<<csi);
+		          flag_csi[csi/64]|=(one<<csi%64);
 		        }
 	    }
 	
@@ -213,20 +214,20 @@ int analyze_data(raw_event *data)
   
   //drop csi out of the time limits
   for(csi=1;csi<NCSI;csi++)
-    if((data->csiarray.h.TSHP&(one<<csi))!=0)
-      if((flag_csi&(one<<csi))==0)
-	{
-	  memset(&data->csiarray.csi[csi],0,sizeof(channel));
-	  memset(&data->csiarray.wfit[csi],0,sizeof(ShapePar));
-	  memset(&data->csiarray.t0[csi],0,sizeof(double));
-	  data->csiarray.h.Efold--;
-	  data->csiarray.h.Tfold--;	  
-	  data->csiarray.h.TSfold--;
-	  kill=none-(one<<csi);
-	  data->csiarray.h.TSHP&=kill;
-	  data->csiarray.h.EHP&=kill;
-	  data->csiarray.h.THP&=kill;
-	}
+    if((data->csiarray.h.TSHP[csi/64]&(one<<csi%64))!=0)
+      if((flag_csi[csi/64]&(one<<csi%64))==0)
+				{
+					memset(&data->csiarray.csi[csi],0,sizeof(channel));
+					memset(&data->csiarray.wfit[csi],0,sizeof(ShapePar));
+					memset(&data->csiarray.t0[csi],0,sizeof(double));
+					data->csiarray.h.Efold--;
+					data->csiarray.h.Tfold--;	  
+					data->csiarray.h.TSfold--;
+					kill=none-(one<<csi%64);
+					data->csiarray.h.TSHP[csi/64]&=kill;
+					data->csiarray.h.EHP[csi/64]&=kill;
+					data->csiarray.h.THP[csi/64]&=kill;
+				}
   
   if(data->csiarray.h.TSfold<=0)
     {

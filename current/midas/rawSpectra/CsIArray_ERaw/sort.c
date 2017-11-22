@@ -3,15 +3,18 @@
 /*================================================================*/
 int analyze_assembled_event(raw_event* data)
 {
-  int ehp,e;
+	uint64_t one=1;
+	//int ehp;
+  int e;
   for(pos=1;pos<NCSI;pos++)
-    if((ehp=data->csiarray.h.EHP)!=0)
-      if(((ehp>>pos)&1)!=0)
-	{
-	  e=data->csiarray.csi[pos].charge;
-	  if((e>=0) && (e<S32K)) hist[pos][e]++;
-	  else hist[pos][S32K-100]++;
-	}
+    //if((ehp=data->csiarray.h.EHP)!=0)
+      //if(((ehp>>pos)&1)!=0)
+      if((data->csiarray.h.EHP[pos/64]&(one<<pos%64))!=0)
+				{
+					e=data->csiarray.csi[pos].charge;
+					if((e>=0) && (e<S32K)) hist[pos][e]++;
+					else hist[pos][S32K-100]++;
+				}
   
   return 0;
 }

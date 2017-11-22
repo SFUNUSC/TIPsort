@@ -427,7 +427,7 @@ void map_event(Tig10_event *ptr, short* waveform, raw_event *data,tmap* map,int 
   int col,pos,id;
   int type=-1;
   int take;
-  unsigned long long int one=1;
+  uint64_t one=1;
   WaveFormPar wpar;
 
   if(turn>-1)
@@ -849,64 +849,76 @@ void map_event(Tig10_event *ptr, short* waveform, raw_event *data,tmap* map,int 
   if(ptr->channel>=map->csiarray_min)
     if(ptr->channel<=map->csiarray_max)
       {
-	c=ptr->channel-map->csiarray_min;
-	pos=map->csiarray_map[c];
-	if(pos>0)
-	  if(pos<NCSI)
-	    {
-	      take=0;
-	      if(ptr->charge_flag==1)
-		if(ptr->charge!=0)
-		  {
-		    data->csiarray.csi[pos].charge=
-		      (ptr->charge/(map->csiarray_css_kpar/map->csiarray_css_disp));
-		    //printf("charge for CsI array pos %d: %f\n",pos,data->csiarray.csi[pos].charge);
-		    //data->csiarray.csi[pos].charge=ptr->charge;
-		    data->csiarray.h.Efold++;
-		    data->csiarray.h.EHP|=(one<<pos);
-		    take|=1;
-		  }
-	      if(ptr->cfd_flag==1)
-		if(ptr->cfd!=0)
-		  {
-		    data->csiarray.csi[pos].cfd=ptr->cfd;
-		    data->csiarray.h.Tfold++;
-		    data->csiarray.h.THP|=(one<<pos);
-		    take|=1;
-		  }
-	      //printf("pos %d take %d\n",pos,take);
-	      if(take==1)
-		{
-		  data->csiarray.csi[pos].timestamp=ptr->timestamp;
-		  data->csiarray.csi[pos].timestamp_up=ptr->timestamp_up;
-		  data->csiarray.h.TSfold++;
-		  data->csiarray.h.TSHP|=(one<<pos);
-		  data->h.setupHP|=CsIArray_BIT;
-		  memset(&data->csiarray.wfit[pos],0,sizeof(ShapePar));
-		  data->csiarray.wfit[pos].t[1]=map->csiarray_trc;
-		  data->csiarray.wfit[pos].t[2]=map->csiarray_tf;
-		  data->csiarray.wfit[pos].t[3]=map->csiarray_ts;
-		  data->csiarray.wfit[pos].t[4]=map->csiarray_tr;
-		  data->csiarray.wfit[pos].rf[0]=map->rf_period;
-                  data->csiarray.wfit[pos].pileup_rej=map->csiarray_pileup_rej;
-                  data->csiarray.wfit[pos].filter_dist=map->csiarray_filter_dist;
-                  data->csiarray.wfit[pos].averaging_samples=map->csiarray_averaging_samples;
-                  data->csiarray.wfit[pos].fall_amount=map->csiarray_fall_amount;
-                  data->csiarray.wfit[pos].rise_amount=map->csiarray_rise_amount;
-		  if(waveform!=NULL)
-		    if(map->csiarray_fit==1)
-		      {
-			/* t0 same way as for TIGRESS for CsI fit_t0.
-			   Implemented for S1467 analysis of high energy CsI signals */
-			fit_newT0(ptr->waveform_length,waveform,&wpar);
-			data->csiarray.t0[pos]=wpar.t0;
+				c=ptr->channel-map->csiarray_min;
+				pos=map->csiarray_map[c];
+				if(pos>0)
+					if(pos<NCSI)
+						{
+							take=0;
+							if(ptr->charge_flag==1)
+							if(ptr->charge!=0)
+								{
+									data->csiarray.csi[pos].charge=
+										(ptr->charge/(map->csiarray_css_kpar/map->csiarray_css_disp));
+									//printf("charge for CsI array pos %d: %f\n",pos,data->csiarray.csi[pos].charge);
+									//data->csiarray.csi[pos].charge=ptr->charge;
+									data->csiarray.h.Efold++;
+									data->csiarray.h.EHP[pos/64]|=(one<<pos%64);
+									take|=1;
+								}
+							if(ptr->cfd_flag==1)
+								if(ptr->cfd!=0)
+									{
+										data->csiarray.csi[pos].cfd=ptr->cfd;
+										data->csiarray.h.Tfold++;
+										data->csiarray.h.THP[pos/64]|=(one<<pos%64);
+										take|=1;
+									}
+							//printf("pos %d take %d\n",pos,take);
+							/*printf("pos: %d, take: %d, charge_flag: %i, cfd_flag: %i\n",pos,take,ptr->charge_flag,ptr->cfd_flag);
+							printf("hp index: %i, bitshift amount: %i\n",pos/64,pos);*/
+							if(take==1)
+								{
+									data->csiarray.csi[pos].timestamp=ptr->timestamp;
+									data->csiarray.csi[pos].timestamp_up=ptr->timestamp_up;
+									data->csiarray.h.TSfold++;
+									data->csiarray.h.TSHP[pos/64]|=(one<<pos%64);
+									/*printf("Fold: %i, HP: %64.64llx %64.64llx\n",data->csiarray.h.TSfold,data->csiarray.h.TSHP[0],data->csiarray.h.TSHP[1]);
+									getc(stdin);*/
+									data->h.setupHP|=CsIArray_BIT;
+									memset(&data->csiarray.wfit[pos],0,sizeof(ShapePar));
+									data->csiarray.wfit[pos].t[1]=map->csiarray_trc;
+									data->csiarray.wfit[pos].t[2]=map->csiarray_tf;
+									data->csiarray.wfit[pos].t[3]=map->csiarray_ts;
+									data->csiarray.wfit[pos].t[4]=map->csiarray_tr;
+									data->csiarray.wfit[pos].rf[0]=map->rf_period;
+												      data->csiarray.wfit[pos].pileup_rej=map->csiarray_pileup_rej;
+												      data->csiarray.wfit[pos].filter_dist=map->csiarray_filter_dist;
+												      data->csiarray.wfit[pos].averaging_samples=map->csiarray_averaging_samples;
+												      data->csiarray.wfit[pos].fall_amount=map->csiarray_fall_amount;
+												      data->csiarray.wfit[pos].rise_amount=map->csiarray_rise_amount;
+									if(waveform!=NULL)
+										if(map->csiarray_fit==1)
+											{
+												/* t0 same way as for TIGRESS for CsI fit_t0.
+													 Implemented for S1467 analysis of high energy CsI signals */
+												fit_newT0(ptr->waveform_length,waveform,&wpar);
+												data->csiarray.t0[pos]=wpar.t0;
 
-			/* t0 reset during waveform fit for t0 from fit_function */
-			fit_CsI_waveform(ptr->waveform_length,waveform,&data->csiarray.wfit[pos],&wpar);
-		      }
-		}
-	    }
+												/* t0 reset during waveform fit for t0 from fit_function */
+												fit_CsI_waveform(ptr->waveform_length,waveform,&data->csiarray.wfit[pos],&wpar);
+											}
+								}
+						}
       }
+  
+  /*for(int csi=1;csi<NCSI;csi++)
+  	if((data->csiarray.h.THP[csi/64]&(one<<csi%64))!=0)
+  		{
+  			printf("Hit in pos: %i\n",csi);
+  			getc(stdin);
+  		}*/
+      
   /*********************** stop CSI array ************************/
   
   /****************start  Beam Dump PIN diode ************************/

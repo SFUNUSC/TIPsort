@@ -32,6 +32,16 @@ export PATH=$PATH:$TIPsort/bin/sfu
 
 Congratulations, your suffering has only begun.
 
+## Backwards Compatibility
+
+In general, we try to maintain backwards compatibility by not changing the .sfu file format (allowing previously sorted files to be analyzed with newer revisions of the code).  However, occasionally things need to be adjusted to take new detector arrays and experimental peculiarities into account.  Major revisions affecting backwards compatibility which require re-conversion of data are listed here.
+
+|**Date**|**Changes Made**|
+|:---:|:---:|
+| Nov 21, 2017 | CsI hit patterns extended so that they can include up to 256 detectors.  To acheive this, the hit patterns are now arrays of 64-bit variables rather than single 64-bit variables. |
+| Oct 27, 2017 | Increased number of available CsI detector positions from 40 to 128. |
+| Sep 14, 2016 | Increased number of available CsI detector positions from 30 to 40. |
+
 ## Version History
 
 v9.0: Moved to git for version control.  Use 'git log' in the source repository for version notes.

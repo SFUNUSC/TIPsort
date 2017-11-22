@@ -1,6 +1,8 @@
 #ifndef __SFU_FORMAT_H
 #define __SFU_FORMAT_H
 
+#include <stdint.h>
+
 #include "get_sin_par.h"
 #include "waveform_analyzer.h"
 
@@ -17,7 +19,7 @@
 #define NS3SEC    33
 #define NS3RING   25
 #define NCSI      129
-#define NCSIRING   6
+#define NCSIRING   10
 
 #define MAX_DET_BITS  8
 #define TIGRESS_BIT   1
@@ -67,6 +69,7 @@ typedef struct header
   unsigned short TSHP;
 } header;
 
+//PIN array header
 typedef struct pheader
 {
   int   Efold;
@@ -76,6 +79,20 @@ typedef struct pheader
   unsigned long long int THP;
   unsigned long long int TSHP;
 } pheader;
+
+//CsI array header
+typedef struct caheader
+{
+  int   Efold;
+  int   Tfold;
+  int   TSfold;
+  //CsI hit pattern needs to be longer 
+  //than 64-bit since there are 128 CsI 
+  //detectors in the ball
+  uint64_t EHP[4];
+  uint64_t THP[4];
+  uint64_t TSHP[4];
+} caheader;
 
 typedef struct rheader
 {
@@ -177,7 +194,7 @@ typedef struct SFUDAQ
 
 typedef struct CsIArray
 {
-  pheader  h;
+  caheader  h;
   channel csi[NCSI];
   ShapePar wfit[NCSI];
   double  t0[NCSI];

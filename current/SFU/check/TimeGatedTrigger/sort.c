@@ -5,7 +5,7 @@ int analyze_data(raw_event *data)
   cal_event* cev;
   int trigger;
   int pos,col,csi;
-  unsigned long long one=1;
+  uint64_t one=1;
   unsigned long long tsCsI,tsTIG;
   double ttg,tcsi;
 
@@ -44,7 +44,7 @@ int analyze_data(raw_event *data)
 		      tsTIG=((unsigned long long)data->tg.det[pos].ge[col].seg[0].timestamp&0x00ffffff);	
 		      for(csi=1;csi<NCSI;csi++)
 			if((cev->csiarray.h.THP&(one<<csi))!=0)
-			  if((data->csiarray.h.TSHP&(one<<csi))!=0) //why?
+			  if((data->csiarray.h.TSHP[csi/64]&(one<<csi%64))!=0) //why?
 			  {
 			    tcsi=cev->csiarray.csi[csi].T/cal_par->csiarray.contr_t;
 			    tsCsI=((unsigned long long)data->csiarray.csi[csi].timestamp&0x00ffffff);

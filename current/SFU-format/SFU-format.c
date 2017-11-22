@@ -1,5 +1,6 @@
 #include "SFU-common.h"
 #include "SFU-format.h"
+
 /*===============================================================*/
 int verify_ts(raw_event *d,unsigned long long int *min, unsigned long long int *max )
 {
@@ -96,14 +97,14 @@ int verify_ts_pinarray(PINArray*d,unsigned long long int *min, unsigned long lon
 /*===============================================================*/
 int verify_ts_csiarray(CsIArray*d,unsigned long long int *min, unsigned long long int *max )
 {
-  unsigned long long int one=1;
+  uint64_t one=1;
   unsigned long long int ts;
 
   *min=(one<<63);
   *max=0;
   if(d->h.TSfold>0)
     for(int pos=1;pos<NCSI;pos++)
-      if((d->h.TSHP&(one<<pos))!=0)
+      if((d->h.TSHP[pos/64]&(one<<pos%64))!=0)
 	{
 	  ts=((unsigned long long)d->csi[pos].timestamp_up&0x00ffffff)<<24;
 	  ts|=((unsigned long long)d->csi[pos].timestamp&0x00ffffff);
@@ -342,6 +343,17 @@ void display_pheader(pheader* d)
  
 }
 /*===============================================================*/
+void display_caheader(caheader* d)
+{
+  printf("Energy     fold                   %4.4x\n",d->Efold);
+  printf("CFD        fold                   %4.4x\n",d->Tfold);
+  printf("Time Stamp fold                   %4.4x\n",d->TSfold);  
+  printf("Energy hit pattern                %12.12llx\n",d->EHP[0]);
+  printf("CFD hit pattern                   %12.12llx\n",d->THP[0]);
+  printf("Time Stamp hit pattern            %12.12llx\n",d->TSHP[0]);
+ 
+}
+/*===============================================================*/
 void display_pinarray(PINArray* d)
 {									
   unsigned long one=1;
@@ -355,12 +367,12 @@ void display_pinarray(PINArray* d)
 /*===============================================================*/
 void display_csiarray(CsIArray* d)
 {									
-  unsigned long one=1;
+  uint64_t one=1;
   printf("--->   CsIArray HIT       <--------------------------------------\n");
-  display_pheader(&d->h);
+  display_caheader(&d->h);
   display_channel_legend();
   for(int i=0;i<NCSI;i++)
-    if((d->h.TSHP&(one<<i))!=0)
+    if((d->h.TSHP[i/64]&(one<<i%64))!=0)
       {
        display_channel(i,&d->csi[i]);
        printf("T0 for channel %d is %f\n",i,d->t0[i]);

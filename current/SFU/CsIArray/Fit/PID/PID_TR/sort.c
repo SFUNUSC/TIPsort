@@ -3,7 +3,7 @@
 int analyze_data(raw_event *data)
 {
   cal_event* cev;
-  unsigned long long int one=1;
+  uint64_t one=1;
   int type;
   double chi,s,f,r,t;
 

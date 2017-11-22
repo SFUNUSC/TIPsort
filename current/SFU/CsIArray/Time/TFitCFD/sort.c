@@ -2,7 +2,7 @@
 
 int analyze_data(raw_event *data)
 {
-  unsigned long long int one=1;
+  uint64_t one=1;
   int pos,type;
   double chisq;
   double AF,AS,x,TF,TS,t0,ta;
@@ -19,7 +19,7 @@ int analyze_data(raw_event *data)
   
   if((data->h.setupHP&RF_BIT)!=0)
     for(pos=1;pos<NCSI;pos++)
-      if((data->csiarray.h.THP&(one<<pos))!=0)
+      if((data->csiarray.h.THP[pos/64]&(one<<pos%64))!=0)
 	{
 	  //check fit type and chisq
 	  type=data->csiarray.wfit[pos].type;

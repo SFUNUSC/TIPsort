@@ -3,12 +3,12 @@
 int analyze_data(raw_event *data)
 {
   cal_event* cev;
-  unsigned long long int one=1;
+  uint64_t one=1;
   int type;
   double eAddBack=0;
   double chi,s,f,r;
 
-  int pos9Flag;
+  //int pos9Flag;
   
   //check if all the elements of the setup are present; discard if not
   if((data->h.setupHP&RF_BIT)==0) return SEPARATOR_DISCARD;
@@ -23,7 +23,7 @@ int analyze_data(raw_event *data)
 
   /* work out number and type of particles identified in the event */
   for(pos=1;pos<NCSI;pos++)
-    if((data->csiarray.h.TSHP&(one<<pos))!=0)
+    if((data->csiarray.h.TSHP[pos/64]&(one<<pos%64))!=0)
       {
 	//Is this a bug? why was there is no check for aGateHighFlag == 1?? 
 	//Changed by ASC 13 Apr 2014

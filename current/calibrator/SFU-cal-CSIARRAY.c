@@ -440,7 +440,7 @@ void summarize_CSIARRAY_calibration(CSIARRAY_calibration_parameters *CSIARRAY_ca
 /********************************************************************/
 void calibrate_CSIARRAY(raw_event* rev, CSIARRAY_calibration_parameters *CSIARRAY_cal_par, cCSIARRAY *cp)
 {
-  unsigned long long int one=1; 
+  uint64_t one=1; 
   int pos,pos1,pos2;
   double ran,ren,e,t;
 
@@ -457,21 +457,27 @@ void calibrate_CSIARRAY(raw_event* rev, CSIARRAY_calibration_parameters *CSIARRA
 
   memset(cp,0,sizeof(cCSIARRAY));
 
+	/* initialize ring num */
+  for(pos=1;pos<NCSI;pos++)
+    {
+    	cp->ring[pos]=-1;
+    }
+
   /* initialize fit type */
   for(pos=1;pos<NCSI;pos++)
     {
-    cp->type[pos]=-10;
-    cp->chisq[pos]=-1050;
-    cp->ndf[pos]=-1;
+		  cp->type[pos]=-10;
+		  cp->chisq[pos]=-1050;
+		  cp->ndf[pos]=-1;
     }
 
   /* assign fit type for events with successful fit*/
   for(pos=1;pos<NCSI;pos++)
     if(rev->csiarray.wfit[pos].am[1]>0) /* amplitude of waveform fit is >0*/
       {
-	cp->type[pos]=rev->csiarray.wfit[pos].type;
-	cp->chisq[pos]=rev->csiarray.wfit[pos].chisq;
-	cp->ndf[pos]=rev->csiarray.wfit[pos].ndf;
+				cp->type[pos]=rev->csiarray.wfit[pos].type;
+				cp->chisq[pos]=rev->csiarray.wfit[pos].chisq;
+				cp->ndf[pos]=rev->csiarray.wfit[pos].ndf;
       }
   
   /* energy calibration */
@@ -479,7 +485,7 @@ void calibrate_CSIARRAY(raw_event* rev, CSIARRAY_calibration_parameters *CSIARRA
     for(pos=1;pos<NCSI;pos++)
       if(CSIARRAY_cal_par->ceflag[pos]==1)
       	if(CSIARRAY_cal_par->ringflag[pos]==1)
-					if((rev->csiarray.h.THP&(one<<pos))!=0)
+					if((rev->csiarray.h.THP[pos/64]&(one<<pos%64))!=0)
 						if(rev->csiarray.wfit[pos].am[1]>0)
 							{
 								ran=(double)rand()/(double)RAND_MAX-0.5;
@@ -513,7 +519,7 @@ void calibrate_CSIARRAY(raw_event* rev, CSIARRAY_calibration_parameters *CSIARRA
 	for(pos=1;pos<NCSI;pos++)
 	  if(CSIARRAY_cal_par->ctflag[pos]==1)
 	  	if(CSIARRAY_cal_par->ringflag[pos]==1)
-			  if((rev->csiarray.h.THP&(one<<pos))!=0)
+			  if((rev->csiarray.h.THP[pos/64]&(one<<pos%64))!=0)
 			    if(rev->csiarray.csi[pos].cfd>0)
 						{
 							/* t=tcfd-ts */
@@ -564,7 +570,7 @@ void calibrate_CSIARRAY(raw_event* rev, CSIARRAY_calibration_parameters *CSIARRA
     for(pos=1;pos<NCSI;pos++)
       if(CSIARRAY_cal_par->ctflag[pos]==1)
       	if(CSIARRAY_cal_par->ringflag[pos]==1)
-					if((rev->csiarray.h.TSHP&(one<<pos))!=0)
+					if((rev->csiarray.h.TSHP[pos/64]&(one<<pos%64))!=0)
 						{
 							/* t=tfit*16 (in ADC units) */
 							t=rev->csiarray.wfit[pos].t[0]*16;
@@ -614,7 +620,7 @@ void calibrate_CSIARRAY(raw_event* rev, CSIARRAY_calibration_parameters *CSIARRA
     for(pos=1;pos<NCSI;pos++)
 			if(CSIARRAY_cal_par->ctflag[pos]==1)
 				if(CSIARRAY_cal_par->ringflag[pos]==1)
-					if((rev->csiarray.h.TSHP&(one<<pos))!=0)
+					if((rev->csiarray.h.TSHP[pos/64]&(one<<pos%64))!=0)
 						{
 							/* t=tfit*16 (in ADC units) */
 							t=rev->csiarray.t0[pos]*16;

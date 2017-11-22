@@ -23,11 +23,12 @@ int next_event(int **bp, int *end, counters *c, int* e)
 int process_event(int* e, raw_event* data)
 {
   int *ep,*end;
-  int s,sh,sc,sp,sf,sd,n,m;
+  int s,sh,sc,sp,sca,sf,sd,n,m;
   int pos,col,seg,sup;
 
   sh=(int)(sizeof(header)/sizeof(int));
   sp=(int)(sizeof(pheader)/sizeof(int));
+  sca=(int)(sizeof(caheader)/sizeof(int));
   sc=(int)(sizeof(channel)/sizeof(int));
   sd=(int)(sizeof(double)/sizeof(int));
   sf=(int)(sizeof(ShapePar)/sizeof(int));
@@ -157,9 +158,9 @@ int process_event(int* e, raw_event* data)
 	case CsIArray_TAG:
 	  ep++; s=*ep-2;
 	  ep++;
-	  memcpy(&data->csiarray.h,ep,sp*sizeof(int));
-	  ep+=sp;
-	  n=(s-sp)/(sc+sf+sd+4);
+	  memcpy(&data->csiarray.h,ep,sca*sizeof(int));
+	  ep+=sca;
+	  n=(s-sca)/(sc+sf+sd+4);
 	  for(m=0;m<n;m++)
 	    {
 	      if(*ep!=(int)CHANNEL_TAG)

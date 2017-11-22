@@ -2,13 +2,13 @@
 
 int analyze_data(raw_event *data)
 {
-  unsigned long long int one=1;
+  uint64_t one=1;
   int pos,type;
   double chi;
   
   pos=5;
   for(pos=1;pos<NCSI;pos++)
-  if((data->csiarray.h.THP&(one<<pos))!=0)
+  if((data->csiarray.h.THP[pos/64]&(one<<pos%64))!=0)
     {
       type=data->csiarray.wfit[pos].type;
       chi=data->csiarray.wfit[pos].chisq;

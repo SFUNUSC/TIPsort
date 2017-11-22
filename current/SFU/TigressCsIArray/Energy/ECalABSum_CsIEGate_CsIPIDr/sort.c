@@ -3,7 +3,7 @@
 int analyze_data(raw_event *data)
 {
   cal_event* cev;
-  unsigned long long int one=1;
+  uint64_t one=1;
   int type;
   double eCsI1=0.;
   double eCsI2=0.;
@@ -22,7 +22,7 @@ int analyze_data(raw_event *data)
   
   //work out number and type of particles identified in the event
   for(posCsI=1;posCsI<NCSI;posCsI++)
-    if((data->csiarray.h.TSHP&(one<<posCsI))!=0)
+    if((data->csiarray.h.TSHP[posCsI/64]&(one<<posCsI%64))!=0)
       {
   	if((aGateLowFlag[posCsI]==1)&&(aGateHighFlag[posCsI])&&(pGateHighFlag[posCsI]==1))
   	  {

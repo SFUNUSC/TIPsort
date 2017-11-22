@@ -2,12 +2,12 @@
 
 int analyze_data(raw_event *data)
 {
-  long long int one=1,none=-1,kill;
+  int64_t one=1,none=-1,kill;
   int np,na;
   double s,f,r,e;
   int type;
   
-  long long int flag_csi;
+  int64_t flag_csi[4];
   
   //if((data->h.setupHP&RF_BIT)==0) 
   //  return SEPARATOR_DISCARD;
@@ -15,13 +15,13 @@ int analyze_data(raw_event *data)
   if((data->h.setupHP&CsIArray_BIT)==0) 
     return SEPARATOR_DISCARD;
 
-	flag_csi=0;
+	memset(flag_csi,0,sizeof(flag_csi));
 	
   np=0;
   na=0;
 
   for(pos=1;pos<NCSI;pos++)
-    if((data->csiarray.h.THP&(one<<pos))!=0)
+    if((data->csiarray.h.THP[pos/64]&(one<<pos%64))!=0)
       {
 				type=data->csiarray.wfit[pos].type;
 				if(type==1)
@@ -57,12 +57,12 @@ int analyze_data(raw_event *data)
 						if((pGateFlag[pos]==1)&&(pGate[pos]->IsInside(e,r)))
 							{
 								np++;
-								flag_csi|=(one<<pos); //flag the hit for preservation
+								flag_csi[pos/64]|=(one<<pos%64); //flag the hit for preservation
 							}
 						else if((aGateFlag[pos]==1)&&(aGate[pos]->IsInside(e,r)))
 							{
 								na++;
-								flag_csi|=(one<<pos); //flag the hit for preservation
+								flag_csi[pos/64]|=(one<<pos%64); //flag the hit for preservation
 							}
 					
 						/* if(np>0 || na>0) */
@@ -84,8 +84,8 @@ int analyze_data(raw_event *data)
 				//drop csi without that aren't flagged for preservation
 				//(ie. csi that aren't protons OR alphas)
 				for(pos=1;pos<NCSI;pos++)
-					if((data->csiarray.h.TSHP&(one<<pos))!=0)
-						if((flag_csi&(one<<pos))==0)
+					if((data->csiarray.h.TSHP[pos/64]&(one<<pos%64))!=0)
+						if((flag_csi[pos/64]&(one<<pos%64))==0)
 							{
 								memset(&data->csiarray.csi[pos],0,sizeof(channel));
 								memset(&data->csiarray.wfit[pos],0,sizeof(ShapePar));
@@ -93,10 +93,10 @@ int analyze_data(raw_event *data)
 								data->csiarray.h.Efold--;
 								data->csiarray.h.Tfold--;	  
 								data->csiarray.h.TSfold--;
-								kill=none-(one<<pos);
-								data->csiarray.h.TSHP&=kill;
-								data->csiarray.h.EHP&=kill;
-								data->csiarray.h.THP&=kill;
+								kill=none-(one<<pos%64);
+								data->csiarray.h.TSHP[pos/64]&=kill;
+								data->csiarray.h.EHP[pos/64]&=kill;
+								data->csiarray.h.THP[pos/64]&=kill;
 							}
 				if(data->csiarray.h.TSfold<=0)
 					{

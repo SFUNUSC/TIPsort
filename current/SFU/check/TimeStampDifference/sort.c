@@ -5,7 +5,7 @@ int analyze_data(raw_event *data)
   int trigger;
   unsigned long long tsRF,tsCsI,tsTIG; //64 bit int
   int pos,col;
-  unsigned long long one=1;
+  uint64_t one=1;
  
   tsRF=0x0;
   tsCsI=0x0;
@@ -26,7 +26,7 @@ int analyze_data(raw_event *data)
   /* get CsI timestamps */
   if(data->csiarray.h.TSfold>0)
     for(pos=1;pos<NCSI;pos++)
-      if((data->csiarray.h.TSHP&(one<<pos))!=0)
+      if((data->csiarray.h.TSHP[pos/64]&(one<<pos%64))!=0)
 	{
 	  tsCsI=((unsigned long long)data->csiarray.csi[pos].timestamp_up&0x00ffffff)<<24;
 	  tsCsI|=((unsigned long long)data->csiarray.csi[pos].timestamp&0x00ffffff);

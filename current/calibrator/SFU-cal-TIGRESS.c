@@ -48,6 +48,9 @@ void initialize_TIGRESS_calibration(TIGRESS_calibration_parameters *TIGRESS_cal_
 	      if(strcmp(str1,"Ring_energy_gates")==0)
 		read_TIGRESS_ring_energy_gates(TIGRESS_cal_par,str2);
 
+				if(strcmp(str1,"Group_map")==0)
+		read_TIGRESS_group_map(TIGRESS_cal_par,str2);
+
 	      if(strcmp(str1,"Core_energy_limits")==0)
 		read_TIGRESS_core_energy_limits(TIGRESS_cal_par,str2);
 
@@ -262,6 +265,43 @@ void read_TIGRESS_ring_map(TIGRESS_calibration_parameters *TIGRESS_cal_par, char
 		TIGRESS_cal_par->ringflag[pos][col]=1;
 		TIGRESS_cal_par->ring_map[pos][col]=i;
 	      }
+    }
+  
+  else
+    {
+      printf("Wrong structure of file %s\n",filename);
+      printf("Aborting sort\n");
+      exit(1);
+    }
+  fclose(inp);
+}
+
+/***********************************************************************/
+void read_TIGRESS_group_map(TIGRESS_calibration_parameters *TIGRESS_cal_par, char *filename)
+{
+  FILE *inp;
+  char line[132];
+  int  pos,col,csi,group;
+
+  if((inp=fopen(filename,"r"))==NULL)
+      {
+         printf("\nI can't open file %s\n",filename);
+         exit(EXIT_FAILURE);
+      }
+  printf("\nTIGRESS group map read from the file:\n %s\n",filename);
+
+  if(fgets(line,132,inp)!=NULL)
+    {
+      if(fgets(line,132,inp)!=NULL)
+	while(fscanf(inp,"%d %d %d %d",&pos,&col,&csi,&group)!=EOF)
+	  if(csi>0 && csi<NCSI)
+	    if(pos>0 && pos<NPOSTIGR)
+	      if(col>=0 && col<NCOL)
+		{
+		  TIGRESS_cal_par->groupflag[pos][col][csi]=1;
+		  TIGRESS_cal_par->group_map[pos][col][csi]=group;
+		  /* printf("pos %d col %d csi %d group %d\n",pos,col,csi,group); */
+		}
     }
   
   else

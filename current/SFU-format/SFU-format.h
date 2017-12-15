@@ -19,7 +19,8 @@
 #define NS3SEC    33
 #define NS3RING   25
 #define NCSI      129
-#define NCSIRING   10
+#define NCSIRING  10
+#define NGROUP    11
 
 #define MAX_DET_BITS  8
 #define TIGRESS_BIT   1

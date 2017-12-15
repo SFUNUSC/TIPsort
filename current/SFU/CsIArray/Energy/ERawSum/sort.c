@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
       exit(-1);
     }
   
-  printf("Program sorts summed ERaw histograms for the CsIArray from a cluster file.\n");
+  printf("Program sorts summed ERaw histograms for the CsIArray from a cluster file.\nA cluster file is specified as the parameter, not a master file.\n");
 
   strcpy(ClusterFileName,argv[1]);
   memset(hist,0,sizeof(hist));
@@ -62,4 +62,6 @@ int main(int argc, char *argv[])
     }
   for(int pos=0;pos<NCSI;pos++) fwrite(hist[pos],S32K*sizeof(int),1,output);
   fclose(output);
+
+  printf("Data written to file: CsIArray_ERawSum.mca\n");
 }

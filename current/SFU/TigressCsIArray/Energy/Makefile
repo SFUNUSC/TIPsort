@@ -142,6 +142,22 @@ all:
 	echo Making FusEvap_ResE.
 	(cd  FusEvap_ResE r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: FusEvap_ResE.
+	
+	echo Making ECalABGroup.
+	(cd  ECalABGroup r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: ECalABGroup.
+	
+	echo Making ECalABGroupSum.
+	(cd  ECalABGroupSum r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: ECalABGroupSum.
+	
+	echo Making ECalABSuppGroup.
+	(cd  ECalABSuppGroup r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: ECalABSuppGroup.
+	
+	echo Making ECalABSuppGroupSum.
+	(cd  ECalABSuppGroupSum r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: ECalABSuppGroupSum.
 
 
 clean:
@@ -181,5 +197,9 @@ clean:
 	(cd ECosThetaCalABSuppSum_Sheared  && make -is clean && cd ..)
 	(cd EECalABSuppSumDSReconstructedSum  && make -is clean && cd ..)
 	(cd FusEvap_ResE  && make -is clean && cd ..)
+	(cd ECalABGroup              && make -is clean && cd ..)
+	(cd ECalABGroupSum              && make -is clean && cd ..)
+	(cd ECalABSuppGroup              && make -is clean && cd ..)
+	(cd ECalABSuppGroupSum              && make -is clean && cd ..)
 
 	rm -f *~

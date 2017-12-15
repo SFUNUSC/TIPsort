@@ -468,7 +468,9 @@ void calibrate_CSIARRAY(raw_event* rev, CSIARRAY_calibration_parameters *CSIARRA
     {
 		  cp->type[pos]=-10;
 		  cp->chisq[pos]=-1050;
-		  cp->ndf[pos]=-1;
+      cp->ndf[pos]=-1;
+      cp->PIDe[pos]=-1;
+      cp->PIDr[pos]=-1;
     }
 
   /* assign fit type for events with successful fit*/

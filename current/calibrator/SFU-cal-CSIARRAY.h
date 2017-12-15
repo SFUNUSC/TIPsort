@@ -18,6 +18,8 @@ typedef struct cCSIARRAY
   int     type[NCSI]; /* waveform fit type (two component, fast, slow, gamma on PIN) */
   double  chisq[NCSI];
   int     ndf[NCSI];
+  double PIDe[NCSI];
+  double PIDr[NCSI];
 }cCSIARRAY;
 
 

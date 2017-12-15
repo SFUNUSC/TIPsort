@@ -62,6 +62,7 @@ typedef struct
   int    offset;
   int    shift;
   int    ring_map[NPOSTIGR][NCOL];
+  int    group_map[NPOSTIGR][NCOL][NCSI];
   float  celow[NPOSTIGR][NCOL];
   float  cehigh[NPOSTIGR][NCOL];
   float  ctlow[NPOSTIGR][NCOL];
@@ -84,6 +85,7 @@ void read_TIGRESS_core_energy_limits(TIGRESS_calibration_parameters *, char *);
 void read_TIGRESS_core_time_limits(TIGRESS_calibration_parameters *, char *);
 void read_TIGRESS_detector_positions(TIGRESS_calibration_parameters *, char *);
 void read_TIGRESS_ring_map(TIGRESS_calibration_parameters *, char *);
+void read_TIGRESS_group_map(TIGRESS_calibration_parameters *, char *);
 void read_TIGRESS_suppression_map(TIGRESS_calibration_parameters *, char *);
 void read_TIGRESS_ring_energy_gates(TIGRESS_calibration_parameters *, char *);
 void summarize_TIGRESS_calibration(TIGRESS_calibration_parameters *, char *);

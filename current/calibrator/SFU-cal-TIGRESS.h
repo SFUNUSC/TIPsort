@@ -62,7 +62,8 @@ typedef struct
   int    offset;
   int    shift;
   int    ring_map[NPOSTIGR][NCOL];
-  int    group_map[NPOSTIGR][NCOL][NCSI];
+  int    group_map[NPOSTIGR][NCOL][NCSI][NCSI];
+  int    groupflag[NPOSTIGR][NCOL][NCSI][NCSI];
   float  celow[NPOSTIGR][NCOL];
   float  cehigh[NPOSTIGR][NCOL];
   float  ctlow[NPOSTIGR][NCOL];

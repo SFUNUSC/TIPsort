@@ -4,7 +4,7 @@ int analyze_data(raw_event *data)
 {
   cal_event* cev;
   unsigned long long int one=1;
-  int pos,col,group,csi;
+  int pos,col,group,csi1,csi2;
   double etig;
 
   /* double rand = randGen->Uniform(); // random (0,1) for dropping events */
@@ -13,8 +13,8 @@ int analyze_data(raw_event *data)
  if((data->h.setupHP&TIGRESS_BIT)==0)
    return SEPARATOR_DISCARD;
  
- if((data->h.setupHP&RF_BIT)==0)
-   return SEPARATOR_DISCARD;
+ /*if((data->h.setupHP&RF_BIT)==0)
+   return SEPARATOR_DISCARD;*/
  
  if((data->h.setupHP&CsIArray_BIT)==0)
    return SEPARATOR_DISCARD;
@@ -36,33 +36,75 @@ int analyze_data(raw_event *data)
 		  etig = cev->tg.det[pos].addback.E/cal_par->tg.contr_e;
 		  col = cev->tg.det[pos].addbackC;
 		  
-		  for(csi=1;csi<NCSI;csi++)
-		    if((cev->csiarray.h.HHP[csi/64]&(one<<csi%64))!=0)
+		  for(csi1=1;csi1<NCSI;csi1++)
+		    if((cev->csiarray.h.HHP[csi1/64]&(one<<csi1%64))!=0)
 		      {
 			if(use_gates==1)
-			  {
-			    // check PID
-			    double e = cev->csiarray.PIDe[csi];
-			    double r = cev->csiarray.PIDr[csi];
-			    // if a recoil, sort to group histogram
-			    if(rGateFlag[csi]==1)
-			      if(rGate[csi]->IsInside(e,r))
-				{
-				  group = cal_par->tg.group_map[pos][col][csi];
-				  if(etig<0 || etig>S32K-10)
-				    etig=S32K-10;
-				  hist[group][(int)etig]++;
-				  /* printf("hist[%d] pos %d col %d csi %d group %d energy %lf\n",group,pos,col,csi,group,etig); */
-				}
-			  }
-			else
-			  {
-			    group = cal_par->tg.group_map[pos][col][csi];
-			    if(etig<0 || etig>S32K-10)
-			      etig=S32K-10;
-			    hist[group][(int)etig]++;
-			    /* printf("hist[%d] pos %d col %d csi %d group %d energy %lf\n",group,pos,col,csi,group,etig); */
-			  }
+        {
+          // check PID
+          double e = cev->csiarray.PIDe[csi1];
+          double r = cev->csiarray.PIDr[csi1];
+          // if a recoil, sort to group histogram
+          if(rGateFlag[csi1]==1)
+            if(rGate[csi1]->IsInside(e,r))
+              {
+                if(cal_par->tg.groupflag[pos][col][csi1][0]==1)
+                  {
+                    //groups defined by one csi hit
+                    group = cal_par->tg.group_map[pos][col][csi1][0];
+                    if(etig<0 || etig>S32K-10)
+                    etig=S32K-10;
+                    hist[group][(int)etig]++;
+                    /* printf("hist[%d] pos %d col %d csi1 %d group %d energy %lf\n",group,pos,col,csi1,group,etig); */
+                  }
+                else
+                  {
+                    //groups defined by two csi hits
+                    for(csi2=csi1+1;csi2<NCSI;csi2++)
+                      if((cev->csiarray.h.HHP[csi2/64]&(one<<csi2%64))!=0)
+                        {
+                          // check PID
+                          double e = cev->csiarray.PIDe[csi2];
+                          double r = cev->csiarray.PIDr[csi2];
+                          // if a recoil, sort to group histogram
+                          if(rGateFlag[csi2]==1)
+                            if(rGate[csi2]->IsInside(e,r))
+                              if(cal_par->tg.groupflag[pos][col][csi1][csi2]==2)
+                                {
+                                  group = cal_par->tg.group_map[pos][col][csi1][csi2];
+                                  if(etig<0 || etig>S32K-10)
+                                    etig=S32K-10;
+                                  hist[group][(int)etig]++;
+                                }
+                        }
+                  }
+              }
+        }
+      else
+        {
+          if(cal_par->tg.groupflag[pos][col][csi1][0]==1)
+            {
+              //groups defined by one csi hit
+              group = cal_par->tg.group_map[pos][col][csi1][0];
+              if(etig<0 || etig>S32K-10)
+                etig=S32K-10;
+              hist[group][(int)etig]++;
+            }
+          else
+            {
+              //groups defined by two csi hits
+              for(csi2=csi1+1;csi2<NCSI;csi2++)
+                if((cev->csiarray.h.HHP[csi2/64]&(one<<csi2%64))!=0)
+                  if(cal_par->tg.groupflag[pos][col][csi1][csi2]==2)
+                    {
+                      group = cal_par->tg.group_map[pos][col][csi1][csi2];
+                      if(etig<0 || etig>S32K-10)
+                        etig=S32K-10;
+                      hist[group][(int)etig]++;
+                    }
+            }
+          /* printf("hist[%d] pos %d col %d csi1 %d group %d energy %lf\n",group,pos,col,csi1,group,etig); */
+        }
 		      }
 		}
     /* } */
@@ -88,7 +130,7 @@ int main(int argc, char *argv[])
  
   if(argc!=3)
     {
-      printf("Tigress_ECalABGroup master_file_name use_gates\n");
+      printf("TigressCsIArray_ECalABGroup master_file_name use_gates\n");
       exit(-1);
     }
 
@@ -200,5 +242,8 @@ int main(int argc, char *argv[])
   
   fwrite(hist,NGROUP*S32K*sizeof(int),1,output);
   fclose(output);
+
+  printf("Sorted spectrum written to file: Group_ECalAB.mca\n");
+
   return 0;
 }

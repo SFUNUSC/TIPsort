@@ -158,6 +158,10 @@ all:
 	echo Making ECalABSuppGroupSum.
 	(cd  ECalABSuppGroupSum r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: ECalABSuppGroupSum.
+	
+	echo Making ECalABSuppSumEGated_Group.
+	(cd  ECalABSuppSumEGated_Group r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: ECalABSuppSumEGated_Group.
 
 
 clean:
@@ -201,5 +205,6 @@ clean:
 	(cd ECalABGroupSum              && make -is clean && cd ..)
 	(cd ECalABSuppGroup              && make -is clean && cd ..)
 	(cd ECalABSuppGroupSum              && make -is clean && cd ..)
+	(cd ECalABSuppSumEGated_Group             && make -is clean && cd ..)
 
 	rm -f *~

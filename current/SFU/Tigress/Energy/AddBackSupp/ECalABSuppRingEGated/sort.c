@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
 
   if(argc!=4)
     {
-      printf("TIGRESS_ECalABSuppRingEGated master_file_name supLow supHigh\n");
+      printf("Tigress_ECalABSuppRingEGated master_file_name supLow supHigh\n");
       printf("Program sorts ring gated spectra for TIGRESS with an energy gate applied to all rings.\n");
       printf("Energy gates are specified in the parameter files.\n");
       exit(-1);

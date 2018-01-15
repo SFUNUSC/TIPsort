@@ -48,6 +48,9 @@ void initialize_TIGRESS_calibration(TIGRESS_calibration_parameters *TIGRESS_cal_
 	      if(strcmp(str1,"Ring_energy_gates")==0)
 		read_TIGRESS_ring_energy_gates(TIGRESS_cal_par,str2);
 
+				if(strcmp(str1,"Group_energy_gates")==0)
+		read_TIGRESS_group_energy_gates(TIGRESS_cal_par,str2);
+
 				if(strcmp(str1,"Group_map")==0)
 		read_TIGRESS_group_map(TIGRESS_cal_par,str2);
 
@@ -516,6 +519,43 @@ void read_TIGRESS_ring_energy_gates(TIGRESS_calibration_parameters *TIGRESS_cal_
 							TIGRESS_cal_par->relow[ring]=low;
 							TIGRESS_cal_par->rehigh[ring]=high;
 							//printf("ring %d elow %.2f ehigh %.2f\n",ring,TIGRESS_cal_par->relow[ring],TIGRESS_cal_par->rehigh[ring]);
+							//getc(stdin);
+						}
+		}
+	else
+		{
+			printf("Wrong structure of file %s\n",filename);
+			printf("Aborting sort\n");
+			exit(1);
+		}
+	fclose(inp);
+	
+}
+/*******************************************************************/
+void read_TIGRESS_group_energy_gates(TIGRESS_calibration_parameters *TIGRESS_cal_par, char *filename)
+{
+  FILE *inp;
+  char line[132];
+  int  group;
+  float low,high;
+ 
+
+	if((inp=fopen(filename,"r"))==NULL)
+		{
+			printf("\nI can't open file %s\n",filename);
+			exit(EXIT_FAILURE);
+		}
+  printf("\nTIGRESS Doppler shift group energy gate limits read from the file:\n %s\n",filename);
+
+	if(fgets(line,132,inp)!=NULL)
+		{
+			if(fgets(line,132,inp)!=NULL)
+				while(fscanf(inp,"%d %f %f",&group,&low,&high)!=EOF)
+					if(group>0 && group<NGROUP)
+						{
+							TIGRESS_cal_par->gelow[group]=low;
+							TIGRESS_cal_par->gehigh[group]=high;
+							//printf("group %d elow %.2f ehigh %.2f\n",group,TIGRESS_cal_par->gelow[group],TIGRESS_cal_par->gehigh[group]);
 							//getc(stdin);
 						}
 		}

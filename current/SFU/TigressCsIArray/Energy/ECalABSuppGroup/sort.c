@@ -132,9 +132,16 @@ int main(int argc, char *argv[])
   
   if(name->flag.TIGRESS_cal_par==1)
     {
-      printf("TIGRESS calibration read from %s.\n",name->fname.TIGRESS_cal_par);
+      printf("\nTIGRESS calibration read from the file:\n %s\n",name->fname.TIGRESS_cal_par);
       initialize_TIGRESS_calibration(&cal_par->tg,name->fname.TIGRESS_cal_par);
+
     }
+  else
+    {
+      printf("\nTIGRESS calibration parameters not defined\n");
+      exit(EXIT_FAILURE);
+    }
+  
   if(name->flag.CSIARRAY_cal_par==1)
     {
       printf("CsIArray calpar read from: %s\n",name->fname.CSIARRAY_cal_par);
@@ -142,7 +149,7 @@ int main(int argc, char *argv[])
     }
   else
     {
-      printf("ERROR!!! TIGRESS calibration parameters not defined!\n");
+      printf("\nCSIARRAY calibration parameters not defined\n");
       exit(EXIT_FAILURE);
     }
 

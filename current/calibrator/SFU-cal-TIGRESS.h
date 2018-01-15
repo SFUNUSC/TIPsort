@@ -70,6 +70,8 @@ typedef struct
   float  cthigh[NPOSTIGR][NCOL];
   float  relow[NRING];
   float  rehigh[NRING];
+  float  gelow[NGROUP];
+  float  gehigh[NGROUP];
   int    use_time_fit_tgr;
   int    use_time_fit_bgo;
   int    DoRFUnwrapping;
@@ -89,6 +91,7 @@ void read_TIGRESS_ring_map(TIGRESS_calibration_parameters *, char *);
 void read_TIGRESS_group_map(TIGRESS_calibration_parameters *, char *);
 void read_TIGRESS_suppression_map(TIGRESS_calibration_parameters *, char *);
 void read_TIGRESS_ring_energy_gates(TIGRESS_calibration_parameters *, char *);
+void read_TIGRESS_group_energy_gates(TIGRESS_calibration_parameters *, char *);
 void summarize_TIGRESS_calibration(TIGRESS_calibration_parameters *, char *);
 void calibrate_TIGRESS(raw_event *, TIGRESS_calibration_parameters *, cTIGRESS *);
 

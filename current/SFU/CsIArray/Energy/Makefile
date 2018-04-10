@@ -7,6 +7,10 @@ all:
 	(cd ERaw r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: ERAW.
 	
+	echo Making ERawRing.
+	(cd ERawRing r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: ERAWRING.
+	
 	echo Making ERawSum.
 	(cd ERawSum r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: ERAWSUM.

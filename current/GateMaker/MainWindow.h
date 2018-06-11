@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include<stdio.h>
+#include <stdio.h>
 #include <TFile.h>
 #include <TH1.h>
 #include <TH2.h>
@@ -104,7 +104,7 @@ class MainWindow:public TGMainFrame	{
 		TGLabel *fLabel5;
 		TGLabel *fLabel6;
 
-		char    str[132];
+		/* char    str[132]; */
 };
 
 

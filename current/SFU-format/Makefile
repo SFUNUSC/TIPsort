@@ -3,7 +3,7 @@ CFLAGS   = -O3 -Wall -fPIC
 BIN = $(TIPsort)/current/SFU-format
 INC = -I$(TIPsort)/current/utils\
       -I$(TIPsort)/current/midas/decoder\
-      -I$(ROOTINC)
+      -I$(ROOT5INC)
 
 SFU-FORMAT=SFU-format.o SFU-decoder.o SFU-encoder.o
 

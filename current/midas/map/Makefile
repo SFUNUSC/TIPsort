@@ -5,7 +5,7 @@ BIN = $(TIPsort)/current/midas/map
 INC = -I$(TIPsort)/current/SFU-format\
       -I$(TIPsort)/current/midas/decoder\
       -I$(TIPsort)/current/utils\
-      -I$(ROOTINC)
+      -I$(ROOT5INC)
 MAP=map.o
 
 map:$(MAP)

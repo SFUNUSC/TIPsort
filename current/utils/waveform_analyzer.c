@@ -247,7 +247,13 @@ void get_exclusion_zone_for_CsI(int N, short *waveform,WaveFormPar *wpar)
   //If tmax is established, continue.
   if(wpar->mflag==1)
     {
-      wpar->baselineMax=wpar->baseline+NOISE_LEVEL_CSI;
+
+      // original definition with constant noise level
+      /* wpar->baselineMax=wpar->baseline+NOISE_LEVEL_CSI; */
+
+      // set to ~25% signal amplitude
+      wpar->baselineMax=wpar->baseline+0.25*(wpar->max-wpar->baseline);
+      /* wpar->baselineMax=wpar->baseline+wpar->exa[0]*(wpar->max-wpar->baseline); */
 
       //printf("baseline: %.2f NOISE_LEVEL_CSI: %.2d baselineMax: %.2f\n", wpar->b,NOISE_LEVEL_CSI,baselineMax);
       //baselineMax = wpar->b + wpar->baselineStDev;
@@ -290,8 +296,12 @@ void get_exclusion_zone_for_CsI(int N, short *waveform,WaveFormPar *wpar)
       /***** Alternative method: Fitting the risetime *****/
       if(wpar->teflag==1)
 	{
-	  //Set baselineMin
-	  wpar->baselineMin=wpar->baseline-NOISE_LEVEL_CSI;
+	  //Set baselineMin default
+	  /* wpar->baselineMin=wpar->baseline-NOISE_LEVEL_CSI; */
+
+	  // set to ~10% signal amplitude
+	  wpar->baselineMin=wpar->baseline-0.10*(wpar->max-wpar->baseline);
+	  /* wpar->baselineMin=wpar->baseline-wpar->exa[1]*(wpar->max-wpar->baseline); */
 
 	  //printf("baseline: %.2f NOISE_LEVEL_CSI: %.2f baselineMin: %.2f\n", wpar->b,NOISE_LEVEL_CSI,baselineMin);
 	  //baselineMin = wpar->b - wpar->baselineStDev;

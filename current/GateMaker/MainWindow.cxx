@@ -31,14 +31,12 @@ MainWindow::MainWindow(int width, int height)
 	fCanvasFrame	=	new TGHorizontalFrame(fMasterFrame,0.7*width,0.85*height);
 	fControlFrame	=	new TGHorizontalFrame(fMasterFrame,0.3*width,0.85*height);
 
-
 	fListHolderFrame = new TGVerticalFrame(fControlFrame,0.2*width, 0.85*height);
 	fListFrame		=	new TGVerticalFrame(fListHolderFrame,0.2*width,0.85*height);
 	fInfoFrame		=	new TGVerticalFrame(fControlFrame,0.1*width,0.85*height);
 	fButtonFrame	=	new TGVerticalFrame(fInfoFrame,0.1*width,0.85*height);
 
 	fButtonLayout	=	new TGLayoutHints ( kLHintsExpandX | kLHintsExpandY, 0,0, 0, 0);
-
 
 	Load = new TGTextButton(fButtonFrame, "Open Histograms",LOAD);
 	Load->Associate(this);
@@ -67,7 +65,6 @@ MainWindow::MainWindow(int width, int height)
 	Quit = new TGTextButton(fButtonFrame,"Quit",QUIT);
 	Quit->Associate(this);
 	fButtonFrame->AddFrame(Quit,fButtonLayout);
-
 	
 	TGLayoutHints *h=new TGLayoutHints ( kLHintsTop,50,0,0,10);
 	fLabel1 = new TGLabel(fLabelFrame1 ,"  Histogram File:  ");
@@ -80,7 +77,6 @@ MainWindow::MainWindow(int width, int height)
 	fLabel2-> SetTextJustify(kTextLeft);
 	fLabelFrame1 ->AddFrame(fLabel2,h);	
 
-
 	fLabel5 = new TGLabel(fLabelFrame2,"    Gates to File:  ");
 	fLabel5-> SetTextJustify(kTextLeft);
 	fLabelFrame2->AddFrame(fLabel5,h);	
@@ -89,17 +85,13 @@ MainWindow::MainWindow(int width, int height)
 	fLabel6-> SetTextJustify(kTextLeft);
 	fLabelFrame2->AddFrame(fLabel6,h);	
 
-
 	fLabel3 = new TGLabel(fLabelFrame3," Gates from File:  ");
 	fLabel3-> SetTextJustify(kTextLeft);
 	fLabelFrame3->AddFrame(fLabel3,h);	
-
 	
 	fLabel4 = new TGLabel(fLabelFrame3,str);
 	fLabel4-> SetTextJustify(kTextLeft);
 	fLabelFrame3->AddFrame(fLabel4,h);	
-
-
 
 	ECanvas = new TRootEmbeddedCanvas("ECanvas", fCanvasFrame,0.7*width,0.85*height);
 	fCanvasFrame->AddFrame(ECanvas,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
@@ -126,7 +118,6 @@ MainWindow::MainWindow(int width, int height)
 	fLabelFrame->AddFrame(fLabelFrame1,new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
 	fLabelFrame->AddFrame(fLabelFrame2,new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
 	fLabelFrame->AddFrame(fLabelFrame3,new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
-
 
 	fMainFrame->AddFrame(fMasterFrame,new TGLayoutHints(kLHintsLeft | kLHintsTop));
 	fMainFrame->AddFrame(fLabelFrame,new TGLayoutHints(kLHintsLeft | kLHintsBottom));

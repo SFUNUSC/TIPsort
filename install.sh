@@ -6,36 +6,36 @@ if [ ! -d current ]; then
 	exit
 fi
 
-#check for properly set up ROOT
-echo "Checking ROOT installation..."
-if [ -z "$ROOTSYS" ]
+#check for properly set up ROOT5
+echo "Checking ROOT5 installation..."
+if [ -z "$ROOT5SYS" ]
 then 
-		echo "ROOTSYS environment variable is not set!"
+		echo "ROOT5SYS environment variable is not set!"
 		echo "Please enter the path to the ROOT installation (base 'root' directory, which contains both 'lib' and 'include' directories): "
-		read ROOTSYS
+		read ROOT5SYS
 		echo "" >> ~/.bashrc
-		echo "#Set up ROOT" >> ~/.bashrc
-		echo "export ROOTSYS=$ROOTSYS" >> ~/.bashrc
+		echo "#Set up ROOT5" >> ~/.bashrc
+		echo "export ROOT5SYS=$ROOT5SYS" >> ~/.bashrc
 else 
-		echo "ROOTSYS environment variable is set properly."
+		echo "ROOT5SYS environment variable is set properly."
 fi
 
-if [ -z "$ROOTINC" ]
+if [ -z "$ROOT5INC" ]
 then 
-		echo "ROOTINC environment variable is not set!  Setting..."
-		echo "#Set up ROOTINC" >> ~/.bashrc
-		echo "export ROOTINC=\$ROOTSYS/include" >> ~/.bashrc
+		echo "ROOT5INC environment variable is not set!  Setting..."
+		echo "#Set up ROOT5INC" >> ~/.bashrc
+		echo "export ROOT5INC=\$ROOT5SYS/include/root" >> ~/.bashrc
 else 
-		echo "ROOTINC environment variable is set properly."
+		echo "ROOT5INC environment variable is set properly."
 fi
 
-if [ -z "$ROOTLIB" ]
+if [ -z "$ROOT5LIB" ]
 then 
-		echo "ROOTLIB environment variable is not set!  Setting..."
-		echo "#Set up ROOTLIB" >> ~/.bashrc
-		echo "export ROOTLIB=\$ROOTSYS/lib" >> ~/.bashrc
+		echo "ROOT5LIB environment variable is not set!  Setting..."
+		echo "#Set up ROOT5LIB" >> ~/.bashrc
+		echo "export ROOT5LIB=\$ROOT5SYS/lib/root" >> ~/.bashrc
 else 
-		echo "ROOTLIB environment variable is set properly."
+		echo "ROOT5LIB environment variable is set properly."
 fi
 
 source ~/.bashrc

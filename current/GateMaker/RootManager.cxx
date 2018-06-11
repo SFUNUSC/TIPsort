@@ -3,31 +3,31 @@
 RootManager *RootManager::fRootManager = NULL;
 /*===================================*/
 RootManager *RootManager::instance() {
-	if(!fRootManager)
-		fRootManager = new RootManager();
-	return fRootManager;
+  if(!fRootManager)
+    fRootManager = new RootManager();
+  return fRootManager;
 }
 /*===================================*/
 RootManager::RootManager()	{
-	printf("RootManager created.\n");
-	InitRoot();
+  printf("RootManager created.\n");
+  InitRoot();
 }
 /*===================================*/
 RootManager::~RootManager()	{	}
 /*===================================*/
 void RootManager::InitRoot()	{
-	fRootFile = 0;
-	hist=new TH2D();
-	gStyle->SetOptStat(10);
-	gStyle->SetPalette(1);
-	gStyle->SetCanvasColor(19);
-	gStyle->SetFrameFillColor(10);
-	gROOT->ForceStyle();
-	ClearGates();
+  fRootFile = 0;
+  hist=new TH2D();
+  gStyle->SetOptStat(10);
+  gStyle->SetPalette(1);
+  gStyle->SetCanvasColor(19);
+  gStyle->SetFrameFillColor(10);
+  gROOT->ForceStyle();
+  ClearGates();
 }
 /*===================================*/
 TList *RootManager::OpenFile(char *filename)	{
-
+  
   RefreshGateList();
   MainWindow::GetMainWindow()->ClearHistogramTree();
   

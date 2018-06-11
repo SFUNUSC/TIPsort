@@ -58,14 +58,14 @@ int main(int argc, char *argv[])
   for(int i=0;i<S2K;i++)
     {
       sprintf(HistName1,"amplitude_%04d",i);
-      h[i]=new TH2D(HistName1,HistName1,512,0,S4K,512,0,S16K);
+      h[i]=new TH2D(HistName1,HistName1,512,0,S8K,512,0,S32K);
       h[i]->Reset();
     }
 
-  htig=new TH2D("TIGRESS Sum","TIGRESS Sum",512,0,S4K,512,0,S16K);
+  htig=new TH2D("TIGRESS Sum","TIGRESS Sum",512,0,S8K,512,0,S32K);
   htig->Reset();
 
-  hcsi=new TH2D("CsI Sum","CsI Sum",512,0,S4K,512,0,S16K);
+  hcsi=new TH2D("CsI Sum","CsI Sum",512,0,S8K,512,0,S32K);
   hcsi->Reset();
   
   sort_but_not_assemble(argv[1]);

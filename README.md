@@ -14,10 +14,10 @@ At the very least, ROOT (tested with v5.x) must be installed with environment va
 
 ```
 #ROOT configuration in .bashrc
-export ROOTSYS=/path/to/root
-export ROOTINC=$ROOTSYS/include
-export ROOTLIB=$ROOTSYS/lib
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ROOTLIB
+export ROOT5SYS=/path/to/root
+export ROOT5INC=$ROOT5SYS/include
+export ROOT5LIB=$ROOT5SYS/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ROOT5LIB
 ```
 
 Once this is done, run `make` from the `current` directory.  If everything works (you will see a bazillion compiler warnings), programs should be placed in the `bin` directory (which needs to exist along with subdirectories `midas` and `sfu`), which you can then add to your path:

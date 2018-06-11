@@ -1,11 +1,11 @@
 CC = g++
-CFLAGS   = -g -O3 -Wall -fPIC  $(shell $(ROOTSYS)/bin/root-config --cflags)
+CFLAGS   = -g -O3 -Wall -fPIC  $(shell $(ROOT5SYS)/bin/root-config --cflags)
 
-ROOT =  $(shell $(ROOTSYS)/bin/root-config --glibs)
+ROOT5 =  $(shell $(ROOT5SYS)/bin/root-config --glibs)
 BIN = $(TIPsort)/current/utils
 INC = -I$(TIPsort)/current/utils\
       -I$(TIPsort)/current/midas/decoder\
-      -I$(ROOTINC)
+      -I$(ROOT5INC)
 
 UTILS=read_master.o\
       lin_eq_solver.o\
@@ -26,7 +26,7 @@ get_sin_par.o:get_sin_par.c get_sin_par.h
 	$(CC) -c -o get_sin_par.o $(CFLAGS) get_sin_par.c -I$(INC)
 
 waveform_analyzer.o:waveform_analyzer.c waveform_analyzer.h
-	$(CC) -c -o waveform_analyzer.o $(CFLAGS) waveform_analyzer.c -I$(INC) $(ROOT)
+	$(CC) -c -o waveform_analyzer.o $(CFLAGS) waveform_analyzer.c -I$(INC) $(ROOT5)
 
 addspn:
 	$(CC) -o addspn $(CFLAGS) addspn.c -I$(INC)

@@ -1,7 +1,7 @@
 CC = g++
-CFLAGS   = -O -Wall -fPIC  $(shell $(ROOTSYS)/bin/root-config --cflags)
-ROOT =  $(shell $(ROOTSYS)/bin/root-config --glibs)
-INC = -I$(ROOTINC)\
+CFLAGS   = -O -Wall -fPIC  $(shell $(ROOT5SYS)/bin/root-config --cflags)
+ROOT5 =  $(shell $(ROOT5SYS)/bin/root-config --glibs)
+INC = -I$(ROOT5INC)\
       -I$(TIPsort)/current/SFU-format\
       -I$(TIPsort)/current/midas/decoder\
       -I$(TIPsort)/current/utils
@@ -12,7 +12,7 @@ SORT= sort.o\
       $(TIPsort)/current/SFU-format/SFU-format.a
 
 sort:$(SORT)
-	$(CC) -o $(BIN)/PINArray_TFitRaw $(SORT) $(CFLAGS) $(ROOT) -lm -ldl
+	$(CC) -o $(BIN)/PINArray_TFitRaw $(SORT) $(CFLAGS) $(ROOT5) -lm -ldl
 
 sort.o:sort.c sort.h
 	$(CC) -c -o sort.o sort.c $(CFLAGS) $(INC)

@@ -12,14 +12,25 @@ int encode(raw_event* data, FILE* encoded_output,int* enb)
       e[0]=EVENT_TAG;
       e[1]++;
       e[1]++;
+
       /* pack the header */
       memset(pck,0,sizeof(pck));
       pck[0]=HEADER_TAG;
       pck[1]=2+sizeof(rheader)/sizeof(int);
       memcpy(&pck[2],&data->h,sizeof(rheader));
-      
-      memcpy(&e[e[1]],&pck[0],pck[1]*sizeof(int));
-      e[1]+=pck[1];
+      if(((e[1]+pck[1])<BUFFSIZE)&&(pck[1]<BUFFSIZE)) /* buffer has space and not overflow         */
+	{                                             /* e[1] behavior undefined when pck overflow */
+	                                              /* added by ASC 20 Feb 2018.                 */ 
+	  memcpy(&e[e[1]],&pck[0],pck[1]*sizeof(int));
+	  e[1]+=pck[1];
+	}	  
+      else
+	{
+	  printf("Event dropped due to the length restriction:\n");
+	  printf("Event (header) length is %d BUFFSIZE is %d\n",e[1]+pck[1],BUFFSIZE);
+	  /* getc(stdin); */
+	  return 0;
+	}
       
       /* pack the RF */
       if((data->h.setupHP&RF_BIT)!=0)
@@ -28,8 +39,18 @@ int encode(raw_event* data, FILE* encoded_output,int* enb)
 	  pck[0]=RF_TAG;
 	  pck[1]=2+sizeof(RF)/sizeof(int);
 	  memcpy(&pck[2],&data->rf,sizeof(RF));
-	  memcpy(&e[e[1]],&pck[0],pck[1]*sizeof(int));
-	  e[1]+=pck[1];
+	  if(((e[1]+pck[1])<BUFFSIZE)&&(pck[1]<BUFFSIZE)) /* buffer has space and not overflow */
+	    {
+	      memcpy(&e[e[1]],&pck[0],pck[1]*sizeof(int));
+	      e[1]+=pck[1];
+	    }	  
+	  else
+	    {
+	      printf("Event dropped due to the length restriction:\n");
+	      printf("Event (RF) length is %d BUFFSIZE is %d\n",e[1]+pck[1],BUFFSIZE);
+	      /* getc(stdin); */
+	      return 0;
+	    }
 	}
       
       /* pack TIGRESS */
@@ -51,8 +72,18 @@ int encode(raw_event* data, FILE* encoded_output,int* enb)
 		  pck[1]=3+sizeof(theader)/sizeof(int);
 		  pck[2]=pos;
 		  memcpy(&pck[3],&data->tg.det[pos].h,sizeof(theader));
-		  memcpy(&e[e[1]],&pck[0],pck[1]*sizeof(int));
-		  e[1]+=pck[1];
+		  if(((e[1]+pck[1])<BUFFSIZE)&&(pck[1]<BUFFSIZE)) /* buffer has space and not overflow */
+		    {
+		      memcpy(&e[e[1]],&pck[0],pck[1]*sizeof(int));
+		      e[1]+=pck[1];
+		    }	  
+		  else
+		    {
+		      printf("Event dropped due to the length restriction:\n");
+		      printf("Event (TIGRESS CSS) length is %d BUFFSIZE is %d\n",e[1]+pck[1],BUFFSIZE);
+		      /* getc(stdin); */
+		      return 0;
+		    }
 		  /* pack Ge */
 		  if(data->tg.det[pos].h.Gefold>0)
 		    for(int col=0;col<NCOL;col++)
@@ -77,9 +108,18 @@ int encode(raw_event* data, FILE* encoded_output,int* enb)
      				  memcpy(&pck[pck[1]],&data->tg.det[pos].ge[col].t0[seg],sizeof(double));
       				  pck[1]+=sizeof(double)/sizeof(int);
 				}
-			  
-			  memcpy(&e[e[1]],&pck[0],pck[1]*sizeof(int));
-			  e[1]+=pck[1];		      
+			  if(((e[1]+pck[1])<BUFFSIZE)&&(pck[1]<BUFFSIZE)) /* buffer has space and not overflow */
+			    {
+			      memcpy(&e[e[1]],&pck[0],pck[1]*sizeof(int));
+			      e[1]+=pck[1];
+			    }	  
+			  else
+			    {
+			      printf("Event dropped due to the length restriction:\n");
+			      printf("Event (TIGRESS HPGe) length is %d BUFFSIZE is %d\n",e[1]+pck[1],BUFFSIZE);
+			      /* getc(stdin); */
+			      return 0;
+			    }
 			}
 		  /* pack BGO */
 		  if(data->tg.det[pos].h.BGOfold>0)
@@ -105,9 +145,18 @@ int encode(raw_event* data, FILE* encoded_output,int* enb)
     				  memcpy(&pck[pck[1]],&data->tg.det[pos].bgo[col].t0[sup],sizeof(double));		    
       				  pck[1]+=sizeof(double)/sizeof(int);
 				}
-			  
-			  memcpy(&e[e[1]],&pck[0],pck[1]*sizeof(int));
-			  e[1]+=pck[1];		      
+			  if(((e[1]+pck[1])<BUFFSIZE)&&(pck[1]<BUFFSIZE)) /* buffer has space and not overflow */
+			    {
+			      memcpy(&e[e[1]],&pck[0],pck[1]*sizeof(int));
+			      e[1]+=pck[1];
+			    }	  
+			  else
+			    {
+			      printf("Event dropped due to the length restriction:\n");
+			      printf("Event (TIGRESS BGO) length is %d BUFFSIZE is %d\n",e[1]+pck[1],BUFFSIZE);
+			      /* getc(stdin); */
+			      return 0;
+			    }
 			}
 		}	    	      
 	}
@@ -131,8 +180,18 @@ int encode(raw_event* data, FILE* encoded_output,int* enb)
       		  pck[1]=3+sizeof(theader)/sizeof(int);
       		  pck[2]=pos;
       		  memcpy(&pck[3],&data->gr.det[pos].h,sizeof(theader));
-      		  memcpy(&e[e[1]],&pck[0],pck[1]*sizeof(int));
-      		  e[1]+=pck[1];
+		  if(((e[1]+pck[1])<BUFFSIZE)&&(pck[1]<BUFFSIZE)) /* buffer has space and not overflow */
+		    {
+		      memcpy(&e[e[1]],&pck[0],pck[1]*sizeof(int));
+		      e[1]+=pck[1];
+		    }	  
+		  else
+		    {
+		      printf("Event dropped due to the length restriction:\n");
+		      printf("Event (GRIFFIN CSS) length is %d BUFFSIZE is %d\n",e[1]+pck[1],BUFFSIZE);
+		      /* getc(stdin); */
+		      return 0;
+		    }
       		  /* pack Ge */
       		  if(data->gr.det[pos].h.Gefold>0)
       		    for(int col=0;col<NCOL;col++)
@@ -157,12 +216,22 @@ int encode(raw_event* data, FILE* encoded_output,int* enb)
       				  memcpy(&pck[pck[1]],&data->gr.det[pos].ge[col].t0[seg],sizeof(double));
       				  pck[1]+=sizeof(double)/sizeof(int);
       				}
-			  
-      			  memcpy(&e[e[1]],&pck[0],pck[1]*sizeof(int));
-      			  e[1]+=pck[1];
+			  if(((e[1]+pck[1])<BUFFSIZE)&&(pck[1]<BUFFSIZE)) /* buffer has space and not overflow */
+			    {
+			      memcpy(&e[e[1]],&pck[0],pck[1]*sizeof(int));
+			      e[1]+=pck[1];
+			    }	  
+			  else
+			    {
+			      printf("Event dropped due to the length restriction:\n");
+			      printf("Event (GRIFFIN HPGe) length is %d BUFFSIZE is %d\n",e[1]+pck[1],BUFFSIZE);
+			      /* getc(stdin); */
+			      return 0;
+			    }
       			}
       		}
       	}
+
       /* pack PINARRAY */
       if((data->h.setupHP&PINArray_BIT)!=0)
 	{
@@ -188,10 +257,23 @@ int encode(raw_event* data, FILE* encoded_output,int* enb)
 		  memcpy(&pck[pck[1]],&data->pinarray.wfit[pos],sizeof(ShapePar));
 		  pck[1]+=sizeof(ShapePar)/sizeof(int);
 		}
+	  if(((e[1]+pck[1])<BUFFSIZE)&&(pck[1]<BUFFSIZE)) /* buffer has space and not overflow */
+	    {
+	      memcpy(&e[e[1]],&pck[0],pck[1]*sizeof(int));
+	      e[1]+=pck[1];
+	    }	  
+	  else
+	    {
+	      printf("Event dropped due to the length restriction:\n");
+	      printf("Event (PIN array) length is %d BUFFSIZE is %d\n",e[1]+pck[1],BUFFSIZE);
+	      /* getc(stdin); */
+	      return 0;
+	    }
 	  
-	  memcpy(&e[e[1]],&pck[0],pck[1]*sizeof(int));
-	  e[1]+=pck[1];    	
 	}
+      
+      /* printf("Pre-CsI e[1] %d pck[1] %d\n",e[1],pck[1]); */
+      /* int epre = e[1]; */
       /* pack CSIARRAY */
       if((data->h.setupHP&CsIArray_BIT)!=0)
 	{
@@ -204,8 +286,8 @@ int encode(raw_event* data, FILE* encoded_output,int* enb)
 	    for(int pos=1;pos<NCSI;pos++)
 	      if((data->csiarray.h.TSHP[pos/64]&(one<<pos%64))!=0)
 		{
-			//printf("Hit in pos: %i, packing csi array...\n",pos);
-			//getc(stdin);
+		  //printf("Hit in pos: %i, packing csi array...\n",pos);
+		  //getc(stdin);
 		  pck[pck[1]]=CHANNEL_TAG;
 		  pck[1]++;
 		  pck[pck[1]]=pos;
@@ -220,10 +302,22 @@ int encode(raw_event* data, FILE* encoded_output,int* enb)
 		  pck[1]+=sizeof(ShapePar)/sizeof(int);
 		  memcpy(&pck[pck[1]],&data->csiarray.t0[pos],sizeof(double));
 		  pck[1]+=sizeof(double)/sizeof(int);
-		}
-	 
-	  memcpy(&e[e[1]],&pck[0],pck[1]*sizeof(int));
-	  e[1]+=pck[1];    	
+		}	  
+	  if(((e[1]+pck[1])<BUFFSIZE)&&(pck[1]<BUFFSIZE)) /* buffer has space and not overflow */
+	    {
+	      /* printf("e[1] %d pck[1] %d BUFFSIZE %d\n",e[1],pck[1],BUFFSIZE); */
+	      memcpy(&e[e[1]],&pck[0],pck[1]*sizeof(int));
+	      e[1]+=pck[1];
+	    }	  
+	  else
+	    {
+	      /* printf("\n\nepre %d e[1] %d pck[1] %d\n",epre,e[1],pck[1]); */
+	      printf("Trigger %d:\n",data->h.trig_num);
+	      printf("Event dropped due to the length restriction:\n");
+	      printf("Event (CsI array) length is %d BUFFSIZE is %d\n\n",e[1]+pck[1],BUFFSIZE);
+	      /* getc(stdin); */
+	      return 0;
+	    }
 	}
       
       /* pack BDPIN */
@@ -243,11 +337,19 @@ int encode(raw_event* data, FILE* encoded_output,int* enb)
 		memcpy(&pck[pck[1]],&data->pinbd.pin,sizeof(channel));
 		pck[1]+=sizeof(channel)/sizeof(int);
 	      }
-	  memcpy(&e[e[1]],&pck[0],pck[1]*sizeof(int));
-    e[1]+=pck[1];
-	  
-	}
-      
+	  if(((e[1]+pck[1])<BUFFSIZE)&&(pck[1]<BUFFSIZE)) /* buffer has space and not overflow */
+	    {
+	      memcpy(&e[e[1]],&pck[0],pck[1]*sizeof(int));
+	      e[1]+=pck[1];
+	    }	  
+	  else
+	    {
+	      printf("Event dropped due to the length restriction:\n");
+	      printf("Event (BD PIN) length is %d BUFFSIZE is %d\n",e[1]+pck[1],BUFFSIZE);
+	      /* getc(stdin); */
+	      return 0;
+	    }
+	}      
       
       /* pack S3 sectors*/
       if((data->h.setupHP&S3SEC_BIT)!=0)
@@ -268,9 +370,18 @@ int encode(raw_event* data, FILE* encoded_output,int* enb)
 		  memcpy(&pck[pck[1]],&data->s3.sec[pos],sizeof(channel));
 		  pck[1]+=sizeof(channel)/sizeof(int);
 		}
-	  
-	  memcpy(&e[e[1]],&pck[0],pck[1]*sizeof(int));
-	  e[1]+=pck[1];    	
+	  if(((e[1]+pck[1])<BUFFSIZE)&&(pck[1]<BUFFSIZE)) /* buffer has space and not overflow */
+	    {
+	      memcpy(&e[e[1]],&pck[0],pck[1]*sizeof(int));
+	      e[1]+=pck[1];
+	    }	  
+	  else
+	    {
+	      printf("Event dropped due to the length restriction:\n");
+	      printf("Event (S3 sector) length is %d BUFFSIZE is %d\n",e[1]+pck[1],BUFFSIZE);
+	      /* getc(stdin); */
+	      return 0;
+	    }
 	}
       
       /* pack S3 rings*/
@@ -292,34 +403,45 @@ int encode(raw_event* data, FILE* encoded_output,int* enb)
 		  memcpy(&pck[pck[1]],&data->s3.ring[pos],sizeof(channel));
 		  pck[1]+=sizeof(channel)/sizeof(int);
 		}
-	  
-	  memcpy(&e[e[1]],&pck[0],pck[1]*sizeof(int));
-	  e[1]+=pck[1];    	
+	  if(((e[1]+pck[1])<BUFFSIZE)&&(pck[1]<BUFFSIZE)) /* buffer has space and not overflow */
+	    {
+	      memcpy(&e[e[1]],&pck[0],pck[1]*sizeof(int));
+	      e[1]+=pck[1];
+	    }	  
+	  else
+	    {
+	      printf("Event dropped due to the length restriction:\n");
+	      printf("Event (S3 ring) length is %d BUFFSIZE is %d\n",e[1]+pck[1],BUFFSIZE);
+	      /* getc(stdin); */
+	      return 0;
+	    }
 	}
       
       if(e[1]<BUFFSIZE-2)
-				{
-					if((enb[1]+e[1])<BUFFSIZE) /* buffer has space */
-						{
-							memcpy(&enb[enb[1]],&e[0],e[1]*sizeof(int));
-							enb[1]+=e[1];
-						}
-					else /* no space, save current and start a new buffer */
-						{
-							fwrite(enb,sizeof(int),BUFFSIZE,encoded_output);
-							memset(enb,0,BUFFSIZE*sizeof(int));
-							enb[0]=BUFFER_TAG;
-							enb[1]++;
-							enb[1]++;
-							memcpy(&enb[enb[1]],&e[0],e[1]*sizeof(int));
-							enb[1]+=e[1];
-						}
-				}
+	{
+	  if((enb[1]+e[1])<BUFFSIZE) /* buffer has space */
+	    {
+	      memcpy(&enb[enb[1]],&e[0],e[1]*sizeof(int));
+	      enb[1]+=e[1];
+	    }
+	  else /* no space, save current and start a new buffer */
+	    {
+	      fwrite(enb,sizeof(int),BUFFSIZE,encoded_output);
+	      memset(enb,0,BUFFSIZE*sizeof(int));
+	      enb[0]=BUFFER_TAG;
+	      enb[1]++;
+	      enb[1]++;
+	      memcpy(&enb[enb[1]],&e[0],e[1]*sizeof(int));
+	      enb[1]+=e[1];
+	    }
+	}
       else
-				{
-					printf("Event dropped due to the length restriction\n");
-					printf("Event length is 0x%8.8x\n",e[1]);
-				}
+	{
+	  printf("Event dropped due to the length restriction\n");
+	  /* printf("Event length is 0x%8.8x\n",e[1]); */
+	  printf("Event length is %d BUFFSIZE is %d\n",e[1],BUFFSIZE);
+	  return 0;
+	}
     }
   return 0;
 }

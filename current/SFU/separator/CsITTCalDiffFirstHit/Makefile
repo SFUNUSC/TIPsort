@@ -1,7 +1,7 @@
 CC = g++
-CFLAGS   = -O -g -Wall -fPIC  $(shell $(ROOTSYS)/bin/root-config --cflags)
-ROOT =  $(shell $(ROOTSYS)/bin/root-config --glibs)
-INC = -I$(ROOTINC)\
+CFLAGS   = -O -g -Wall -fPIC  $(shell $(ROOT5SYS)/bin/root-config --cflags)
+ROOT5 =  $(shell $(ROOT5SYS)/bin/root-config --glibs)
+INC = -I$(ROOT5INC)\
       -I$(TIPsort)/current/SFU-format\
       -I$(TIPsort)/current/midas/decoder\
       -I$(TIPsort)/current/calibrator\
@@ -15,7 +15,7 @@ SORT= sort.o\
       $(TIPsort)/current/calibrator/calibrator.a	
 
 sort:$(SORT)
-	$(CC) -o $(BIN)/separate_CsIArray_TTCalDiffFirstHit $(SORT) $(CFLAGS) $(ROOT) -lm -ldl
+	$(CC) -o $(BIN)/separate_CsIArray_TTCalDiffFirstHit $(SORT) $(CFLAGS) $(ROOT5) -lm -ldl
 
 sort.o:sort.c sort.h
 	$(CC) -c -o sort.o sort.c $(CFLAGS) $(INC)

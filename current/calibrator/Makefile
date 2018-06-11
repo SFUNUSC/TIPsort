@@ -1,12 +1,12 @@
 CC = g++
-CFLAGS   = -g -O3 -Wall -fPIC  $(shell $(ROOTSYS)/bin/root-config --cflags)
+CFLAGS   = -g -O3 -Wall -fPIC  $(shell $(ROOT5SYS)/bin/root-config --cflags)
 
-ROOT =  $(shell $(ROOTSYS)/bin/root-config --glibs)
+ROOT5 =  $(shell $(ROOT5SYS)/bin/root-config --glibs)
 BIN = $(TIPsort)/current/calibrator
 INC = -I$(TIPsort)/current/SFU-format\
       -I$(TIPsort)/current/midas/decoder\
      -I$(TIPsort)/current/utils\
-      -I$(ROOTINC)
+      -I$(ROOT5INC)
 
 CALIBRATOR=SFU-cal.o\
 	   SFU-cal-S3.o\

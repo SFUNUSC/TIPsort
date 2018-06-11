@@ -16,11 +16,12 @@
 #define BADCHISQ_MAT         -1024-5 //matrix for fit is not invertable
 #define BADCHISQ_AMPL        -1024-6 //component amplitude < 0
 #define BADCHISQ_T0          -1024-7 //finding t0 fails for t0 < 0
-#define BADCHISQ_FAIL_DIRECT -1024-8 //fails direct hit
-#define BAD_EXCLUSION_ZONE   -1024-9 //fails finding exclusion zone
-#define BAD_MAX              -1024-10
-#define BAD_BASELINE_RANGE   -1024-11
-#define PILEUP_DETECTED      -1024-12 //pileup detected in waveform
+#define BADCHISQ_T0EXCL      -1024-8 //t0 outside exclusion zone
+#define BADCHISQ_FAIL_DIRECT -1024-9 //generic fit failure
+#define BAD_EXCLUSION_ZONE   -1024-10 //fails finding exclusion zone
+#define BAD_MAX              -1024-11
+#define BAD_BASELINE_RANGE   -1024-12
+#define PILEUP_DETECTED      -1024-13 //pileup detected in waveform
 
 #define EPS        0.001
 #define MAX_VALUE 16380 //max waveform value from ADC

@@ -15,11 +15,15 @@
 #include<TGFrame.h>
 #include<TGButton.h>
 #include<TGMsgBox.h>
-#include<GMMsgBox.h>
-#include<GMTextEntry.h>
+//#include<GMMsgBox.h>
+//#include<GMTextEntry.h>
 #include <TStyle.h>
 
 #include "MainWindow.h"
+#include "GMMsgBox.h"
+#include "GMTextEntry.h"
+
+
 using namespace std;
 
 class RootManager	{

@@ -139,6 +139,10 @@ all:
 	(cd  EECalABSuppSumDSReconstructedSum r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: EECalABSuppSumDSReconstructedSum.
 	
+	echo Making EECalABSuppSumDSReconstructedSumPID.
+	(cd  EECalABSuppSumDSReconstructedSumPID r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: EECalABSuppSumDSReconstructedSumPID.
+	
 	echo Making FusEvap_ResE.
 	(cd  FusEvap_ResE r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: FusEvap_ResE.
@@ -204,6 +208,7 @@ clean:
 	(cd ECalABSuppSegDSReconstructedSum  && make -is clean && cd ..)
 	(cd ECosThetaCalABSuppSum_Sheared  && make -is clean && cd ..)
 	(cd EECalABSuppSumDSReconstructedSum  && make -is clean && cd ..)
+	(cd EECalABSuppSumDSReconstructedSumPID  && make -is clean && cd ..)
 	(cd FusEvap_ResE  && make -is clean && cd ..)
 	(cd ECalABGroup              && make -is clean && cd ..)
 	(cd ECalABGroupSum              && make -is clean && cd ..)

@@ -99,6 +99,7 @@ int main(int argc, char *argv[])
     {
       printf("Tigress_ECalABSuppRingSumRingDopplerCorrected master_file_name supLow supHigh shift_file\n");
       printf("Program sorts ECalABSuppRingSumRingDopplerCorrected histograms for TIGRESS.\n");
+      printf("The shift file specifies energy correction factors for each ring (one correction factor per line, starting with ring 0).\n");
       exit(-1);
     }
   
@@ -180,4 +181,6 @@ int main(int argc, char *argv[])
     }
   fwrite(hist,2*NRING*S32K*sizeof(int),1,output);
   fclose(output);
+
+  printf("Spectrum written to: Ring_ECalABSuppSum.mca\n");
 }

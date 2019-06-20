@@ -127,9 +127,17 @@ all:
 	(cd  ECalABSuppSumDSEGated r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: ECalABSuppSumDSEGated.
 	
+	echo Making ECalABSuppSumDSEGatedPID.
+	(cd  ECalABSuppSumDSEGatedPID r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: ECalABSuppSumDSEGatedPID.
+	
 	echo Making DSECalABSuppSumEGated.
 	(cd  DSECalABSuppSumEGated r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: DSECalABSuppSumEGated.
+	
+	echo Making DSECalABSuppSumEGatedPID.
+	(cd  DSECalABSuppSumEGatedPID r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: DSECalABSuppSumEGatedPID.
 	
 	echo Making ECalABSuppSegDSReconstructedSum.
 	(cd  ECalABSuppSegDSReconstructedSum r && make -is clean && make && make -is clean && cd ..)
@@ -209,7 +217,9 @@ clean:
 	(cd ECalABSuppDSReconstructedSumEGated  && make -is clean && cd ..)
 	(cd ECalABSuppDSReconstructedSumEGatedPID  && make -is clean && cd ..)
 	(cd ECalABSuppSumDSEGated  && make -is clean && cd ..)
+	(cd ECalABSuppSumDSEGatedPID  && make -is clean && cd ..)
 	(cd DSECalABSuppSumEGated  && make -is clean && cd ..)
+	(cd DSECalABSuppSumEGatedPID  && make -is clean && cd ..)
 	(cd ECalABSuppSegDSReconstructedSum  && make -is clean && cd ..)
 	(cd ECosThetaCalABSuppSum_Sheared  && make -is clean && cd ..)
 	(cd EECalABSuppSumDSReconstructedSum  && make -is clean && cd ..)

@@ -12,7 +12,7 @@ int analyze_data(raw_event *data)
   double s,f,r,e;
   int type;
   
-  double* energy;
+  double *energy, *energyds;
   int* ring;
   int i=0;//counter for number of hits processed
   int j=0;
@@ -27,6 +27,7 @@ int analyze_data(raw_event *data)
   calibrate_CSIARRAY(data,&cal_par->csiarray,&cev->csiarray);
   
   energy=(double*)calloc(cev->tg.h.FA,sizeof(double));
+  energyds=(double*)calloc(cev->tg.h.FA,sizeof(double));
   ring=(int*)calloc(cev->tg.h.FA,sizeof(int));
   
   
@@ -69,7 +70,7 @@ int analyze_data(raw_event *data)
               }
             else
               {
-                printf("Unidentified particle! e = %f, r = %f\n",e,r);
+                printf("Unidentified particle! csi=%i, e = %f, r = %f\n",csi,e,r);
                 printf("gateFlags = %i, %i\n",pGateFlag[csi],aGateFlag[csi]);
                 part_type[csi] = 0;
                 getc(stdin);
@@ -208,9 +209,9 @@ int analyze_data(raw_event *data)
                     	}
                     
                     //printf("spectrum: %i, ch: %i\n",0+suppFlag,(int)(eAddBack/ds));
-                    eAddBack=eAddBack/ds;
                     
-                    energy[i]=eAddBack;
+                    energy[i]=eAddBack; //unshifted energy
+                    energyds[i]=eAddBack/ds; //shifted energy
                     ring[i] = cev->tg.det[pos].ge[colAddBack].ring+NRING*suppFlag;
                     
                     if(eAddBack>=0 && eAddBack<S32K)
@@ -233,8 +234,8 @@ int analyze_data(raw_event *data)
     {
       //look for a gamma that falls into the gate
       if((energy[i]>=0)&&(energy[i]<S32K))
-        if(energy[i]>=gateELow/cal_par->tg.contr_e)
-	        if(energy[i]<=gateEHigh/cal_par->tg.contr_e)
+        if(energyds[i]>=gateELow/cal_par->tg.contr_e)
+	        if(energyds[i]<=gateEHigh/cal_par->tg.contr_e)
 	          if(ring[i]>0)
 	          	if(ring[i]<NRING)
 		            {
@@ -276,8 +277,8 @@ int main(int argc, char *argv[])
   
   if((argc!=7)&&(argc!=8))
     {
-      printf("TigressCsI_ECalABSuppDSReconstructedSumEGated master_file_name supLow supHigh useCharge gateELow gateEHigh fudge_factor\n");
-      printf("Program attempts to generate energy gated gamma ray spectra with all events Doppler unshifted.  Energy gate values (gateEHigh, gateELow) should be specified in keV.\n");
+      printf("TigressCsIArray_ECalABSuppSumDSEGatedPID master_file_name supLow supHigh useCharge gateELow gateEHigh fudge_factor\n");
+      printf("Program attempts to generate energy gated gamma ray spectra where the energy gate is applied to Doppler unshifted data, but the gated spectrum written to disk is NOT Doppler unshifted.  Energy gate values (gateEHigh, gateELow) should be specified in keV.\n");
       printf("Relies on beam momentum and velocity values specified in calibration parameters (deltaU.par).  Doesn't work for transitions with lifetimes long enough for the residual nucleus to slow.\n");
       printf("fudge_factor is a multiplicative factor which will be applied to the computed value of the residual nucleus momentum, in order to account for slowing of the beam/compound in the reaction target.  If left empty, a value of 1.0 will be used.\n");
       printf("\nuseCharge should be set to 1 if charge is to be used instead of fitted amplitude, otherwise set to 0.\n");
@@ -434,7 +435,7 @@ int main(int argc, char *argv[])
   
   printf("\n");
   
-  sprintf(FileName,"DS_ECalABSuppReconstructed_c%.0f_w%.0fgated.mca",avgGateE,gateWidth);
+  sprintf(FileName,"ECalABSuppReconstructed_c%.0f_w%.0fDSEgated.mca",avgGateE,gateWidth);
   if((output=fopen(FileName,"w"))==NULL)
     {
       printf("ERROR!!! I cannot open the mca file!\n");
@@ -444,7 +445,7 @@ int main(int argc, char *argv[])
   fclose(output);
   printf("Gated spectrum saved to file: %s\n",FileName);
   
-  sprintf(FileName,"DS_ECalABSuppReconstructed_c%.0f_w%.0fgate.mca",avgGateE,gateWidth);
+  sprintf(FileName,"ECalABSuppReconstructed_c%.0f_w%.0fDSEgate.mca",avgGateE,gateWidth);
   if((output=fopen(FileName,"w"))==NULL)
     {
       printf("ERROR!!! I cannot open the mca file!\n");
@@ -454,7 +455,7 @@ int main(int argc, char *argv[])
   fclose(output);
   printf("Gate spectrum saved to file: %s\n",FileName);
   
-  sprintf(FileName,"DS_ECalABSuppReconstructed_c%.0f_w%.0fproj.mca",avgGateE,gateWidth);
+  sprintf(FileName,"ECalABSuppReconstructed_c%.0f_w%.0fDSEproj.mca",avgGateE,gateWidth);
   if((output=fopen(FileName,"w"))==NULL)
     {
       printf("ERROR!!! I cannot open the mca file!\n");

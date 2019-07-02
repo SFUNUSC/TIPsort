@@ -18,7 +18,6 @@ int pGateFlag[NCSI] = { 0 };
 int useCharge;
 
 int  hist[NCSI*2][S32K];
-int pos;
 
 calibration_parameters* cal_par;
 int part_type[NCSI]; //type of evaporated particles detected by CsI (0=unknown,1=proton,2=alpha)

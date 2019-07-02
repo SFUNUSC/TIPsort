@@ -15,6 +15,10 @@ all:
 	(cd ERawSum r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: ERAWSUM.
 	
+	echo Making ERawSum_PIDER.
+	(cd ERawSum_PIDER r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: ERAWSUM_PIDER.
+	
 	echo Making ECal.
 	(cd ECal r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: ECAL.
@@ -71,6 +75,7 @@ clean:
 	(cd AngleBetweenHits 				&& make -is clean && cd ..)
 	(cd ERaw 				&& make -is clean && cd ..)
 	(cd ERawSum 				&& make -is clean && cd ..)
+	(cd ERawSum_PIDER 				&& make -is clean && cd ..)
 	(cd ECal 				&& make -is clean && cd ..)
 	(cd ECalSum 				&& make -is clean && cd ..)
 	(cd ECalRing 				&& make -is clean && cd ..)

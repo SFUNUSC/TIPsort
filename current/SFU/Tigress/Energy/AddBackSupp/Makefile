@@ -42,10 +42,6 @@ all:
 	echo Making Tigress_ECalABSuppRingEGated.
 	(cd ECalABSuppRingEGated r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: Tigress_ECalABSuppRingEGated.
-	
-	echo Making Tigress_ECalABSuppRingSumEGated.
-	(cd ECalABSuppRingSumEGated r && make -is clean && make && make -is clean && cd ..)
-	echo DONE: Tigress_ECalABSuppRingSumEGated.
 		
 	echo Making Tigress_ECalABSuppRingSumEGatedFold.
 	(cd ECalABSuppRingSumEGatedFold r && make -is clean && make && make -is clean && cd ..)
@@ -103,7 +99,6 @@ clean:
 	(cd ECalABSuppRingSumRingDopplerCorrected     && make -is clean && cd ..)
 	(cd ECalABSuppRingSumRingDopplerCorrectedEGated     && make -is clean && cd ..)
 	(cd ECalABSuppRingEGated       && make -is clean && cd ..)
-	(cd ECalABSuppRingSumEGated       && make -is clean && cd ..)
 	(cd ECalABSuppRingSumEGatedFold     && make -is clean && cd ..)
 	(cd ECalABSuppRingSumEGatedByRing   && make -is clean && cd ..)
 	(cd ECalABSuppSumEGated       && make -is clean && cd ..)

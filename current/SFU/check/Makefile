@@ -66,6 +66,10 @@ all:
 	echo Making check_CsIRingHP2D.
 	(cd CsIRingHP2D r && make -is clean && make && make -is clean && cd ..)
 	echo DONE: CHECK_CSIRINGHP2D.
+	
+	echo Making check_CsIRingHP2D_PID.
+	(cd CsIRingHP2D_PID r && make -is clean && make && make -is clean && cd ..)
+	echo DONE: CHECK_CSIRINGHP2D_PID.
 
 clean:
 	(cd EventTimeDifference && make -is clean && cd ..)
@@ -84,5 +88,6 @@ clean:
 	(cd TimeStampDeltaFractionPerDetector && make -is clean && cd ..)
 	(cd TimeGatedTrigger    && make -is clean && cd ..)
 	(cd CsIRingHP2D         && make -is clean && cd ..)
+	(cd CsIRingHP2D_PID         && make -is clean && cd ..)
 
 	rm -f *~

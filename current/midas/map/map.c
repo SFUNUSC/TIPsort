@@ -856,16 +856,16 @@ void map_event(Tig10_event *ptr, short* waveform, raw_event *data,tmap* map,int 
 						{
 							take=0;
 							if(ptr->charge_flag==1)
-							if(ptr->charge!=0)
-								{
-									data->csiarray.csi[pos].charge=
-										(ptr->charge/(map->csiarray_css_kpar/map->csiarray_css_disp));
-									//printf("charge for CsI array pos %d: %f\n",pos,data->csiarray.csi[pos].charge);
-									//data->csiarray.csi[pos].charge=ptr->charge;
-									data->csiarray.h.Efold++;
-									data->csiarray.h.EHP[pos/64]|=(one<<pos%64);
-									take|=1;
-								}
+								if(ptr->charge!=0)
+									{
+										data->csiarray.csi[pos].charge=
+											(ptr->charge/(map->csiarray_css_kpar/map->csiarray_css_disp));
+										//printf("charge for CsI array pos %d: %f\n",pos,data->csiarray.csi[pos].charge);
+										//data->csiarray.csi[pos].charge=ptr->charge;
+										data->csiarray.h.Efold++;
+										data->csiarray.h.EHP[pos/64]|=(one<<pos%64);
+										take|=1;
+									}
 							if(ptr->cfd_flag==1)
 								if(ptr->cfd!=0)
 									{

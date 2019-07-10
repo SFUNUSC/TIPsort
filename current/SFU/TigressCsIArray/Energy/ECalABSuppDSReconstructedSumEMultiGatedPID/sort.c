@@ -14,8 +14,10 @@ int analyze_data(raw_event *data)
   
   double* energy;
   int* ring;
+  int* inGate;
   int i=0;//counter for number of hits processed
   int j=0;
+  int k=0;
   
   cev=(cal_event*)malloc(sizeof(cal_event));
   memset(cev,0,sizeof(cal_event));
@@ -28,7 +30,7 @@ int analyze_data(raw_event *data)
   
   energy=(double*)calloc(cev->tg.h.FA,sizeof(double));
   ring=(int*)calloc(cev->tg.h.FA,sizeof(int));
-  
+  inGate=(int*)calloc(cev->tg.h.FA,sizeof(int));
   
   //get beam momentum value from calibration (energy specified in parameter file)
   beam_p[2]=sqrt( ((cal_par->csiarray.Ebeam + cal_par->csiarray.mproj)*(cal_par->csiarray.Ebeam + cal_par->csiarray.mproj)) - (cal_par->csiarray.mproj*cal_par->csiarray.mproj) ); //momentum of incoming beam, relativistic, from KE = mc^2 + m0c^2, mc^2 = sqrt(p^2c^2 + m0^2c^4)
@@ -215,6 +217,9 @@ int analyze_data(raw_event *data)
                     
                     if(eAddBack>=0 && eAddBack<S32K)
                     	projhist[ring[i]][(int)(energy[i])]++;
+
+                    //reset gate flag
+                    inGate[i] = -1;
                     
                     i++;//increment event counter
                     //h->Fill(ds);
@@ -229,33 +234,68 @@ int analyze_data(raw_event *data)
     	printf("Addback fold = %i, number of events = %i\n",cev->tg.h.FA,i);
     }*/
   
+  //set gate flags
   for(i=0;i<cev->tg.h.FA;i++)
     {
       //look for a gamma that falls into the gate
-      if((energy[i]>=0)&&(energy[i]<S32K))
-        if(energy[i]>=gateELow/cal_par->tg.contr_e)
-	        if(energy[i]<=gateEHigh/cal_par->tg.contr_e)
-	          if(ring[i]>0)
-	          	if(ring[i]<NRING)
-		            {
-		              //add all gammas in the event that aren't the gamma that fell into the gate
-		              for(j=0;j<cev->tg.h.FA;j++)
-		              	{
-				              if(j!=i)
-				                if(energy[j]>=0)
-				                  if(energy[j]<S32K)
-				                    if(ring[j]>0)
-				                      if(ring[j]<NRING)
-				                        hist[ring[j]][(int)(energy[j])]++;
-		                }
-		              gatehist[ring[i]][(int)(energy[i])]++;
-		              break;//don't double count
-		            }
+      if(energy[i]>=0)
+	      if(energy[i]<S32K)
+          for(k=0;k<numGates;k++)
+            if(energy[i]>=gateELow[k]/cal_par->tg.contr_e)
+              if(energy[i]<=gateEHigh[k]/cal_par->tg.contr_e){
+                inGate[i] = k; //flag gamma as in a gate
+              }
+      if(inGate[i]>=0)
+        gatehist[ring[i]][(int)(energy[i])]++;
     }
+
+  //find number of unique gates gammas are in
+  int numUniqueGates = 0;
+  for(k=0;k<numGates;k++)
+    {
+      for(i=0;i<cev->tg.h.FA;i++)
+        if(inGate[i] == k){
+          numUniqueGates++;
+          break;
+        }
+    }
+
+  //evaluate gate
+  if(andor == 1){
+    //AND mode
+    if(numUniqueGates == numGates){
+      //add all gammas in the event that aren't the gammas that fell into the gates
+      for(j=0;j<cev->tg.h.FA;j++)
+        {
+          if(inGate[j] < 0) //not in a gate
+            if(energy[j]>=0)
+              if(energy[j]<S32K)
+                if(ring[j]>0)
+                  if(ring[j]<NRING)
+                    hist[ring[j]][(int)(energy[j])]++;
+        }
+    }
+
+  }else{
+    //OR mode
+    if(numUniqueGates > 0){
+      //add all gammas in the event that aren't the gammas that fell into the gates
+      for(j=0;j<cev->tg.h.FA;j++)
+        {
+          if(inGate[j] < 0) //not in a gate
+            if(energy[j]>=0)
+              if(energy[j]<S32K)
+                if(ring[j]>0)
+                  if(ring[j]<NRING)
+                    hist[ring[j]][(int)(energy[j])]++;
+        }
+    }
+  }
   
   free(cev);
   free(energy);  
   free(ring);
+  free(inGate);
   return SEPARATOR_DISCARD;
 }
 /*=========================================================================*/
@@ -270,14 +310,15 @@ int main(int argc, char *argv[])
   TFile* gateFile;
   input_names_type* name;
   char DataFile[132],FileName[132];
-  char aGateName[132],pGateName[132],det[132];
+  char aGateName[132],pGateName[132],det[132],inp[256];
   double avgGateE;
   double gateWidth;
+  double val;
   
-  if((argc!=7)&&(argc!=8))
+  if((argc!=6)&&(argc!=7))
     {
-      printf("TigressCsI_ECalABSuppDSReconstructedSumEGatedPID master_file_name supLow supHigh useCharge gateELow gateEHigh fudge_factor\n");
-      printf("Program attempts to generate energy gated gamma ray spectra with all events Doppler unshifted.  Energy gate values (gateEHigh, gateELow) should be specified in keV.\n");
+      printf("TigressCsI_ECalABSuppDSReconstructedSumEMultiGatedPID master_file_name supLow supHigh useCharge AND/OR fudge_factor\n");
+      printf("Program attempts to generate energy gated gamma ray spectra with all events Doppler unshifted.  AND/OR is set to 0 for OR mode, or 1 for AND mode.\n");
       printf("Relies on beam momentum and velocity values specified in calibration parameters (deltaU.par).  Doesn't work for transitions with lifetimes long enough for the residual nucleus to slow.\n");
       printf("fudge_factor is a multiplicative factor which will be applied to the computed value of the residual nucleus momentum, in order to account for slowing of the beam/compound in the reaction target.  If left empty, a value of 1.0 will be used.\n");
       printf("\nuseCharge should be set to 1 if charge is to be used instead of fitted amplitude, otherwise set to 0.\n");
@@ -304,22 +345,45 @@ int main(int argc, char *argv[])
   supLow = atof(argv[2]);
   supHigh = atof(argv[3]);
   useCharge = atoi(argv[4]);
-  gateELow = atof(argv[5]);
-  gateEHigh = atof(argv[6]);
-  if(argc==8)
-  	fudgeFactor = atof(argv[7]);
+  if(argc==7)
+  	fudgeFactor = atof(argv[6]);
   else
   	fudgeFactor = 1.0;
   
-  
-  if(gateELow>gateEHigh)
-  	{
-  		printf("ERROR: cannot have lower gate bound larger than upper gate bound.\n");
-  		exit(-1);
-  	}
+  if(atoi(argv[5]) == 1){
+    andor = 1;
+    printf("Set gates to AND mode.\n");
+  }else{
+    andor = 0;
+    printf("Set gates to OR mode.\n");
+  }
+
+  numGates = 0;
+  while(numGates < MAXNUMGATES){
+    printf("Enter a gate range in keV (2 numbers separated by a space, -1 if done):\n");
+    scanf("%[^\n]%*c",inp); //get string with spaces, until newline
+    //printf("input: %s\n",inp);
+    if((sscanf(inp,"%lf %lf",&gateELow[numGates],&gateEHigh[numGates])) == 2){
+      avgGateE=(gateELow[numGates]+gateEHigh[numGates])/2.;
+      printf("Gate between %f and %f keV added (average %f keV).\n",gateELow[numGates],gateEHigh[numGates],avgGateE);
+      if(gateELow[numGates]>gateEHigh[numGates]){
+        printf("ERROR: cannot have lower gate bound larger than upper gate bound.  Try again:\n");
+      }else{
+        numGates++;
+      }
+    }else if((sscanf(inp,"%lf",&val)) == 1){
+      if(val < 0){
+        break;
+      }
+    }else{
+      printf("Didn't understand input.  Try again:\n");
+    }
+  }
   	
-  avgGateE=(gateELow+gateEHigh)/2.;
-  gateWidth=gateEHigh-gateELow;
+  printf("Finished adding %i gate(s).\n", numGates);  
+  	
+  avgGateE=(gateELow[0]+gateEHigh[0])/2.;
+  gateWidth=gateEHigh[0]-gateELow[0];
   
   if(name->flag.cluster_file==1)
     {
@@ -420,7 +484,6 @@ int main(int argc, char *argv[])
   	printf("  WARNING: using fudge factor greater than 1.  This implies that the beam/compound sppeds up in the target, which should not be possible.\n");
   else
   	printf("  Using fudge factor of %f\n",fudgeFactor);
-  printf("  Using gamma energy gate between %f and %f keV.\n",gateELow,gateEHigh);
   printf("\n");
   
   while(fscanf(cluster,"%s",DataFile) != EOF)
@@ -434,7 +497,7 @@ int main(int argc, char *argv[])
   
   printf("\n");
   
-  sprintf(FileName,"DS_ECalABSuppReconstructed_c%.0f_w%.0fgated.mca",avgGateE,gateWidth);
+  sprintf(FileName,"DS_ECalABSuppReconstructed_c%.0f_w%.0fANDORgated.mca",avgGateE,gateWidth);
   if((output=fopen(FileName,"w"))==NULL)
     {
       printf("ERROR!!! I cannot open the mca file!\n");
@@ -444,7 +507,7 @@ int main(int argc, char *argv[])
   fclose(output);
   printf("Gated spectrum saved to file: %s\n",FileName);
   
-  sprintf(FileName,"DS_ECalABSuppReconstructed_c%.0f_w%.0fgate.mca",avgGateE,gateWidth);
+  sprintf(FileName,"DS_ECalABSuppReconstructed_c%.0f_w%.0fANDORgate.mca",avgGateE,gateWidth);
   if((output=fopen(FileName,"w"))==NULL)
     {
       printf("ERROR!!! I cannot open the mca file!\n");
@@ -454,7 +517,7 @@ int main(int argc, char *argv[])
   fclose(output);
   printf("Gate spectrum saved to file: %s\n",FileName);
   
-  sprintf(FileName,"DS_ECalABSuppReconstructed_c%.0f_w%.0fproj.mca",avgGateE,gateWidth);
+  sprintf(FileName,"DS_ECalABSuppReconstructed_c%.0f_w%.0fANDORproj.mca",avgGateE,gateWidth);
   if((output=fopen(FileName,"w"))==NULL)
     {
       printf("ERROR!!! I cannot open the mca file!\n");
